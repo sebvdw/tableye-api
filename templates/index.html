@@ -221,7 +221,7 @@
                     $scope.loginUser = {};
                     $scope.post = { image: "default.png" };
                     $scope.jwt = "";
-                    $scope.userId = "";
+                    $scope.user_id = "";
                     $scope.isLoggedIn = false;
                     $scope.posts = [];
                     $scope.currentPage = 1;
@@ -244,53 +244,56 @@
                             $scope.error = "Passwords do not match";
                             return;
                         }
-                        $http
-                            .post(
-                                "http://localhost:8000/api/auth/register",
-                                $scope.user,
-                            )
-                            .then(
-                                function (response) {
-                                    $scope.jwt = response.data.token;
-                                    $scope.userId = response.data.userId;
-                                    $scope.isLoggedIn = true;
-                                    $scope.currentView = "createPost";
-                                    $scope.success = "Registration successful!";
-                                    $scope.error = null;
-                                },
-                                function (error) {
-                                    $scope.error =
-                                        "Registration failed: " + error.data;
-                                },
-                            );
+                        $http.post("/api/auth/register", $scope.user).then(
+                            function (response) {
+                                $scope.jwt = response.data.token;
+                                $scope.user_id = response.data.user_id;
+                                $scope.isLoggedIn = true;
+                                $scope.currentView = "login";
+                                $scope.success = "Registration successful!";
+                                $scope.error = null;
+                            },
+                            function (error) {
+                                $scope.error =
+                                    "Registration failed: " + error.data;
+                            },
+                        );
                     };
 
                     $scope.login = function () {
-                        $http
-                            .post(
-                                "http://localhost:8000/api/auth/login",
-                                $scope.loginUser,
-                            )
-                            .then(
-                                function (response) {
-                                    $scope.jwt = response.data.access_token;
-                                    $scope.userId = response.data.userId;
-                                    $scope.isLoggedIn = true;
-                                    $scope.currentView = "viewPosts";
-                                    $scope.success = "Login successful!";
-                                    $scope.error = null;
-                                    $scope.fetchPosts();
-                                },
-                                function (error) {
-                                    $scope.error =
-                                        "Login failed: " + error.data;
-                                },
-                            );
+                        $http.post("/api/auth/login", $scope.loginUser).then(
+                            function (response) {
+                                $scope.jwt = response.data.access_token;
+                                $scope.user_id = response.data.user_id;
+                                $scope.isLoggedIn = true;
+                                $scope.currentView = "viewPosts";
+                                $scope.success = "Login successful!";
+                                $scope.error = null;
+                                $scope.fetchPosts();
+                                $scope.userMe();
+                            },
+                            function (error) {
+                                $scope.error = "Login failed: " + error.data;
+                            },
+                        );
+                    };
+
+                    $scope.userMe = function () {
+                        $http.get("/api/users/me").then(
+                            function (response) {
+                                console.log(response);
+                                $scope.user_id = response.data.user?.id;
+                            },
+                            function (error) {
+                                $scope.error =
+                                    "couldnt fetch me: " + error.data;
+                            },
+                        );
                     };
 
                     $scope.logout = function () {
                         $scope.jwt = "";
-                        $scope.userId = "";
+                        $scope.user_id = "";
                         $scope.isLoggedIn = false;
                         $scope.currentView = "login";
                         $scope.success = "Logged out successfully!";
@@ -301,34 +304,28 @@
                             title: $scope.post.title,
                             content: $scope.post.content,
                             image: $scope.post.image,
-                            user: $scope.userId,
                         };
 
-                        $http
-                            .post(
-                                "http://localhost:8000/api/posts",
-                                postData,
-                                {},
-                            )
-                            .then(
-                                function (response) {
-                                    $scope.success =
-                                        "Post created successfully!";
-                                    $scope.error = null;
-                                    $scope.post = { image: "default.png" };
-                                    $scope.switchView("viewPosts");
-                                },
-                                function (error) {
-                                    $scope.error =
-                                        "Failed to create post: " + error.data;
-                                    $scope.success = null;
-                                },
-                            );
+                        console.log("postdata", $scope.user_id);
+
+                        $http.post("/api/posts", postData).then(
+                            function (response) {
+                                $scope.success = "Post created successfully!";
+                                $scope.error = null;
+                                $scope.post = { image: "default.png" };
+                                $scope.switchView("viewPosts");
+                            },
+                            function (error) {
+                                $scope.error =
+                                    "Failed to create post: " + error.data;
+                                $scope.success = null;
+                            },
+                        );
                     };
 
                     $scope.fetchPosts = function () {
                         $http
-                            .get("http://localhost:8000/api/posts", {
+                            .get("/api/posts", {
                                 params: { page: $scope.currentPage, limit: 10 },
                             })
                             .then(
@@ -361,7 +358,7 @@
                         ) {
                             $http
                                 .delete(
-                                    "http://localhost:8000/api/posts/" + postId,
+                                    "/api/posts/" + postId,
                                     {},
                                     {
                                         headers: {
@@ -393,8 +390,7 @@
                     $scope.updatePost = function () {
                         $http
                             .put(
-                                "http://localhost:8000/api/posts/" +
-                                    $scope.editingPost.id,
+                                "/api/posts/" + $scope.editingPost.id,
                                 $scope.editingPost,
                                 {
                                     headers: {

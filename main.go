@@ -59,7 +59,8 @@ func main() {
 	corsConfig.AllowOrigins = []string{"http://localhost:8000", config.ClientOrigin}
 	corsConfig.AllowCredentials = true
 
-	server.Use(cors.New(corsConfig))
+	//server.Use(cors.New(corsConfig))
+	server.Use(CORSMiddleware())
 	// server.LoadHTMLFiles("templates/index.html")
 	// server.GET("/", func(c *gin.Context) {
 	// 	c.HTML(http.StatusOK, "index.html", gin.H{})
@@ -77,4 +78,19 @@ func main() {
 	PostRouteController.PostRoute(router)
 	CommentRouteController.CommentRoute(router)
 	log.Fatal(server.Run(":" + config.ServerPort))
+}
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
 }

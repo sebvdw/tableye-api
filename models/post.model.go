@@ -21,7 +21,6 @@ type CreatePostRequest struct {
 	Title   string `json:"title"  binding:"required"`
 	Content string `json:"content" binding:"required"`
 	Image   string `json:"image" binding:"required"`
-	UserID  string `json:"user_id" binding:"required"`
 }
 
 type UpdatePost struct {
