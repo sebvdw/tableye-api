@@ -10,6 +10,7 @@ type Config struct {
 	PostgresConnectString string `mapstructure:"POSTGRES_CONNECT_STRING"`
 	ServerPort            string `mapstructure:"PORT"`
 
+	Domain       string `mapstructure:"DOMAIN"`
 	ClientOrigin string `mapstructure:"CLIENT_ORIGIN"`
 
 	AccessTokenPrivateKey  string        `mapstructure:"ACCESS_TOKEN_PRIVATE_KEY"`

@@ -306,8 +306,6 @@
                             image: $scope.post.image,
                         };
 
-                        console.log("postdata", $scope.user_id);
-
                         $http.post("/api/posts", postData).then(
                             function (response) {
                                 $scope.success = "Post created successfully!";
