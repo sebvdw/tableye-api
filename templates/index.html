@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Angular Auth and Post CRUD App</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            input,
+            textarea,
+            button {
+                display: block;
+                width: 100%;
+                margin-bottom: 10px;
+                padding: 5px;
+            }
+            .error {
+                color: red;
+            }
+            .success {
+                color: green;
+            }
+            .nav {
+                margin-bottom: 20px;
+            }
+            .nav button {
+                display: inline-block;
+                width: auto;
+                margin-right: 10px;
+            }
+            .post {
+                border: 1px solid #ddd;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            .pagination {
+                margin-top: 20px;
+            }
+            .pagination button {
+                display: inline-block;
+                width: auto;
+                margin-right: 5px;
+            }
+            .post-actions {
+                margin-top: 10px;
+            }
+            .post-actions button {
+                display: inline-block;
+                width: auto;
+                margin-right: 5px;
+            }
+        </style>
+    </head>
+    <body ng-app="myApp" ng-controller="MainController">
+        <div class="nav">
+            <button ng-click="switchView('register')" ng-show="!isLoggedIn">
+                Register
+            </button>
+            <button ng-click="switchView('login')" ng-show="!isLoggedIn">
+                Login
+            </button>
+            <button ng-click="switchView('createPost')" ng-show="isLoggedIn">
+                Create Post
+            </button>
+            <button ng-click="switchView('viewPosts')" ng-show="isLoggedIn">
+                View Posts
+            </button>
+            <button ng-click="logout()" ng-show="isLoggedIn">Logout</button>
+        </div>
+
+        <div ng-show="currentView === 'register'">
+            <h2>User Registration</h2>
+            <form ng-submit="register()">
+                <input
+                    type="email"
+                    ng-model="user.email"
+                    placeholder="Email"
+                    required
+                />
+                <input
+                    type="text"
+                    ng-model="user.name"
+                    placeholder="Name"
+                    required
+                />
+                <input
+                    type="password"
+                    ng-model="user.password"
+                    placeholder="Password"
+                    required
+                />
+                <input
+                    type="password"
+                    ng-model="user.passwordConfirm"
+                    placeholder="Confirm Password"
+                    required
+                />
+                <button type="submit">Register</button>
+            </form>
+        </div>
+
+        <div ng-show="currentView === 'login'">
+            <h2>User Login</h2>
+            <form ng-submit="login()">
+                <input
+                    type="email"
+                    ng-model="loginUser.email"
+                    placeholder="Email"
+                    required
+                />
+                <input
+                    type="password"
+                    ng-model="loginUser.password"
+                    placeholder="Password"
+                    required
+                />
+                <button type="submit">Login</button>
+            </form>
+        </div>
+
+        <div ng-show="currentView === 'createPost'">
+            <h2>Create Post</h2>
+            <form ng-submit="createPost()">
+                <input
+                    type="text"
+                    ng-model="post.title"
+                    placeholder="Title"
+                    required
+                />
+                <textarea
+                    ng-model="post.content"
+                    placeholder="Content"
+                    required
+                ></textarea>
+                <input
+                    type="text"
+                    ng-model="post.image"
+                    placeholder="Image URL"
+                    value="default.png"
+                />
+                <button type="submit">Create Post</button>
+            </form>
+        </div>
+
+        <div ng-show="currentView === 'viewPosts'">
+            <h2>All Posts</h2>
+            <div class="post" ng-repeat="post in posts">
+                <h3>{{post.title}}</h3>
+                <p>{{post.content}}</p>
+                <img
+                    ng-src="{{post.image}}"
+                    alt="Post image"
+                    style="max-width: 100%"
+                />
+                <p>Created at: {{post.created_at | date:'medium'}}</p>
+                <div class="post-actions">
+                    <button ng-click="editPost(post)">Edit</button>
+                    <button ng-click="deletePost(post.id)">Delete</button>
+                </div>
+                <p style="border-bottom: 1px solid grey">comments</p>
+                <div ng-repeat="comment in post.comments">
+                    {{ comment.content }}
+                </div>
+            </div>
+            <div class="pagination">
+                <button
+                    ng-click="changePage(currentPage - 1)"
+                    ng-disabled="currentPage === 1"
+                >
+                    Previous
+                </button>
+                <span>Page {{currentPage}} of {{totalPages}}</span>
+                <button
+                    ng-click="changePage(currentPage + 1)"
+                    ng-disabled="currentPage === totalPages"
+                >
+                    Next
+                </button>
+            </div>
+        </div>
+
+        <div ng-show="currentView === 'editPost'">
+            <h2>Edit Post</h2>
+            <form ng-submit="updatePost()">
+                <input
+                    type="text"
+                    ng-model="editingPost.title"
+                    placeholder="Title"
+                    required
+                />
+                <textarea
+                    ng-model="editingPost.content"
+                    placeholder="Content"
+                    required
+                ></textarea>
+                <input
+                    type="text"
+                    ng-model="editingPost.image"
+                    placeholder="Image URL"
+                />
+                <button type="submit">Update Post</button>
+                <button type="button" ng-click="cancelEdit()">Cancel</button>
+            </form>
+        </div>
+
+        <p class="error" ng-if="error">{{error}}</p>
+        <p class="success" ng-if="success">{{success}}</p>
+
+        <script>
+            angular
+                .module("myApp", [])
+                .controller("MainController", function ($scope, $http) {
+                    $scope.currentView = "register";
+                    $scope.user = {};
+                    $scope.loginUser = {};
+                    $scope.post = { image: "default.png" };
+                    $scope.jwt = "";
+                    $scope.userId = "";
+                    $scope.isLoggedIn = false;
+                    $scope.posts = [];
+                    $scope.currentPage = 1;
+                    $scope.totalPages = 1;
+                    $scope.editingPost = null;
+
+                    $scope.switchView = function (view) {
+                        $scope.currentView = view;
+                        $scope.error = null;
+                        $scope.success = null;
+                        if (view === "viewPosts") {
+                            $scope.fetchPosts();
+                        }
+                    };
+
+                    $scope.register = function () {
+                        if (
+                            $scope.user.password !== $scope.user.passwordConfirm
+                        ) {
+                            $scope.error = "Passwords do not match";
+                            return;
+                        }
+                        $http
+                            .post(
+                                "http://localhost:8000/api/auth/register",
+                                $scope.user,
+                            )
+                            .then(
+                                function (response) {
+                                    $scope.jwt = response.data.token;
+                                    $scope.userId = response.data.userId;
+                                    $scope.isLoggedIn = true;
+                                    $scope.currentView = "createPost";
+                                    $scope.success = "Registration successful!";
+                                    $scope.error = null;
+                                },
+                                function (error) {
+                                    $scope.error =
+                                        "Registration failed: " + error.data;
+                                },
+                            );
+                    };
+
+                    $scope.login = function () {
+                        $http
+                            .post(
+                                "http://localhost:8000/api/auth/login",
+                                $scope.loginUser,
+                            )
+                            .then(
+                                function (response) {
+                                    $scope.jwt = response.data.access_token;
+                                    $scope.userId = response.data.userId;
+                                    $scope.isLoggedIn = true;
+                                    $scope.currentView = "viewPosts";
+                                    $scope.success = "Login successful!";
+                                    $scope.error = null;
+                                    $scope.fetchPosts();
+                                },
+                                function (error) {
+                                    $scope.error =
+                                        "Login failed: " + error.data;
+                                },
+                            );
+                    };
+
+                    $scope.logout = function () {
+                        $scope.jwt = "";
+                        $scope.userId = "";
+                        $scope.isLoggedIn = false;
+                        $scope.currentView = "login";
+                        $scope.success = "Logged out successfully!";
+                    };
+
+                    $scope.createPost = function () {
+                        var postData = {
+                            title: $scope.post.title,
+                            content: $scope.post.content,
+                            image: $scope.post.image,
+                            user: $scope.userId,
+                        };
+
+                        $http
+                            .post(
+                                "http://localhost:8000/api/posts",
+                                postData,
+                                {},
+                            )
+                            .then(
+                                function (response) {
+                                    $scope.success =
+                                        "Post created successfully!";
+                                    $scope.error = null;
+                                    $scope.post = { image: "default.png" };
+                                    $scope.switchView("viewPosts");
+                                },
+                                function (error) {
+                                    $scope.error =
+                                        "Failed to create post: " + error.data;
+                                    $scope.success = null;
+                                },
+                            );
+                    };
+
+                    $scope.fetchPosts = function () {
+                        $http
+                            .get("http://localhost:8000/api/posts", {
+                                params: { page: $scope.currentPage, limit: 10 },
+                            })
+                            .then(
+                                function (response) {
+                                    $scope.posts = response.data.data;
+                                    console.log(response.data.data);
+                                    $scope.totalPages = Math.ceil(
+                                        response.data.results / 10,
+                                    );
+                                },
+                                function (error) {
+                                    $scope.error =
+                                        "Failed to fetch posts: " + error.data;
+                                },
+                            );
+                    };
+
+                    $scope.changePage = function (newPage) {
+                        if (newPage >= 1 && newPage <= $scope.totalPages) {
+                            $scope.currentPage = newPage;
+                            $scope.fetchPosts();
+                        }
+                    };
+
+                    $scope.deletePost = function (postId) {
+                        if (
+                            confirm(
+                                "Are you sure you want to delete this post?",
+                            )
+                        ) {
+                            $http
+                                .delete(
+                                    "http://localhost:8000/api/posts/" + postId,
+                                    {},
+                                    {
+                                        headers: {
+                                            Authorization:
+                                                "Bearer " + $scope.jwt,
+                                        },
+                                    },
+                                )
+                                .then(
+                                    function (response) {
+                                        $scope.success =
+                                            "Post deleted successfully!";
+                                        $scope.fetchPosts();
+                                    },
+                                    function (error) {
+                                        $scope.error =
+                                            "Failed to delete post: " +
+                                            error.data;
+                                    },
+                                );
+                        }
+                    };
+
+                    $scope.editPost = function (post) {
+                        $scope.editingPost = angular.copy(post);
+                        $scope.currentView = "editPost";
+                    };
+
+                    $scope.updatePost = function () {
+                        $http
+                            .put(
+                                "http://localhost:8000/api/posts/" +
+                                    $scope.editingPost.id,
+                                $scope.editingPost,
+                                {
+                                    headers: {
+                                        Authorization: "Bearer " + $scope.jwt,
+                                    },
+                                },
+                            )
+                            .then(
+                                function (response) {
+                                    $scope.success =
+                                        "Post updated successfully!";
+                                    $scope.currentView = "viewPosts";
+                                    $scope.fetchPosts();
+                                },
+                                function (error) {
+                                    $scope.error =
+                                        "Failed to update post: " + error.data;
+                                },
+                            );
+                    };
+
+                    $scope.cancelEdit = function () {
+                        $scope.editingPost = null;
+                        $scope.currentView = "viewPosts";
+                    };
+                });
+        </script>
+    </body>
+</html>
