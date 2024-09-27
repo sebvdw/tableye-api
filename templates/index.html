@@ -3,21 +3,26 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Angular Auth and Post CRUD App</title>
+        <title>golang api</title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap"
+            rel="stylesheet"
+        />
         <style>
             :root {
                 --primary-color: #3498db;
                 --secondary-color: #2ecc71;
-                --background-color: #f4f4f4;
+                --background-color: #f8f9fa;
                 --text-color: #333;
                 --error-color: #e74c3c;
                 --success-color: #27ae60;
+                --card-background: #ffffff;
             }
 
             body {
-                font-family: "Arial", sans-serif;
-                max-width: 800px;
+                font-family: "Roboto", sans-serif;
+                max-width: 1200px;
                 margin: 0 auto;
                 padding: 20px;
                 background-color: var(--background-color);
@@ -29,6 +34,8 @@
                 color: var(--primary-color);
                 border-bottom: 2px solid var(--primary-color);
                 padding-bottom: 10px;
+                font-weight: 300;
+                font-size: 2.5em;
             }
 
             input,
@@ -37,10 +44,17 @@
                 display: block;
                 width: 100%;
                 margin-bottom: 15px;
-                padding: 10px;
+                padding: 12px;
                 border: 1px solid #ddd;
-                border-radius: 4px;
+                border-radius: 8px;
                 font-size: 16px;
+                transition: all 0.3s ease;
+            }
+
+            input:focus,
+            textarea:focus {
+                outline: none;
+                box-shadow: 0 0 0 2px var(--primary-color);
             }
 
             button {
@@ -48,43 +62,60 @@
                 color: white;
                 border: none;
                 cursor: pointer;
-                transition: background-color 0.3s ease;
+                transition:
+                    background-color 0.3s ease,
+                    transform 0.1s ease;
+                font-weight: bold;
             }
 
             button:hover {
                 background-color: #2980b9;
+                transform: translateY(-2px);
+            }
+
+            button:active {
+                transform: translateY(0);
+            }
+
+            .error,
+            .success {
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                font-weight: bold;
+                text-align: center;
             }
 
             .error {
                 color: var(--error-color);
                 background-color: #fadbd8;
-                padding: 10px;
-                border-radius: 4px;
-                margin-bottom: 15px;
             }
 
             .success {
                 color: var(--success-color);
                 background-color: #d4efdf;
-                padding: 10px;
-                border-radius: 4px;
-                margin-bottom: 15px;
             }
 
             .nav {
-                background-color: var(--primary-color);
-                padding: 10px;
-                border-radius: 4px;
-                margin-bottom: 20px;
+                background-color: var(--card-background);
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 30px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
             }
 
             .nav button {
                 display: inline-block;
                 width: auto;
-                margin-right: 10px;
-                background-color: white;
+                margin-right: 15px;
+                background-color: transparent;
                 color: var(--primary-color);
-                border: 1px solid white;
+                border: 2px solid var(--primary-color);
+                font-weight: bold;
+                transition: all 0.3s ease;
             }
 
             .nav button:hover {
@@ -93,34 +124,46 @@
             }
 
             .post {
-                background-color: white;
-                border: 1px solid #ddd;
-                padding: 15px;
-                margin-bottom: 20px;
-                border-radius: 4px;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                background-color: var(--card-background);
+                border: none;
+                padding: 25px;
+                margin-bottom: 30px;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                transition:
+                    transform 0.3s ease,
+                    box-shadow 0.3s ease;
+            }
+
+            .post:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
             }
 
             .pagination {
-                margin-top: 20px;
+                margin-top: 30px;
                 text-align: center;
             }
 
             .pagination button {
                 display: inline-block;
                 width: auto;
-                margin: 0 5px;
+                margin: 0 10px;
+                padding: 10px 20px;
             }
 
             .post-actions {
-                margin-top: 15px;
+                margin-top: 20px;
+                display: flex;
+                justify-content: flex-start;
             }
 
             .post-actions button {
                 display: inline-block;
                 width: auto;
-                margin-right: 10px;
+                margin-right: 15px;
                 background-color: var(--secondary-color);
+                padding: 10px 20px;
             }
 
             .post-actions button:hover {
@@ -130,8 +173,23 @@
             img {
                 max-width: 100%;
                 height: auto;
-                border-radius: 4px;
-                margin-bottom: 10px;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            .comment {
+                background-color: #f1f3f5;
+                padding: 15px;
+                border-radius: 8px;
+                margin-top: 15px;
+            }
+
+            .form-container {
+                background-color: var(--card-background);
+                padding: 30px;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             }
         </style>
     </head>
@@ -146,13 +204,10 @@
             <button ng-click="switchView('createPost')" ng-show="isLoggedIn">
                 Create Post
             </button>
-            <button ng-click="switchView('viewPosts')" ng-show="isLoggedIn">
-                View Posts
-            </button>
             <button ng-click="logout()" ng-show="isLoggedIn">Logout</button>
         </div>
 
-        <div ng-show="currentView === 'register'">
+        <div ng-show="currentView === 'register'" class="form-container">
             <h2>User Registration</h2>
             <form ng-submit="register()">
                 <input
@@ -183,7 +238,7 @@
             </form>
         </div>
 
-        <div ng-show="currentView === 'login'">
+        <div ng-show="currentView === 'login'" class="form-container">
             <h2>User Login</h2>
             <form ng-submit="login()">
                 <input
@@ -202,7 +257,7 @@
             </form>
         </div>
 
-        <div ng-show="currentView === 'createPost'">
+        <div ng-show="currentView === 'createPost'" class="form-container">
             <h2>Create Post</h2>
             <form ng-submit="createPost()">
                 <input
@@ -231,18 +286,14 @@
             <div class="post" ng-repeat="post in posts">
                 <h3>{{post.title}}</h3>
                 <p>{{post.content}}</p>
-                <img
-                    ng-src="{{post.image}}"
-                    alt="Post image"
-                    style="max-width: 100%"
-                />
+                <img ng-src="{{post.image}}" alt="Post image" />
                 <p>Created at: {{post.created_at | date:'medium'}}</p>
                 <div class="post-actions">
                     <button ng-click="editPost(post)">Edit</button>
                     <button ng-click="deletePost(post.id)">Delete</button>
                 </div>
-                <p style="border-bottom: 1px solid grey">comments</p>
-                <div ng-repeat="comment in post.comments">
+                <p style="font-weight: bold; margin-top: 20px">Comments</p>
+                <div ng-repeat="comment in post.comments" class="comment">
                     {{ comment.content }}
                 </div>
             </div>
@@ -263,7 +314,7 @@
             </div>
         </div>
 
-        <div ng-show="currentView === 'editPost'">
+        <div ng-show="currentView === 'editPost'" class="form-container">
             <h2>Edit Post</h2>
             <form ng-submit="updatePost()">
                 <input
@@ -287,7 +338,7 @@
             </form>
         </div>
 
-        <p class="error" ng-if="error">{{error}}</p>
+        <p class="error" ng-if="error">{{error.message}}</p>
         <p class="success" ng-if="success">{{success}}</p>
 
         <script>
