@@ -25,8 +25,8 @@ jobs:
     - name: Create deployment package
       run: |
         mkdir deploy
-        cp -R * deploy/
-        cp .* deploy/ 2>/dev/null || :
+        shopt -s extglob dotglob
+        cp -R !(deploy) deploy/
         tar -czf deploy.tar.gz -C deploy .
 
     - name: Deploy to VPS
