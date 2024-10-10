@@ -29,14 +29,9 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no $USER@$HOST '
           sudo service goweb stop &&
           sudo mv /home/$USER/main_new /go-web/main &&
-          sudo chown root:root /go-web/main &&
-          sudo chmod 755 /go-web/main &&
           sudo cp /env/app.env /go-web/app.env &&
-          sudo chown root:root /go-web/app.env &&
-          sudo chmod 644 /go-web/app.env &&
           sudo service goweb start &&
           sudo mkdir -p /logs &&
-          sudo chmod 755 /logs &&
           echo "Deployment completed at $(date)" | sudo tee -a /logs/deployment.log &&
           echo "Service status:" | sudo tee -a /logs/deployment.log &&
           sudo service goweb status | sudo tee -a /logs/deployment.log &&
