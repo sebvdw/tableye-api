@@ -31,6 +31,9 @@ jobs:
           sudo mv /home/$USER/main_new /go-web/main &&
           sudo chown root:root /go-web/main &&
           sudo chmod 755 /go-web/main &&
+          sudo cp /env/app.env /go-web/app.env &&
+          sudo chown root:root /go-web/app.env &&
+          sudo chmod 644 /go-web/app.env &&
           sudo service goweb start &&
           sudo mkdir -p /logs &&
           sudo chmod 755 /logs &&
