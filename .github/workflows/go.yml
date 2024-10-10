@@ -25,14 +25,16 @@ jobs:
         USER: ${{ secrets.SERVER_USER }}
       run: |
         echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-        ssh -i private_key -o StrictHostKeyChecking=no $USER@$HOST 'mkdir -p /home/$USER'
         scp -i private_key -o StrictHostKeyChecking=no main $USER@$HOST:/home/$USER/main_new
         ssh -i private_key -o StrictHostKeyChecking=no $USER@$HOST '
-          sudo systemctl stop goweb &&
-          sudo mkdir -p /go-web &&
+          sudo service goweb stop &&
           sudo mv /home/$USER/main_new /go-web/main &&
           sudo chown root:root /go-web/main &&
           sudo chmod 755 /go-web/main &&
-          sudo systemctl start goweb
+          sudo service goweb start &&
+          echo "Deployment completed at $(date)" | sudo tee -a /logs/deployment.log &&
+          echo "Service status:" | sudo tee -a /logs/deployment.log &&
+          sudo service goweb status | sudo tee -a /logs/deployment.log &&
+          echo "----------------------------------------" | sudo tee -a /logs/deployment.log
         '
         rm -f private_key
