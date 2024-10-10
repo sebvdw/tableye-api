@@ -1,33 +1,35 @@
-name: Build and Deploy to VPS
+name: Deploy Go Web App
 
 on:
   push:
-    branches: [ main ]  # Adjust this to your main branch name
+    branches: [ main ]  # Trigger the action on push to main branch
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    
+    - uses: actions/checkout@v3
+
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
-        go-version: '1.21'  # Specify the Go version you're using
-    
+        go-version: '1.20'  # Specify the Go version you're using
+
     - name: Build
-      run: go build -o main .
-    
-    - name: Install SSH Key
-      uses: shimataro/ssh-key-action@v2
-      with:
-        key: ${{ secrets.SERVER_SSH_KEY }}
-        known_hosts: ${{ secrets.KNOWN_HOSTS }}
-    
+      run: go build -o main  # Build your Go application
+
     - name: Deploy to VPS
       env:
-        HOST: ${{ secrets.HOST }}
-        USER: ${{ secrets.USER }}
+        PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        HOST: ${{ secrets.SERVER_HOST }}
+        USER: ${{ secrets.SERVER_USER }}
       run: |
-        scp ./main $USER@$HOST:/go-web/main
-        ssh $USER@$HOST "sudo systemctl restart goweb"
+        echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+        scp -i private_key -o StrictHostKeyChecking=no main $USER@$HOST:/go-web/
+        ssh -i private_key -o StrictHostKeyChecking=no $USER@$HOST '
+          sudo systemctl stop goweb &&
+          sudo rm -rf /go-web/* &&
+          sudo mv /go-web/main /go-web/ &&
+          sudo systemctl start goweb
+        '
+        rm -f private_key
