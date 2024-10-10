@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/suidevv/golang-tableye/initializers"
-	"github.com/suidevv/golang-tableye/models"
-	"github.com/suidevv/golang-tableye/utils"
+	"github.com/suidevv/tableye-api/initializers"
+	"github.com/suidevv/tableye-api/models"
+	"github.com/suidevv/tableye-api/utils"
 )
 
 func DeserializeUser() gin.HandlerFunc {

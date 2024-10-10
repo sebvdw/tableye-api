@@ -32,6 +32,12 @@ type SignInInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type SignInOuput struct {
+	ID    uuid.UUID `json:"id,omitempty"`
+	Name  string    `json:"name,omitempty"`
+	Email string    `json:"email,omitempty"`
+}
+
 type UserResponse struct {
 	ID        uuid.UUID `json:"id,omitempty"`
 	Name      string    `json:"name,omitempty"`

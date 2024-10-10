@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/suidevv/golang-tableye/models"
+	"github.com/suidevv/tableye-api/models"
 	"gorm.io/gorm"
 )
 

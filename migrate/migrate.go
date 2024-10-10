@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/suidevv/golang-tableye/initializers"
-	"github.com/suidevv/golang-tableye/models"
+	"github.com/suidevv/tableye-api/initializers"
+	"github.com/suidevv/tableye-api/models"
 )
 
 func dropDatabase() error {

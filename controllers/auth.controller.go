@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/suidevv/golang-tableye/initializers"
-	"github.com/suidevv/golang-tableye/models"
-	"github.com/suidevv/golang-tableye/utils"
+	"github.com/suidevv/tableye-api/initializers"
+	"github.com/suidevv/tableye-api/models"
+	"github.com/suidevv/tableye-api/utils"
 	"gorm.io/gorm"
 )
 
@@ -21,7 +21,18 @@ func NewAuthController(DB *gorm.DB) AuthController {
 	return AuthController{DB}
 }
 
-// SignUp User
+// SignUpUser godoc
+// @Summary Register a new user
+// @Description Register a new user with the provided details
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Param request body models.SignUpInput true "User registration details"
+// @Success 201 {object} models.UserResponse "User successfully created"
+// @Failure 400 {object} map[string]interface{} "Bad request"
+// @Failure 409 {object} map[string]interface{} "User already exists"
+// @Failure 502 {object} map[string]interface{} "Server error"
+// @Router /auth/signup [post]
 func (ac *AuthController) SignUpUser(ctx *gin.Context) {
 	var payload *models.SignUpInput
 
@@ -75,6 +86,16 @@ func (ac *AuthController) SignUpUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": gin.H{"user": userResponse}})
 }
 
+// SignInUser godoc
+// @Summary Login a user
+// @Description Authenticate a user and return access/refresh tokens
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Param request body models.SignInInput true "User login credentials"
+// @Success 200 {object} map[string]interface{} "Login successful"
+// @Failure 400 {object} map[string]interface{} "Invalid credentials"
+// @Router /auth/login [post]
 func (ac *AuthController) SignInUser(ctx *gin.Context) {
 	var payload *models.SignInInput
 
@@ -113,11 +134,17 @@ func (ac *AuthController) SignInUser(ctx *gin.Context) {
 	ctx.SetCookie("access_token", access_token, config.AccessTokenMaxAge*60, "/", config.Domain, false, true)
 	ctx.SetCookie("refresh_token", refresh_token, config.RefreshTokenMaxAge*60, "/", config.Domain, false, true)
 	ctx.SetCookie("logged_in", "true", config.AccessTokenMaxAge*60, "/", config.Domain, false, false)
-
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "access_token": access_token})
+	ctx.JSON(http.StatusOK, gin.H{"access_token": access_token, "id": user.ID, "email": user.Email, "name": user.Name})
 }
 
-// Refresh Access Token
+// RefreshAccessToken godoc
+// @Summary Refresh access token
+// @Description Get a new access token using refresh token
+// @Tags authentication
+// @Produce json
+// @Success 200 {object} map[string]interface{} "Token refreshed successfully"
+// @Failure 403 {object} map[string]interface{} "Invalid refresh token"
+// @Router /auth/refresh [post]
 func (ac *AuthController) RefreshAccessToken(ctx *gin.Context) {
 	message := "could not refresh access token"
 
@@ -155,6 +182,13 @@ func (ac *AuthController) RefreshAccessToken(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "access_token": access_token})
 }
 
+// LogoutUser godoc
+// @Summary Logout user
+// @Description Clear authentication cookies
+// @Tags authentication
+// @Produce json
+// @Success 200 {object} map[string]interface{} "Logged out successfully"
+// @Router /auth/logout [post]
 func (ac *AuthController) LogoutUser(ctx *gin.Context) {
 	config, _ := initializers.LoadConfig(".")
 

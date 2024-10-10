@@ -2,8 +2,8 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/suidevv/golang-tableye/controllers"
-	"github.com/suidevv/golang-tableye/middleware"
+	"github.com/suidevv/tableye-api/controllers"
+	"github.com/suidevv/tableye-api/middleware"
 )
 
 type UserRouteController struct {
