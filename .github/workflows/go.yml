@@ -23,7 +23,11 @@ jobs:
       run: go build -a -ldflags '-extldflags "-static"' -o main
 
     - name: Create deployment package
-      run: tar -czf deploy.tar.gz .
+      run: |
+        mkdir deploy
+        cp -R * deploy/
+        cp .* deploy/ 2>/dev/null || :
+        tar -czf deploy.tar.gz -C deploy .
 
     - name: Deploy to VPS
       env:
