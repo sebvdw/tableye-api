@@ -32,6 +32,8 @@ jobs:
           sudo chown root:root /go-web/main &&
           sudo chmod 755 /go-web/main &&
           sudo service goweb start &&
+          sudo mkdir -p /logs &&
+          sudo chmod 755 /logs &&
           echo "Deployment completed at $(date)" | sudo tee -a /logs/deployment.log &&
           echo "Service status:" | sudo tee -a /logs/deployment.log &&
           sudo service goweb status | sudo tee -a /logs/deployment.log &&
