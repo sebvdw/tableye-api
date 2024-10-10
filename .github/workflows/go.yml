@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04  # Using an older Ubuntu version for building
     steps:
     - uses: actions/checkout@v3
 
@@ -16,7 +16,11 @@ jobs:
         go-version: '1.22'  # Latest stable version as of April 2024
 
     - name: Build
-      run: go build -o main  # Build your Go application
+      env:
+        CGO_ENABLED: 0
+        GOOS: linux
+        GOARCH: amd64
+      run: go build -a -ldflags '-extldflags "-static"' -o main
 
     - name: Deploy to VPS
       env:
