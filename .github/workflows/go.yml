@@ -23,10 +23,7 @@ jobs:
       run: go build -a -ldflags '-extldflags "-static"' -o main
 
     - name: Create deployment package
-      run: |
-        mkdir deploy
-        cp -r * deploy/
-        tar -czf deploy.tar.gz deploy
+      run: tar -czf deploy.tar.gz .
 
     - name: Deploy to VPS
       env:
@@ -39,7 +36,7 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no $USER@$HOST '
           sudo service goweb stop &&
           sudo rm -rf /go-web/* &&
-          sudo tar -xzf /home/$USER/deploy.tar.gz -C /go-web --strip-components=1 &&
+          sudo tar -xzf /home/$USER/deploy.tar.gz -C /go-web &&
           sudo cp /env/app.env /go-web/app.env &&
           sudo service goweb start &&
           sudo mkdir -p /logs &&
