@@ -22,6 +22,13 @@ jobs:
         GOARCH: amd64
       run: go build -a -ldflags '-extldflags "-static"' -o main
 
+    - name: Create deployment package
+      run: |
+        mkdir deploy
+        shopt -s extglob dotglob
+        cp -R !(deploy) deploy/
+        tar -czf deploy.tar.gz -C deploy .
+
     - name: Deploy to VPS
       env:
         PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
@@ -29,16 +36,18 @@ jobs:
         USER: ${{ secrets.SERVER_USER }}
       run: |
         echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-        scp -i private_key -o StrictHostKeyChecking=no main $USER@$HOST:/home/$USER/main_new
+        scp -i private_key -o StrictHostKeyChecking=no deploy.tar.gz $USER@$HOST:/home/$USER/deploy.tar.gz
         ssh -i private_key -o StrictHostKeyChecking=no $USER@$HOST '
           sudo service goweb stop &&
-          sudo mv /home/$USER/main_new /go-web/main &&
+          sudo rm -rf /go-web/* &&
+          sudo tar -xzf /home/$USER/deploy.tar.gz -C /go-web &&
           sudo cp /env/app.env /go-web/app.env &&
           sudo service goweb start &&
           sudo mkdir -p /logs &&
           echo "Deployment completed at $(date)" | sudo tee -a /logs/deployment.log &&
           echo "Service status:" | sudo tee -a /logs/deployment.log &&
           sudo service goweb status | sudo tee -a /logs/deployment.log &&
-          echo "----------------------------------------" | sudo tee -a /logs/deployment.log
+          echo "----------------------------------------" | sudo tee -a /logs/deployment.log &&
+          rm /home/$USER/deploy.tar.gz
         '
         rm -f private_key
