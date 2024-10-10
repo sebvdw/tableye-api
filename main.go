@@ -87,12 +87,11 @@ func main() {
 	corsConfig.AllowOrigins = []string{
 		"http://localhost:8000",
 		config.ClientOrigin,
-		"https://golang-r7hw.onrender.com",
 	}
 	corsConfig.AllowCredentials = true
 
 	server.Use(cors.New(corsConfig))
-
+	server.StaticFile("", "templates/index.html")
 	router := server.Group("/api")
 
 	// Health check endpoint
