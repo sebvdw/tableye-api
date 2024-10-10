@@ -13,7 +13,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.23'  # Specify the Go version you're using
+        go-version: '1.22'  # Latest stable version as of April 2024
 
     - name: Build
       run: go build -o main  # Build your Go application
@@ -25,11 +25,12 @@ jobs:
         USER: ${{ secrets.SERVER_USER }}
       run: |
         echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-        scp -i private_key -o StrictHostKeyChecking=no main $USER@$HOST:/go-web/
+        scp -i private_key -o StrictHostKeyChecking=no main $USER@$HOST:/home/$USER/main_new
         ssh -i private_key -o StrictHostKeyChecking=no $USER@$HOST '
           sudo systemctl stop goweb &&
-          sudo rm -rf /go-web/* &&
-          sudo mv /go-web/main /go-web/ &&
+          sudo mv /home/$USER/main_new /go-web/main &&
+          sudo chown root:root /go-web/main &&
+          sudo chmod 755 /go-web/main &&
           sudo systemctl start goweb
         '
         rm -f private_key
