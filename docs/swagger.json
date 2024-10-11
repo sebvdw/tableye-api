@@ -164,6 +164,436 @@
                 }
             }
         },
+        "/casinos": {
+            "get": {
+                "description": "Get a list of casinos",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "casinos"
+                ],
+                "summary": "List casinos",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new casino with the input payload",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "casinos"
+                ],
+                "summary": "Create a new casino",
+                "parameters": [
+                    {
+                        "description": "Create casino request",
+                        "name": "casino",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateCasinoRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Casino"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/casinos/{casinoId}": {
+            "get": {
+                "description": "Get a single casino by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "casinos"
+                ],
+                "summary": "Get a casino by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Casino ID",
+                        "name": "casinoId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Casino"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a casino with the input payload",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "casinos"
+                ],
+                "summary": "Update a casino",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Casino ID",
+                        "name": "casinoId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update casino request",
+                        "name": "casino",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateCasinoRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Casino"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a casino by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "casinos"
+                ],
+                "summary": "Delete a casino",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Casino ID",
+                        "name": "casinoId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/dealers": {
+            "get": {
+                "description": "Get a list of dealers",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dealers"
+                ],
+                "summary": "List dealers",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new dealer with the input payload",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dealers"
+                ],
+                "summary": "Create a new dealer",
+                "parameters": [
+                    {
+                        "description": "Create dealer request",
+                        "name": "dealer",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateDealerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Dealer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/dealers/{dealerId}": {
+            "get": {
+                "description": "Get a single dealer by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dealers"
+                ],
+                "summary": "Get a dealer by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Dealer ID",
+                        "name": "dealerId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Dealer"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a dealer with the input payload",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dealers"
+                ],
+                "summary": "Update a dealer",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Dealer ID",
+                        "name": "dealerId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update dealer request",
+                        "name": "dealer",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateDealerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Dealer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a dealer by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dealers"
+                ],
+                "summary": "Delete a dealer",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Dealer ID",
+                        "name": "dealerId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/healthchecker": {
             "get": {
                 "description": "Get API health status",
@@ -190,6 +620,339 @@
         }
     },
     "definitions": {
+        "models.Casino": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "dealers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dealer"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "game_summaries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.GameSummary"
+                    }
+                },
+                "games": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Game"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "license_number": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "max_capacity": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "opening_hours": {
+                    "type": "string"
+                },
+                "owner": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "owner_id": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateCasinoRequest": {
+            "type": "object",
+            "required": [
+                "license_number",
+                "location",
+                "max_capacity",
+                "name",
+                "owner_id",
+                "status"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "license_number": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "max_capacity": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "opening_hours": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateDealerRequest": {
+            "type": "object",
+            "required": [
+                "dealer_code",
+                "status",
+                "user_id"
+            ],
+            "properties": {
+                "dealer_code": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Dealer": {
+            "type": "object",
+            "properties": {
+                "casinos": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Casino"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "dealer_code": {
+                    "type": "string"
+                },
+                "game_summaries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.GameSummary"
+                    }
+                },
+                "games_dealt": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_active_at": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Game": {
+            "type": "object",
+            "properties": {
+                "casinos": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Casino"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "game_summaries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.GameSummary"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "max_bet": {
+                    "type": "number"
+                },
+                "max_players": {
+                    "type": "integer"
+                },
+                "min_bet": {
+                    "type": "number"
+                },
+                "min_players": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.GameSummary": {
+            "type": "object",
+            "properties": {
+                "casino": {
+                    "$ref": "#/definitions/models.Casino"
+                },
+                "casino_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "dealer": {
+                    "$ref": "#/definitions/models.Dealer"
+                },
+                "dealer_id": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "game": {
+                    "$ref": "#/definitions/models.Game"
+                },
+                "game_id": {
+                    "type": "string"
+                },
+                "highest_bet": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "players": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Player"
+                    }
+                },
+                "rounds_played": {
+                    "type": "integer"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total_pot": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "winner": {
+                    "$ref": "#/definitions/models.Player"
+                },
+                "winner_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Player": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "games_played": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "played_games": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.GameSummary"
+                    }
+                },
+                "rank": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total_winnings": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "won_games": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.GameSummary"
+                    }
+                }
+            }
+        },
         "models.SignInInput": {
             "type": "object",
             "required": [
@@ -226,6 +989,87 @@
                 },
                 "passwordConfirm": {
                     "type": "string"
+                }
+            }
+        },
+        "models.UpdateCasinoRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "license_number": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "max_capacity": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "opening_hours": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UpdateDealerRequest": {
+            "type": "object",
+            "properties": {
+                "games_dealt": {
+                    "type": "integer"
+                },
+                "last_active_at": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "verified": {
+                    "type": "boolean"
                 }
             }
         },

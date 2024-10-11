@@ -19,30 +19,33 @@ import (
 // @version         1.0
 // @description     A REST API for Tableye application
 // @termsOfService  http://swagger.io/terms/
-
 // @contact.name   API Support
 // @contact.url    http://www.swagger.io/support
 // @contact.email  support@swagger.io
-
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
-
 // @host      localhost:8080
 // @BasePath  /api
-
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
+
 var (
-	server                 *gin.Engine
-	AuthController         controllers.AuthController
-	AuthRouteController    routes.AuthRouteController
-	UserController         controllers.UserController
-	UserRouteController    routes.UserRouteController
-	PostController         controllers.PostController
-	PostRouteController    routes.PostRouteController
-	CommentController      controllers.CommentController
-	CommentRouteController routes.CommentRouteController
+	server                     *gin.Engine
+	AuthController             controllers.AuthController
+	AuthRouteController        routes.AuthRouteController
+	UserController             controllers.UserController
+	UserRouteController        routes.UserRouteController
+	CasinoController           controllers.CasinoController
+	CasinoRouteController      routes.CasinoRouteController
+	GameController             controllers.GameController
+	GameRouteController        routes.GameRouteController
+	PlayerController           controllers.PlayerController
+	PlayerRouteController      routes.PlayerRouteController
+	DealerController           controllers.DealerController
+	DealerRouteController      routes.DealerRouteController
+	GameSummaryController      controllers.GameSummaryController
+	GameSummaryRouteController routes.GameSummaryRouteController
 )
 
 func init() {
@@ -55,12 +58,24 @@ func init() {
 
 	AuthController = controllers.NewAuthController(initializers.DB)
 	AuthRouteController = routes.NewAuthRouteController(AuthController)
+
 	UserController = controllers.NewUserController(initializers.DB)
 	UserRouteController = routes.NewRouteUserController(UserController)
-	PostController = controllers.NewPostController(initializers.DB)
-	PostRouteController = routes.NewRoutePostController(PostController)
-	CommentController = controllers.NewCommentController(initializers.DB)
-	CommentRouteController = routes.NewRouteCommentController(CommentController)
+
+	CasinoController = controllers.NewCasinoController(initializers.DB)
+	CasinoRouteController = routes.NewRouteCasinoController(CasinoController)
+
+	GameController = controllers.NewGameController(initializers.DB)
+	GameRouteController = routes.NewRouteGameController(GameController)
+
+	PlayerController = controllers.NewPlayerController(initializers.DB)
+	PlayerRouteController = routes.NewRoutePlayerController(PlayerController)
+
+	DealerController = controllers.NewDealerController(initializers.DB)
+	DealerRouteController = routes.NewRouteDealerController(DealerController)
+
+	GameSummaryController = controllers.NewGameSummaryController(initializers.DB)
+	GameSummaryRouteController = routes.NewRouteGameSummaryController(GameSummaryController)
 
 	server = gin.Default()
 }
@@ -90,7 +105,9 @@ func main() {
 	corsConfig.AllowCredentials = true
 
 	server.Use(cors.New(corsConfig))
+
 	server.StaticFile("", "templates/index.html")
+
 	router := server.Group("/api")
 
 	// Health check endpoint
@@ -102,8 +119,11 @@ func main() {
 	// Routes
 	AuthRouteController.AuthRoute(router)
 	UserRouteController.UserRoute(router)
-	PostRouteController.PostRoute(router)
-	CommentRouteController.CommentRoute(router)
+	CasinoRouteController.CasinoRoute(router)
+	GameRouteController.GameRoute(router)
+	PlayerRouteController.PlayerRoute(router)
+	DealerRouteController.DealerRoute(router)
+	GameSummaryRouteController.GameSummaryRoute(router)
 
 	log.Fatal(server.Run(":" + config.ServerPort))
 }

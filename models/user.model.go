@@ -14,8 +14,6 @@ type User struct {
 	Role      string    `gorm:"type:varchar(255);not null" json:"role,omitempty"`
 	Provider  string    `gorm:"not null" json:"provider,omitempty"`
 	Verified  bool      `gorm:"not null" json:"verified,omitempty"`
-	Posts     []Post    `gorm:"foreignKey:UserID" json:"posts,omitempty"`
-	Comments  []Comment `gorm:"foreignKey:UserID" json:"comments,omitempty"`
 	CreatedAt time.Time `gorm:"not null" json:"created_at,omitempty"`
 	UpdatedAt time.Time `gorm:"not null" json:"updated_at,omitempty"`
 }
@@ -32,7 +30,7 @@ type SignInInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
-type SignInOuput struct {
+type SignInOutput struct {
 	ID    uuid.UUID `json:"id,omitempty"`
 	Name  string    `json:"name,omitempty"`
 	Email string    `json:"email,omitempty"`

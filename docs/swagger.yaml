@@ -1,5 +1,227 @@
 basePath: /api
 definitions:
+  models.Casino:
+    properties:
+      created_at:
+        type: string
+      dealers:
+        items:
+          $ref: '#/definitions/models.Dealer'
+        type: array
+      description:
+        type: string
+      game_summaries:
+        items:
+          $ref: '#/definitions/models.GameSummary'
+        type: array
+      games:
+        items:
+          $ref: '#/definitions/models.Game'
+        type: array
+      id:
+        type: string
+      license_number:
+        type: string
+      location:
+        type: string
+      max_capacity:
+        type: integer
+      name:
+        type: string
+      opening_hours:
+        type: string
+      owner:
+        $ref: '#/definitions/models.User'
+      owner_id:
+        type: string
+      phone_number:
+        type: string
+      rating:
+        type: number
+      status:
+        type: string
+      updated_at:
+        type: string
+      website:
+        type: string
+    type: object
+  models.CreateCasinoRequest:
+    properties:
+      description:
+        type: string
+      license_number:
+        type: string
+      location:
+        type: string
+      max_capacity:
+        type: integer
+      name:
+        type: string
+      opening_hours:
+        type: string
+      owner_id:
+        type: string
+      phone_number:
+        type: string
+      status:
+        type: string
+      website:
+        type: string
+    required:
+    - license_number
+    - location
+    - max_capacity
+    - name
+    - owner_id
+    - status
+    type: object
+  models.CreateDealerRequest:
+    properties:
+      dealer_code:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: string
+    required:
+    - dealer_code
+    - status
+    - user_id
+    type: object
+  models.Dealer:
+    properties:
+      casinos:
+        items:
+          $ref: '#/definitions/models.Casino'
+        type: array
+      created_at:
+        type: string
+      dealer_code:
+        type: string
+      game_summaries:
+        items:
+          $ref: '#/definitions/models.GameSummary'
+        type: array
+      games_dealt:
+        type: integer
+      id:
+        type: string
+      last_active_at:
+        type: string
+      rating:
+        type: number
+      status:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        type: string
+    type: object
+  models.Game:
+    properties:
+      casinos:
+        items:
+          $ref: '#/definitions/models.Casino'
+        type: array
+      created_at:
+        type: string
+      description:
+        type: string
+      game_summaries:
+        items:
+          $ref: '#/definitions/models.GameSummary'
+        type: array
+      id:
+        type: string
+      max_bet:
+        type: number
+      max_players:
+        type: integer
+      min_bet:
+        type: number
+      min_players:
+        type: integer
+      name:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.GameSummary:
+    properties:
+      casino:
+        $ref: '#/definitions/models.Casino'
+      casino_id:
+        type: string
+      created_at:
+        type: string
+      dealer:
+        $ref: '#/definitions/models.Dealer'
+      dealer_id:
+        type: string
+      end_time:
+        type: string
+      game:
+        $ref: '#/definitions/models.Game'
+      game_id:
+        type: string
+      highest_bet:
+        type: number
+      id:
+        type: string
+      players:
+        items:
+          $ref: '#/definitions/models.Player'
+        type: array
+      rounds_played:
+        type: integer
+      start_time:
+        type: string
+      status:
+        type: string
+      total_pot:
+        type: number
+      updated_at:
+        type: string
+      winner:
+        $ref: '#/definitions/models.Player'
+      winner_id:
+        type: string
+    type: object
+  models.Player:
+    properties:
+      created_at:
+        type: string
+      games_played:
+        type: integer
+      id:
+        type: string
+      nickname:
+        type: string
+      played_games:
+        items:
+          $ref: '#/definitions/models.GameSummary'
+        type: array
+      rank:
+        type: string
+      status:
+        type: string
+      total_winnings:
+        type: number
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        type: string
+      won_games:
+        items:
+          $ref: '#/definitions/models.GameSummary'
+        type: array
+    type: object
   models.SignInInput:
     properties:
       email:
@@ -26,6 +248,59 @@ definitions:
     - name
     - password
     - passwordConfirm
+    type: object
+  models.UpdateCasinoRequest:
+    properties:
+      description:
+        type: string
+      license_number:
+        type: string
+      location:
+        type: string
+      max_capacity:
+        type: integer
+      name:
+        type: string
+      opening_hours:
+        type: string
+      phone_number:
+        type: string
+      rating:
+        type: number
+      status:
+        type: string
+      website:
+        type: string
+    type: object
+  models.UpdateDealerRequest:
+    properties:
+      games_dealt:
+        type: integer
+      last_active_at:
+        type: string
+      rating:
+        type: number
+      status:
+        type: string
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      provider:
+        type: string
+      role:
+        type: string
+      updated_at:
+        type: string
+      verified:
+        type: boolean
     type: object
   models.UserResponse:
     properties:
@@ -158,6 +433,296 @@ paths:
       summary: Register a new user
       tags:
       - authentication
+  /casinos:
+    get:
+      description: Get a list of casinos
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "502":
+          description: Bad Gateway
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List casinos
+      tags:
+      - casinos
+    post:
+      consumes:
+      - application/json
+      description: Create a new casino with the input payload
+      parameters:
+      - description: Create casino request
+        in: body
+        name: casino
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateCasinoRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Casino'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "502":
+          description: Bad Gateway
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new casino
+      tags:
+      - casinos
+  /casinos/{casinoId}:
+    delete:
+      description: Delete a casino by its ID
+      parameters:
+      - description: Casino ID
+        in: path
+        name: casinoId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a casino
+      tags:
+      - casinos
+    get:
+      description: Get a single casino by its ID
+      parameters:
+      - description: Casino ID
+        in: path
+        name: casinoId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Casino'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a casino by ID
+      tags:
+      - casinos
+    put:
+      consumes:
+      - application/json
+      description: Update a casino with the input payload
+      parameters:
+      - description: Casino ID
+        in: path
+        name: casinoId
+        required: true
+        type: string
+      - description: Update casino request
+        in: body
+        name: casino
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateCasinoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Casino'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a casino
+      tags:
+      - casinos
+  /dealers:
+    get:
+      description: Get a list of dealers
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "502":
+          description: Bad Gateway
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List dealers
+      tags:
+      - dealers
+    post:
+      consumes:
+      - application/json
+      description: Create a new dealer with the input payload
+      parameters:
+      - description: Create dealer request
+        in: body
+        name: dealer
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateDealerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Dealer'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "502":
+          description: Bad Gateway
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new dealer
+      tags:
+      - dealers
+  /dealers/{dealerId}:
+    delete:
+      description: Delete a dealer by its ID
+      parameters:
+      - description: Dealer ID
+        in: path
+        name: dealerId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a dealer
+      tags:
+      - dealers
+    get:
+      description: Get a single dealer by its ID
+      parameters:
+      - description: Dealer ID
+        in: path
+        name: dealerId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Dealer'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a dealer by ID
+      tags:
+      - dealers
+    put:
+      consumes:
+      - application/json
+      description: Update a dealer with the input payload
+      parameters:
+      - description: Dealer ID
+        in: path
+        name: dealerId
+        required: true
+        type: string
+      - description: Update dealer request
+        in: body
+        name: dealer
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateDealerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Dealer'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a dealer
+      tags:
+      - dealers
   /healthchecker:
     get:
       consumes:
