@@ -20,6 +20,18 @@ func NewDealerController(DB *gorm.DB) DealerController {
 	return DealerController{DB}
 }
 
+// CreateDealer godoc
+// @Summary Create a new dealer
+// @Description Create a new dealer with the input payload
+// @Tags dealers
+// @Accept json
+// @Produce json
+// @Param dealer body models.CreateDealerRequest true "Create dealer request"
+// @Success 201 {object} models.DealerResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 409 {object} map[string]interface{}
+// @Failure 502 {object} map[string]interface{}
+// @Router /dealers [post]
 func (dc *DealerController) CreateDealer(ctx *gin.Context) {
 	var payload *models.CreateDealerRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -68,6 +80,18 @@ func (dc *DealerController) CreateDealer(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": dealerResponse})
 }
 
+// UpdateDealer godoc
+// @Summary Update a dealer
+// @Description Update a dealer's information by ID
+// @Tags dealers
+// @Accept json
+// @Produce json
+// @Param dealerId path string true "Dealer ID"
+// @Param dealer body models.UpdateDealerRequest true "Update dealer request"
+// @Success 200 {object} models.DealerResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /dealers/{dealerId} [put]
 func (dc *DealerController) UpdateDealer(ctx *gin.Context) {
 	dealerId := ctx.Param("dealerId")
 	var payload *models.UpdateDealerRequest
@@ -109,6 +133,16 @@ func (dc *DealerController) UpdateDealer(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": dealerResponse})
 }
 
+// FindDealerById godoc
+// @Summary Get a dealer by ID
+// @Description Get details of a dealer by ID
+// @Tags dealers
+// @Accept json
+// @Produce json
+// @Param dealerId path string true "Dealer ID"
+// @Success 200 {object} models.DealerResponse
+// @Failure 404 {object} map[string]interface{}
+// @Router /dealers/{dealerId} [get]
 func (dc *DealerController) FindDealerById(ctx *gin.Context) {
 	dealerId := ctx.Param("dealerId")
 
@@ -133,6 +167,17 @@ func (dc *DealerController) FindDealerById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": dealerResponse})
 }
 
+// FindDealers godoc
+// @Summary List dealers
+// @Description Get a list of dealers
+// @Tags dealers
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number"
+// @Param limit query int false "Number of items per page"
+// @Success 200 {object} map[string]interface{}
+// @Failure 502 {object} map[string]interface{}
+// @Router /dealers [get]
 func (dc *DealerController) FindDealers(ctx *gin.Context) {
 	var page = ctx.DefaultQuery("page", "1")
 	var limit = ctx.DefaultQuery("limit", "10")
@@ -165,6 +210,16 @@ func (dc *DealerController) FindDealers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "results": len(dealerResponses), "data": dealerResponses})
 }
 
+// DeleteDealer godoc
+// @Summary Delete a dealer
+// @Description Delete a dealer by ID
+// @Tags dealers
+// @Accept json
+// @Produce json
+// @Param dealerId path string true "Dealer ID"
+// @Success 204 "No Content"
+// @Failure 404 {object} map[string]interface{}
+// @Router /dealers/{dealerId} [delete]
 func (dc *DealerController) DeleteDealer(ctx *gin.Context) {
 	dealerId := ctx.Param("dealerId")
 

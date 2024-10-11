@@ -106,6 +106,43 @@ definitions:
     - owner_id
     - status
     type: object
+  models.CreateDealerRequest:
+    properties:
+      dealer_code:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: string
+    required:
+    - dealer_code
+    - status
+    - user_id
+    type: object
+  models.CreateGameRequest:
+    properties:
+      description:
+        type: string
+      max_bet:
+        type: number
+      max_players:
+        type: integer
+      min_bet:
+        type: number
+      min_players:
+        type: integer
+      name:
+        type: string
+      type:
+        type: string
+    required:
+    - max_bet
+    - max_players
+    - min_bet
+    - min_players
+    - name
+    - type
+    type: object
   models.CreateGameSummaryRequest:
     properties:
       casino_id:
@@ -126,6 +163,16 @@ definitions:
     - game_id
     - player_ids
     - start_time
+    type: object
+  models.CreatePlayerRequest:
+    properties:
+      nickname:
+        type: string
+      user_id:
+        type: string
+    required:
+    - nickname
+    - user_id
     type: object
   models.Dealer:
     properties:
@@ -399,6 +446,34 @@ definitions:
       website:
         type: string
     type: object
+  models.UpdateDealerRequest:
+    properties:
+      games_dealt:
+        type: integer
+      last_active_at:
+        type: string
+      rating:
+        type: number
+      status:
+        type: string
+    type: object
+  models.UpdateGameRequest:
+    properties:
+      description:
+        type: string
+      max_bet:
+        type: number
+      max_players:
+        type: integer
+      min_bet:
+        type: number
+      min_players:
+        type: integer
+      name:
+        type: string
+      type:
+        type: string
+    type: object
   models.UpdateGameSummaryRequest:
     properties:
       end_time:
@@ -410,6 +485,19 @@ definitions:
       status:
         type: string
       total_pot:
+        type: number
+    type: object
+  models.UpdatePlayerRequest:
+    properties:
+      games_played:
+        type: integer
+      nickname:
+        type: string
+      rank:
+        type: string
+      status:
+        type: string
+      total_winnings:
         type: number
     type: object
   models.User:
@@ -707,6 +795,157 @@ paths:
       summary: Update a casino
       tags:
       - casinos
+  /dealers:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of dealers
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "502":
+          description: Bad Gateway
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List dealers
+      tags:
+      - dealers
+    post:
+      consumes:
+      - application/json
+      description: Create a new dealer with the input payload
+      parameters:
+      - description: Create dealer request
+        in: body
+        name: dealer
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateDealerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.DealerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "502":
+          description: Bad Gateway
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new dealer
+      tags:
+      - dealers
+  /dealers/{dealerId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a dealer by ID
+      parameters:
+      - description: Dealer ID
+        in: path
+        name: dealerId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a dealer
+      tags:
+      - dealers
+    get:
+      consumes:
+      - application/json
+      description: Get details of a dealer by ID
+      parameters:
+      - description: Dealer ID
+        in: path
+        name: dealerId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DealerResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a dealer by ID
+      tags:
+      - dealers
+    put:
+      consumes:
+      - application/json
+      description: Update a dealer's information by ID
+      parameters:
+      - description: Dealer ID
+        in: path
+        name: dealerId
+        required: true
+        type: string
+      - description: Update dealer request
+        in: body
+        name: dealer
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateDealerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DealerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a dealer
+      tags:
+      - dealers
   /game-summaries:
     get:
       consumes:
@@ -860,6 +1099,159 @@ paths:
       summary: Update a game summary
       tags:
       - gameSummaries
+  /games:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of games
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "502":
+          description: Bad Gateway
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List games
+      tags:
+      - games
+    post:
+      consumes:
+      - application/json
+      description: Create a new game with the input payload
+      parameters:
+      - description: Create game request
+        in: body
+        name: game
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateGameRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Game'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "502":
+          description: Bad Gateway
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new game
+      tags:
+      - games
+  /games/{gameId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a game by ID
+      parameters:
+      - description: Game ID
+        in: path
+        name: gameId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a game
+      tags:
+      - games
+    get:
+      consumes:
+      - application/json
+      description: Get details of a game by ID
+      parameters:
+      - description: Game ID
+        in: path
+        name: gameId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Game'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a game by ID
+      tags:
+      - games
+    put:
+      consumes:
+      - application/json
+      description: Update a game's information by ID
+      parameters:
+      - description: Game ID
+        in: path
+        name: gameId
+        required: true
+        type: string
+      - description: Update game request
+        in: body
+        name: game
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateGameRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Game'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a game
+      tags:
+      - games
   /healthchecker:
     get:
       consumes:
@@ -876,6 +1268,186 @@ paths:
       summary: Health check endpoint
       tags:
       - health
+  /players:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of players
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "502":
+          description: Bad Gateway
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List players
+      tags:
+      - players
+    post:
+      consumes:
+      - application/json
+      description: Create a new player with the input payload
+      parameters:
+      - description: Create player request
+        in: body
+        name: player
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreatePlayerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Player'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "502":
+          description: Bad Gateway
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new player
+      tags:
+      - players
+  /players/{playerId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a player by ID
+      parameters:
+      - description: Player ID
+        in: path
+        name: playerId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a player
+      tags:
+      - players
+    get:
+      consumes:
+      - application/json
+      description: Get details of a player by ID
+      parameters:
+      - description: Player ID
+        in: path
+        name: playerId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Player'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a player by ID
+      tags:
+      - players
+    put:
+      consumes:
+      - application/json
+      description: Update a player's information by ID
+      parameters:
+      - description: Player ID
+        in: path
+        name: playerId
+        required: true
+        type: string
+      - description: Update player request
+        in: body
+        name: player
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdatePlayerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Player'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a player
+      tags:
+      - players
+  /players/{playerId}/stats:
+    get:
+      consumes:
+      - application/json
+      description: Get statistics of a player by ID
+      parameters:
+      - description: Player ID
+        in: path
+        name: playerId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get player statistics
+      tags:
+      - players
 securityDefinitions:
   BearerAuth:
     in: header

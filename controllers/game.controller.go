@@ -19,6 +19,18 @@ func NewGameController(DB *gorm.DB) GameController {
 	return GameController{DB}
 }
 
+// CreateGame godoc
+// @Summary Create a new game
+// @Description Create a new game with the input payload
+// @Tags games
+// @Accept json
+// @Produce json
+// @Param game body models.CreateGameRequest true "Create game request"
+// @Success 201 {object} models.Game
+// @Failure 400 {object} map[string]interface{}
+// @Failure 409 {object} map[string]interface{}
+// @Failure 502 {object} map[string]interface{}
+// @Router /games [post]
 func (gc *GameController) CreateGame(ctx *gin.Context) {
 	var payload *models.CreateGameRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -52,6 +64,18 @@ func (gc *GameController) CreateGame(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": newGame})
 }
 
+// UpdateGame godoc
+// @Summary Update a game
+// @Description Update a game's information by ID
+// @Tags games
+// @Accept json
+// @Produce json
+// @Param gameId path string true "Game ID"
+// @Param game body models.UpdateGameRequest true "Update game request"
+// @Success 200 {object} models.Game
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /games/{gameId} [put]
 func (gc *GameController) UpdateGame(ctx *gin.Context) {
 	gameId := ctx.Param("gameId")
 	var payload *models.UpdateGameRequest
@@ -84,6 +108,16 @@ func (gc *GameController) UpdateGame(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": game})
 }
 
+// FindGameById godoc
+// @Summary Get a game by ID
+// @Description Get details of a game by ID
+// @Tags games
+// @Accept json
+// @Produce json
+// @Param gameId path string true "Game ID"
+// @Success 200 {object} models.Game
+// @Failure 404 {object} map[string]interface{}
+// @Router /games/{gameId} [get]
 func (gc *GameController) FindGameById(ctx *gin.Context) {
 	gameId := ctx.Param("gameId")
 
@@ -97,6 +131,17 @@ func (gc *GameController) FindGameById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": game})
 }
 
+// FindGames godoc
+// @Summary List games
+// @Description Get a list of games
+// @Tags games
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Number of items per page" default(10)
+// @Success 200 {object} map[string]interface{}
+// @Failure 502 {object} map[string]interface{}
+// @Router /games [get]
 func (gc *GameController) FindGames(ctx *gin.Context) {
 	var page = ctx.DefaultQuery("page", "1")
 	var limit = ctx.DefaultQuery("limit", "10")
@@ -115,6 +160,16 @@ func (gc *GameController) FindGames(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "results": len(games), "data": games})
 }
 
+// DeleteGame godoc
+// @Summary Delete a game
+// @Description Delete a game by ID
+// @Tags games
+// @Accept json
+// @Produce json
+// @Param gameId path string true "Game ID"
+// @Success 204 "No Content"
+// @Failure 404 {object} map[string]interface{}
+// @Router /games/{gameId} [delete]
 func (gc *GameController) DeleteGame(ctx *gin.Context) {
 	gameId := ctx.Param("gameId")
 
