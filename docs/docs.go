@@ -385,25 +385,30 @@ const docTemplate = `{
                 }
             }
         },
-        "/dealers": {
+        "/game-summaries": {
             "get": {
-                "description": "Get a list of dealers",
+                "description": "Get a list of game summaries with pagination",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "dealers"
+                    "gameSummaries"
                 ],
-                "summary": "List dealers",
+                "summary": "List game summaries",
                 "parameters": [
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "Page number",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
+                        "default": 10,
                         "description": "Number of items per page",
                         "name": "limit",
                         "in": "query"
@@ -417,8 +422,8 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     },
-                    "502": {
-                        "description": "Bad Gateway",
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -427,7 +432,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new dealer with the input payload",
+                "description": "Create a new game summary with the given input data",
                 "consumes": [
                     "application/json"
                 ],
@@ -435,17 +440,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "dealers"
+                    "gameSummaries"
                 ],
-                "summary": "Create a new dealer",
+                "summary": "Create a new game summary",
                 "parameters": [
                     {
-                        "description": "Create dealer request",
-                        "name": "dealer",
+                        "description": "Create game summary request",
+                        "name": "gameSummary",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateDealerRequest"
+                            "$ref": "#/definitions/models.CreateGameSummaryRequest"
                         }
                     }
                 ],
@@ -453,7 +458,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Dealer"
+                            "$ref": "#/definitions/models.GameSummaryResponse"
                         }
                     },
                     "400": {
@@ -463,15 +468,8 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "502": {
-                        "description": "Bad Gateway",
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -480,21 +478,24 @@ const docTemplate = `{
                 }
             }
         },
-        "/dealers/{dealerId}": {
+        "/game-summaries/{gameSummaryId}": {
             "get": {
-                "description": "Get a single dealer by its ID",
+                "description": "Get details of a game summary by its ID",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "dealers"
+                    "gameSummaries"
                 ],
-                "summary": "Get a dealer by ID",
+                "summary": "Get a game summary by ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Dealer ID",
-                        "name": "dealerId",
+                        "description": "Game Summary ID",
+                        "name": "gameSummaryId",
                         "in": "path",
                         "required": true
                     }
@@ -503,7 +504,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Dealer"
+                            "$ref": "#/definitions/models.GameSummaryResponse"
                         }
                     },
                     "404": {
@@ -516,7 +517,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Update a dealer with the input payload",
+                "description": "Update a game summary with the given input data",
                 "consumes": [
                     "application/json"
                 ],
@@ -524,24 +525,24 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "dealers"
+                    "gameSummaries"
                 ],
-                "summary": "Update a dealer",
+                "summary": "Update a game summary",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Dealer ID",
-                        "name": "dealerId",
+                        "description": "Game Summary ID",
+                        "name": "gameSummaryId",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Update dealer request",
-                        "name": "dealer",
+                        "description": "Update game summary request",
+                        "name": "gameSummary",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateDealerRequest"
+                            "$ref": "#/definitions/models.UpdateGameSummaryRequest"
                         }
                     }
                 ],
@@ -549,7 +550,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Dealer"
+                            "$ref": "#/definitions/models.GameSummaryResponse"
                         }
                     },
                     "400": {
@@ -565,23 +566,33 @@ const docTemplate = `{
                             "type": "object",
                             "additionalProperties": true
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
                     }
                 }
             },
             "delete": {
-                "description": "Delete a dealer by its ID",
+                "description": "Delete a game summary by its ID",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "dealers"
+                    "gameSummaries"
                 ],
-                "summary": "Delete a dealer",
+                "summary": "Delete a game summary",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Dealer ID",
-                        "name": "dealerId",
+                        "description": "Game Summary ID",
+                        "name": "gameSummaryId",
                         "in": "path",
                         "required": true
                     }
@@ -694,6 +705,53 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CasinoResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "license_number": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "max_capacity": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "opening_hours": {
+                    "type": "string"
+                },
+                "owner": {
+                    "$ref": "#/definitions/models.UserResponse"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                }
+            }
+        },
         "models.CreateCasinoRequest": {
             "type": "object",
             "required": [
@@ -737,21 +795,32 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateDealerRequest": {
+        "models.CreateGameSummaryRequest": {
             "type": "object",
             "required": [
-                "dealer_code",
-                "status",
-                "user_id"
+                "casino_id",
+                "dealer_id",
+                "game_id",
+                "player_ids",
+                "start_time"
             ],
             "properties": {
-                "dealer_code": {
+                "casino_id": {
                     "type": "string"
                 },
-                "status": {
+                "dealer_id": {
                     "type": "string"
                 },
-                "user_id": {
+                "game_id": {
+                    "type": "string"
+                },
+                "player_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "start_time": {
                     "type": "string"
                 }
             }
@@ -803,6 +872,38 @@ const docTemplate = `{
                 }
             }
         },
+        "models.DealerResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "dealer_code": {
+                    "type": "string"
+                },
+                "games_dealt": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_active_at": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.UserResponse"
+                }
+            }
+        },
         "models.Game": {
             "type": "object",
             "properties": {
@@ -823,6 +924,41 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.GameSummary"
                     }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "max_bet": {
+                    "type": "number"
+                },
+                "max_players": {
+                    "type": "integer"
+                },
+                "min_bet": {
+                    "type": "number"
+                },
+                "min_players": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.GameResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "string"
@@ -903,11 +1039,52 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "models.GameSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "casino": {
+                    "$ref": "#/definitions/models.CasinoResponse"
                 },
-                "winner": {
-                    "$ref": "#/definitions/models.Player"
+                "created_at": {
+                    "type": "string"
                 },
-                "winner_id": {
+                "dealer": {
+                    "$ref": "#/definitions/models.DealerResponse"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "game": {
+                    "$ref": "#/definitions/models.GameResponse"
+                },
+                "highest_bet": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "players": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PlayerResponse"
+                    }
+                },
+                "rounds_played": {
+                    "type": "integer"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total_pot": {
+                    "type": "number"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -950,12 +1127,38 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "models.PlayerResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
                 },
-                "won_games": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.GameSummary"
-                    }
+                "games_played": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "rank": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total_winnings": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.UserResponse"
                 }
             }
         },
@@ -1033,20 +1236,23 @@ const docTemplate = `{
                 }
             }
         },
-        "models.UpdateDealerRequest": {
+        "models.UpdateGameSummaryRequest": {
             "type": "object",
             "properties": {
-                "games_dealt": {
-                    "type": "integer"
-                },
-                "last_active_at": {
+                "end_time": {
                     "type": "string"
                 },
-                "rating": {
+                "highest_bet": {
                     "type": "number"
+                },
+                "rounds_played": {
+                    "type": "integer"
                 },
                 "status": {
                     "type": "string"
+                },
+                "total_pot": {
+                    "type": "number"
                 }
             }
         },

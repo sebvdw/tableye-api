@@ -45,6 +45,37 @@ definitions:
       website:
         type: string
     type: object
+  models.CasinoResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      license_number:
+        type: string
+      location:
+        type: string
+      max_capacity:
+        type: integer
+      name:
+        type: string
+      opening_hours:
+        type: string
+      owner:
+        $ref: '#/definitions/models.UserResponse'
+      phone_number:
+        type: string
+      rating:
+        type: number
+      status:
+        type: string
+      updated_at:
+        type: string
+      website:
+        type: string
+    type: object
   models.CreateCasinoRequest:
     properties:
       description:
@@ -75,18 +106,26 @@ definitions:
     - owner_id
     - status
     type: object
-  models.CreateDealerRequest:
+  models.CreateGameSummaryRequest:
     properties:
-      dealer_code:
+      casino_id:
         type: string
-      status:
+      dealer_id:
         type: string
-      user_id:
+      game_id:
+        type: string
+      player_ids:
+        items:
+          type: string
+        type: array
+      start_time:
         type: string
     required:
-    - dealer_code
-    - status
-    - user_id
+    - casino_id
+    - dealer_id
+    - game_id
+    - player_ids
+    - start_time
     type: object
   models.Dealer:
     properties:
@@ -119,6 +158,27 @@ definitions:
       user_id:
         type: string
     type: object
+  models.DealerResponse:
+    properties:
+      created_at:
+        type: string
+      dealer_code:
+        type: string
+      games_dealt:
+        type: integer
+      id:
+        type: string
+      last_active_at:
+        type: string
+      rating:
+        type: number
+      status:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.UserResponse'
+    type: object
   models.Game:
     properties:
       casinos:
@@ -133,6 +193,29 @@ definitions:
         items:
           $ref: '#/definitions/models.GameSummary'
         type: array
+      id:
+        type: string
+      max_bet:
+        type: number
+      max_players:
+        type: integer
+      min_bet:
+        type: number
+      min_players:
+        type: integer
+      name:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.GameResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
       id:
         type: string
       max_bet:
@@ -186,9 +269,36 @@ definitions:
         type: number
       updated_at:
         type: string
-      winner:
-        $ref: '#/definitions/models.Player'
-      winner_id:
+    type: object
+  models.GameSummaryResponse:
+    properties:
+      casino:
+        $ref: '#/definitions/models.CasinoResponse'
+      created_at:
+        type: string
+      dealer:
+        $ref: '#/definitions/models.DealerResponse'
+      end_time:
+        type: string
+      game:
+        $ref: '#/definitions/models.GameResponse'
+      highest_bet:
+        type: number
+      id:
+        type: string
+      players:
+        items:
+          $ref: '#/definitions/models.PlayerResponse'
+        type: array
+      rounds_played:
+        type: integer
+      start_time:
+        type: string
+      status:
+        type: string
+      total_pot:
+        type: number
+      updated_at:
         type: string
     type: object
   models.Player:
@@ -217,10 +327,27 @@ definitions:
         $ref: '#/definitions/models.User'
       user_id:
         type: string
-      won_games:
-        items:
-          $ref: '#/definitions/models.GameSummary'
-        type: array
+    type: object
+  models.PlayerResponse:
+    properties:
+      created_at:
+        type: string
+      games_played:
+        type: integer
+      id:
+        type: string
+      nickname:
+        type: string
+      rank:
+        type: string
+      status:
+        type: string
+      total_winnings:
+        type: number
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.UserResponse'
     type: object
   models.SignInInput:
     properties:
@@ -272,16 +399,18 @@ definitions:
       website:
         type: string
     type: object
-  models.UpdateDealerRequest:
+  models.UpdateGameSummaryRequest:
     properties:
-      games_dealt:
-        type: integer
-      last_active_at:
+      end_time:
         type: string
-      rating:
+      highest_bet:
         type: number
+      rounds_played:
+        type: integer
       status:
         type: string
+      total_pot:
+        type: number
     type: object
   models.User:
     properties:
@@ -578,15 +707,19 @@ paths:
       summary: Update a casino
       tags:
       - casinos
-  /dealers:
+  /game-summaries:
     get:
-      description: Get a list of dealers
+      consumes:
+      - application/json
+      description: Get a list of game summaries with pagination
       parameters:
-      - description: Page number
+      - default: 1
+        description: Page number
         in: query
         name: page
         type: integer
-      - description: Number of items per page
+      - default: 10
+        description: Number of items per page
         in: query
         name: limit
         type: integer
@@ -598,57 +731,54 @@ paths:
           schema:
             additionalProperties: true
             type: object
-        "502":
-          description: Bad Gateway
+        "500":
+          description: Internal Server Error
           schema:
             additionalProperties: true
             type: object
-      summary: List dealers
+      summary: List game summaries
       tags:
-      - dealers
+      - gameSummaries
     post:
       consumes:
       - application/json
-      description: Create a new dealer with the input payload
+      description: Create a new game summary with the given input data
       parameters:
-      - description: Create dealer request
+      - description: Create game summary request
         in: body
-        name: dealer
+        name: gameSummary
         required: true
         schema:
-          $ref: '#/definitions/models.CreateDealerRequest'
+          $ref: '#/definitions/models.CreateGameSummaryRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Dealer'
+            $ref: '#/definitions/models.GameSummaryResponse'
         "400":
           description: Bad Request
           schema:
             additionalProperties: true
             type: object
-        "409":
-          description: Conflict
+        "500":
+          description: Internal Server Error
           schema:
             additionalProperties: true
             type: object
-        "502":
-          description: Bad Gateway
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Create a new dealer
+      summary: Create a new game summary
       tags:
-      - dealers
-  /dealers/{dealerId}:
+      - gameSummaries
+  /game-summaries/{gameSummaryId}:
     delete:
-      description: Delete a dealer by its ID
+      consumes:
+      - application/json
+      description: Delete a game summary by its ID
       parameters:
-      - description: Dealer ID
+      - description: Game Summary ID
         in: path
-        name: dealerId
+        name: gameSummaryId
         required: true
         type: string
       produces:
@@ -661,15 +791,17 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: Delete a dealer
+      summary: Delete a game summary
       tags:
-      - dealers
+      - gameSummaries
     get:
-      description: Get a single dealer by its ID
+      consumes:
+      - application/json
+      description: Get details of a game summary by its ID
       parameters:
-      - description: Dealer ID
+      - description: Game Summary ID
         in: path
-        name: dealerId
+        name: gameSummaryId
         required: true
         type: string
       produces:
@@ -678,38 +810,38 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Dealer'
+            $ref: '#/definitions/models.GameSummaryResponse'
         "404":
           description: Not Found
           schema:
             additionalProperties: true
             type: object
-      summary: Get a dealer by ID
+      summary: Get a game summary by ID
       tags:
-      - dealers
+      - gameSummaries
     put:
       consumes:
       - application/json
-      description: Update a dealer with the input payload
+      description: Update a game summary with the given input data
       parameters:
-      - description: Dealer ID
+      - description: Game Summary ID
         in: path
-        name: dealerId
+        name: gameSummaryId
         required: true
         type: string
-      - description: Update dealer request
+      - description: Update game summary request
         in: body
-        name: dealer
+        name: gameSummary
         required: true
         schema:
-          $ref: '#/definitions/models.UpdateDealerRequest'
+          $ref: '#/definitions/models.UpdateGameSummaryRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Dealer'
+            $ref: '#/definitions/models.GameSummaryResponse'
         "400":
           description: Bad Request
           schema:
@@ -720,9 +852,14 @@ paths:
           schema:
             additionalProperties: true
             type: object
-      summary: Update a dealer
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a game summary
       tags:
-      - dealers
+      - gameSummaries
   /healthchecker:
     get:
       consumes:
