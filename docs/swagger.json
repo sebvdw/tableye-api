@@ -15,7 +15,7 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "https://suidev.nl",
     "basePath": "/api",
     "paths": {
         "/auth/login": {
@@ -109,7 +109,7 @@
                 }
             }
         },
-        "/auth/signup": {
+        "/auth/register": {
             "post": {
                 "description": "Register a new user with the provided details",
                 "consumes": [

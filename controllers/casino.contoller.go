@@ -168,7 +168,34 @@ func (cc *CasinoController) FindCasinos(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "results": len(casinos), "data": casinos})
+	// Create a slice to hold the modified casino data
+	casinosResponse := make([]gin.H, len(casinos))
+
+	for i, casino := range casinos {
+		casinoResponse := gin.H{
+			"id":             casino.ID,
+			"name":           casino.Name,
+			"location":       casino.Location,
+			"license_number": casino.LicenseNumber,
+			"description":    casino.Description,
+			"opening_hours":  casino.OpeningHours,
+			"website":        casino.Website,
+			"phone_number":   casino.PhoneNumber,
+			"max_capacity":   casino.MaxCapacity,
+			"status":         casino.Status,
+			"rating":         casino.Rating,
+			"created_at":     casino.CreatedAt,
+			"updated_at":     casino.UpdatedAt,
+			"owner": gin.H{
+				"id":    casino.Owner.ID,
+				"name":  casino.Owner.Name,
+				"email": casino.Owner.Email,
+			},
+		}
+		casinosResponse[i] = casinoResponse
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "results": len(casinosResponse), "data": casinosResponse})
 }
 
 // DeleteCasino godoc

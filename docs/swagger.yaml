@@ -538,7 +538,7 @@ definitions:
       verified:
         type: boolean
     type: object
-host: localhost:8080
+host: https://suidev.nl
 info:
   contact:
     email: support@swagger.io
@@ -613,7 +613,7 @@ paths:
       summary: Refresh access token
       tags:
       - authentication
-  /auth/signup:
+  /auth/register:
     post:
       consumes:
       - application/json

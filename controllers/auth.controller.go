@@ -32,7 +32,7 @@ func NewAuthController(DB *gorm.DB) AuthController {
 // @Failure 400 {object} map[string]interface{} "Bad request"
 // @Failure 409 {object} map[string]interface{} "User already exists"
 // @Failure 502 {object} map[string]interface{} "Server error"
-// @Router /auth/signup [post]
+// @Router /auth/register [post]
 func (ac *AuthController) SignUpUser(ctx *gin.Context) {
 	var payload *models.SignUpInput
 
