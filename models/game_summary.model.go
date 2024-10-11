@@ -15,8 +15,6 @@ type GameSummary struct {
 	StartTime    time.Time `gorm:"not null" json:"start_time,omitempty"`
 	EndTime      time.Time `json:"end_time,omitempty"`
 	Players      []Player  `gorm:"many2many:game_players;" json:"players,omitempty"`
-	WinnerID     uuid.UUID `gorm:"type:uuid" json:"winner_id,omitempty"`
-	Winner       Player    `gorm:"foreignKey:WinnerID" json:"winner,omitempty"`
 	DealerID     uuid.UUID `gorm:"type:uuid;not null" json:"dealer_id,omitempty"`
 	Dealer       Dealer    `gorm:"foreignKey:DealerID" json:"dealer,omitempty"`
 	TotalPot     float64   `gorm:"not null" json:"total_pot,omitempty"`
@@ -37,7 +35,6 @@ type CreateGameSummaryRequest struct {
 
 type UpdateGameSummaryRequest struct {
 	EndTime      time.Time `json:"end_time,omitempty"`
-	WinnerID     string    `json:"winner_id,omitempty"`
 	TotalPot     float64   `json:"total_pot,omitempty"`
 	Status       string    `json:"status,omitempty"`
 	RoundsPlayed int       `json:"rounds_played,omitempty"`
@@ -51,7 +48,6 @@ type GameSummaryResponse struct {
 	StartTime    time.Time      `json:"start_time,omitempty"`
 	EndTime      time.Time      `json:"end_time,omitempty"`
 	Players      []PlayerResponse `json:"players,omitempty"`
-	Winner       PlayerResponse `json:"winner,omitempty"`
 	Dealer       DealerResponse `json:"dealer,omitempty"`
 	TotalPot     float64        `json:"total_pot,omitempty"`
 	Status       string         `json:"status,omitempty"`

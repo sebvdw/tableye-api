@@ -16,7 +16,6 @@ type Player struct {
 	Rank          string        `gorm:"type:varchar(50)" json:"rank,omitempty"`
 	Status        string        `gorm:"type:varchar(50);not null" json:"status,omitempty"`
 	PlayedGames   []GameSummary `gorm:"many2many:game_players;" json:"played_games,omitempty"`
-	WonGames      []GameSummary `gorm:"foreignKey:WinnerID" json:"won_games,omitempty"`
 	CreatedAt     time.Time     `gorm:"not null" json:"created_at,omitempty"`
 	UpdatedAt     time.Time     `gorm:"not null" json:"updated_at,omitempty"`
 }

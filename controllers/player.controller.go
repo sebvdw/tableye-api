@@ -92,7 +92,7 @@ func (pc *PlayerController) FindPlayerById(ctx *gin.Context) {
 	playerId := ctx.Param("playerId")
 
 	var player models.Player
-	result := pc.DB.Preload("User").Preload("PlayedGames").Preload("WonGames").First(&player, "id = ?", playerId)
+	result := pc.DB.Preload("User").Preload("PlayedGames").First(&player, "id = ?", playerId)
 	if result.Error != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No player with that ID exists"})
 		return
@@ -137,16 +137,22 @@ func (pc *PlayerController) FindPlayerStats(ctx *gin.Context) {
 	playerId := ctx.Param("playerId")
 
 	var player models.Player
-	result := pc.DB.Preload("WonGames").First(&player, "id = ?", playerId)
+	result := pc.DB.First(&player, "id = ?", playerId)
 	if result.Error != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No player with that ID exists"})
 		return
 	}
 
 	// Calculate win rate
+	var winCount int64
+	pc.DB.Model(&models.GameSummary{}).
+		Joins("JOIN game_players ON game_summaries.id = game_players.game_summary_id").
+		Where("game_players.player_id = ? AND game_summaries.status = ?", player.ID, "Completed").
+		Count(&winCount)
+
 	winRate := float64(0)
 	if player.GamesPlayed > 0 {
-		winRate = float64(len(player.WonGames)) / float64(player.GamesPlayed) * 100
+		winRate = float64(winCount) / float64(player.GamesPlayed) * 100
 	}
 
 	stats := gin.H{

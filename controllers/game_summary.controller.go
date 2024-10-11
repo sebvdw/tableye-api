@@ -19,6 +19,17 @@ func NewGameSummaryController(DB *gorm.DB) GameSummaryController {
 	return GameSummaryController{DB}
 }
 
+// CreateGameSummary godoc
+// @Summary Create a new game summary
+// @Description Create a new game summary with the given input data
+// @Tags gameSummaries
+// @Accept json
+// @Produce json
+// @Param gameSummary body models.CreateGameSummaryRequest true "Create game summary request"
+// @Success 201 {object} models.GameSummaryResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /game-summaries [post]
 func (gsc *GameSummaryController) CreateGameSummary(ctx *gin.Context) {
 	var payload *models.CreateGameSummaryRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -68,7 +79,7 @@ func (gsc *GameSummaryController) CreateGameSummary(ctx *gin.Context) {
 
 	result := gsc.DB.Create(&newGameSummary)
 	if result.Error != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": result.Error.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})
 		return
 	}
 
@@ -80,6 +91,19 @@ func (gsc *GameSummaryController) CreateGameSummary(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": newGameSummary})
 }
 
+// UpdateGameSummary godoc
+// @Summary Update a game summary
+// @Description Update a game summary with the given input data
+// @Tags gameSummaries
+// @Accept json
+// @Produce json
+// @Param gameSummaryId path string true "Game Summary ID"
+// @Param gameSummary body models.UpdateGameSummaryRequest true "Update game summary request"
+// @Success 200 {object} models.GameSummaryResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /game-summaries/{gameSummaryId} [put]
 func (gsc *GameSummaryController) UpdateGameSummary(ctx *gin.Context) {
 	gameSummaryId := ctx.Param("gameSummaryId")
 	var payload *models.UpdateGameSummaryRequest
@@ -106,24 +130,25 @@ func (gsc *GameSummaryController) UpdateGameSummary(ctx *gin.Context) {
 		UpdatedAt:    now,
 	}
 
-	if payload.WinnerID != "" {
-		winnerID, err := uuid.Parse(payload.WinnerID)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid winner ID"})
-			return
-		}
-		gameSummaryToUpdate.WinnerID = winnerID
-	}
-
 	gsc.DB.Model(&gameSummary).Updates(gameSummaryToUpdate)
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": gameSummary})
 }
 
+// FindGameSummaryById godoc
+// @Summary Get a game summary by ID
+// @Description Get details of a game summary by its ID
+// @Tags gameSummaries
+// @Accept json
+// @Produce json
+// @Param gameSummaryId path string true "Game Summary ID"
+// @Success 200 {object} models.GameSummaryResponse
+// @Failure 404 {object} map[string]interface{}
+// @Router /game-summaries/{gameSummaryId} [get]
 func (gsc *GameSummaryController) FindGameSummaryById(ctx *gin.Context) {
 	gameSummaryId := ctx.Param("gameSummaryId")
 
 	var gameSummary models.GameSummary
-	result := gsc.DB.Preload("Game").Preload("Casino").Preload("Players").Preload("Winner").Preload("Dealer").First(&gameSummary, "id = ?", gameSummaryId)
+	result := gsc.DB.Preload("Game").Preload("Casino").Preload("Players").Preload("Dealer").First(&gameSummary, "id = ?", gameSummaryId)
 	if result.Error != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No game summary with that ID exists"})
 		return
@@ -132,6 +157,17 @@ func (gsc *GameSummaryController) FindGameSummaryById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": gameSummary})
 }
 
+// FindGameSummaries godoc
+// @Summary List game summaries
+// @Description Get a list of game summaries with pagination
+// @Tags gameSummaries
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Number of items per page" default(10)
+// @Success 200 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /game-summaries [get]
 func (gsc *GameSummaryController) FindGameSummaries(ctx *gin.Context) {
 	var page = ctx.DefaultQuery("page", "1")
 	var limit = ctx.DefaultQuery("limit", "10")
@@ -143,13 +179,23 @@ func (gsc *GameSummaryController) FindGameSummaries(ctx *gin.Context) {
 	var gameSummaries []models.GameSummary
 	results := gsc.DB.Preload("Game").Preload("Casino").Limit(intLimit).Offset(offset).Find(&gameSummaries)
 	if results.Error != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": results.Error})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": results.Error})
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "results": len(gameSummaries), "data": gameSummaries})
 }
 
+// DeleteGameSummary godoc
+// @Summary Delete a game summary
+// @Description Delete a game summary by its ID
+// @Tags gameSummaries
+// @Accept json
+// @Produce json
+// @Param gameSummaryId path string true "Game Summary ID"
+// @Success 204 "No Content"
+// @Failure 404 {object} map[string]interface{}
+// @Router /game-summaries/{gameSummaryId} [delete]
 func (gsc *GameSummaryController) DeleteGameSummary(ctx *gin.Context) {
 	gameSummaryId := ctx.Param("gameSummaryId")
 
