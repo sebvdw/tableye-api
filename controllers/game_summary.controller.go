@@ -187,9 +187,11 @@ func (gsc *GameSummaryController) FindGameSummaries(ctx *gin.Context) {
 	var gameSummaries []models.GameSummary
 	results := gsc.DB.Preload("Game").
 		Preload("Casino", func(db *gorm.DB) *gorm.DB {
-			return db.Omit("Owner")
+			return db.Select("id, name, location, license_number, description, opening_hours, website, phone_number, max_capacity, status, rating, created_at, updated_at")
 		}).
-		Preload("Dealer").
+		Preload("Dealer", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, dealer_code, status, games_dealt, rating, last_active_at, created_at, updated_at")
+		}).
 		Preload("Transactions").
 		Limit(intLimit).
 		Offset(offset).
