@@ -22,5 +22,4 @@ func (tc *TransactionRouteController) TransactionRoute(rg *gin.RouterGroup) {
 	router.GET("/:transactionId", middleware.DeserializeUser(), tc.transactionController.FindTransactionById)
 	router.PUT("/:transactionId", middleware.DeserializeUser(), tc.transactionController.UpdateTransaction)
 	router.DELETE("/:transactionId", middleware.DeserializeUser(), tc.transactionController.DeleteTransaction)
-	router.GET("/game-summary/:gameSummaryId", middleware.DeserializeUser(), tc.transactionController.GetTransactionsByGameSummary)
 }
