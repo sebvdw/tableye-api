@@ -46,6 +46,8 @@ var (
 	DealerRouteController      routes.DealerRouteController
 	GameSummaryController      controllers.GameSummaryController
 	GameSummaryRouteController routes.GameSummaryRouteController
+	TransactionController      controllers.TransactionController
+	TransactionRouteController routes.TransactionRouteController
 )
 
 func init() {
@@ -76,6 +78,9 @@ func init() {
 
 	GameSummaryController = controllers.NewGameSummaryController(initializers.DB)
 	GameSummaryRouteController = routes.NewRouteGameSummaryController(GameSummaryController)
+
+	TransactionController = controllers.NewTransactionController(initializers.DB)
+	TransactionRouteController = routes.NewRouteTransactionController(TransactionController)
 
 	server = gin.Default()
 }
@@ -124,6 +129,7 @@ func main() {
 	PlayerRouteController.PlayerRoute(router)
 	DealerRouteController.DealerRoute(router)
 	GameSummaryRouteController.GameSummaryRoute(router)
+	TransactionRouteController.TransactionRoute(router)
 
 	log.Fatal(server.Run(":" + config.ServerPort))
 }
