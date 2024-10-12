@@ -187,7 +187,7 @@ func (dc *DealerController) FindDealers(ctx *gin.Context) {
 	offset := (intPage - 1) * intLimit
 
 	var dealers []models.Dealer
-	results := dc.DB.Limit(intLimit).Offset(offset).Find(&dealers)
+	results := dc.DB.Preload("User").Limit(intLimit).Offset(offset).Find(&dealers)
 	if results.Error != nil {
 		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": results.Error})
 		return
@@ -196,7 +196,17 @@ func (dc *DealerController) FindDealers(ctx *gin.Context) {
 	dealerResponses := make([]models.DealerResponse, len(dealers))
 	for i, dealer := range dealers {
 		dealerResponses[i] = models.DealerResponse{
-			ID:           dealer.ID,
+			ID: dealer.ID,
+			User: models.UserResponse{
+				ID:        dealer.User.ID,
+				Name:      dealer.User.Name,
+				Email:     dealer.User.Email,
+				Role:      dealer.User.Role,
+				Provider:  dealer.User.Provider,
+				Verified:  dealer.User.Verified,
+				CreatedAt: dealer.User.CreatedAt,
+				UpdatedAt: dealer.User.UpdatedAt,
+			},
 			DealerCode:   dealer.DealerCode,
 			Status:       dealer.Status,
 			GamesDealt:   dealer.GamesDealt,

@@ -142,7 +142,7 @@ func seedDealers(db *gorm.DB, dealerUsers []models.User) []models.Dealer {
 	for i := 0; i < numDealers; i++ {
 		dealers[i] = models.Dealer{
 			ID:         uuid.New(),
-			UserID:     dealerUsers[i].ID,
+			UserID:     dealerUsers[i].ID, // Make sure this is correctly set
 			DealerCode: fmt.Sprintf("D%04d", i+1),
 			Status:     "Active",
 			GamesDealt: rand.Intn(200),
