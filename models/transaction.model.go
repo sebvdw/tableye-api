@@ -13,7 +13,7 @@ type Transaction struct {
 	PlayerID      uuid.UUID   `gorm:"type:uuid;not null" json:"-"`
 	Player        Player      `gorm:"foreignKey:PlayerID" json:"player,omitempty"`
 	Amount        float64     `gorm:"type:decimal(10,2);not null" json:"amount,omitempty"`
-	Type          string      `gorm:"type:varchar(50);not null" json:"type,omitempty"`
+	Type          string      `gorm:"type:varchar(50);not null" json:"-"`
 	Outcome       string      `gorm:"type:varchar(10);not null;default:'loss'" json:"outcome,omitempty"`
 	CreatedAt     time.Time   `gorm:"not null" json:"created_at,omitempty"`
 	UpdatedAt     time.Time   `gorm:"not null" json:"updated_at,omitempty"`
@@ -23,12 +23,12 @@ type CreateTransactionRequest struct {
 	GameSummaryID string  `json:"game_summary_id" binding:"required"`
 	PlayerID      string  `json:"player_id" binding:"required"`
 	Amount        float64 `json:"amount" binding:"required"`
-	Type          string  `json:"type" binding:"required"`
-	Outcome       string  `json:"outcome" binding:"required,oneof=win loss"`
+	//Type          string  `json:"type" binding:"required"`
+	Outcome string `json:"outcome" binding:"required,oneof=win loss"`
 }
 
 type UpdateTransactionRequest struct {
-	Amount  float64 `json:"amount,omitempty"`
-	Type    string  `json:"type,omitempty"`
-	Outcome string  `json:"outcome,omitempty"`
+	Amount float64 `json:"amount,omitempty"`
+	//Type    string  `json:"type,omitempty"`
+	Outcome string `json:"outcome,omitempty"`
 }
