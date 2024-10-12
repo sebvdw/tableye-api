@@ -611,7 +611,7 @@ const docTemplate = `{
         },
         "/game-summaries": {
             "get": {
-                "description": "Get a list of game summaries with pagination",
+                "description": "Get a list of game summaries with pagination, including transactions",
                 "consumes": [
                     "application/json"
                 ],
@@ -704,7 +704,7 @@ const docTemplate = `{
         },
         "/game-summaries/{gameSummaryId}": {
             "get": {
-                "description": "Get details of a game summary by its ID",
+                "description": "Get details of a game summary by its ID, including transactions",
                 "consumes": [
                     "application/json"
                 ],
@@ -1352,6 +1352,51 @@ const docTemplate = `{
             }
         },
         "/transactions": {
+            "get": {
+                "description": "Get a list of transactions with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "List transactions",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create a new transaction with the given input data",
                 "consumes": [
@@ -1694,14 +1739,10 @@ const docTemplate = `{
         "models.CreatePlayerRequest": {
             "type": "object",
             "required": [
-                "nickname",
-                "user_id"
+                "nickname"
             ],
             "properties": {
                 "nickname": {
-                    "type": "string"
-                },
-                "user_id": {
                     "type": "string"
                 }
             }
@@ -2031,12 +2072,6 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/models.User"
-                },
-                "user_id": {
-                    "type": "string"
                 }
             }
         },
@@ -2066,9 +2101,6 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/models.UserResponse"
                 }
             }
         },

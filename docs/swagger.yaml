@@ -168,11 +168,8 @@ definitions:
     properties:
       nickname:
         type: string
-      user_id:
-        type: string
     required:
     - nickname
-    - user_id
     type: object
   models.CreateTransactionRequest:
     properties:
@@ -390,10 +387,6 @@ definitions:
         type: number
       updated_at:
         type: string
-      user:
-        $ref: '#/definitions/models.User'
-      user_id:
-        type: string
     type: object
   models.PlayerResponse:
     properties:
@@ -413,8 +406,6 @@ definitions:
         type: number
       updated_at:
         type: string
-      user:
-        $ref: '#/definitions/models.UserResponse'
     type: object
   models.SignInInput:
     properties:
@@ -1009,7 +1000,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get a list of game summaries with pagination
+      description: Get a list of game summaries with pagination, including transactions
       parameters:
       - default: 1
         description: Page number
@@ -1095,7 +1086,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get details of a game summary by its ID
+      description: Get details of a game summary by its ID, including transactions
       parameters:
       - description: Game Summary ID
         in: path
@@ -1508,6 +1499,37 @@ paths:
       tags:
       - players
   /transactions:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of transactions with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List transactions
+      tags:
+      - transactions
     post:
       consumes:
       - application/json
