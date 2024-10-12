@@ -174,6 +174,22 @@ definitions:
     - nickname
     - user_id
     type: object
+  models.CreateTransactionRequest:
+    properties:
+      amount:
+        type: number
+      game_summary_id:
+        type: string
+      player_id:
+        type: string
+      type:
+        type: string
+    required:
+    - amount
+    - game_summary_id
+    - player_id
+    - type
+    type: object
   models.Dealer:
     properties:
       casinos:
@@ -314,6 +330,10 @@ definitions:
         type: string
       total_pot:
         type: number
+      transactions:
+        items:
+          $ref: '#/definitions/models.Transaction'
+        type: array
       updated_at:
         type: string
     type: object
@@ -422,6 +442,45 @@ definitions:
     - name
     - password
     - passwordConfirm
+    type: object
+  models.Transaction:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      game_summary:
+        $ref: '#/definitions/models.GameSummary'
+      game_summary_id:
+        type: string
+      id:
+        type: string
+      player:
+        $ref: '#/definitions/models.Player'
+      player_id:
+        type: string
+      type:
+        description: '"bet" or "win"'
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.TransactionResponse:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      game_summary_id:
+        type: string
+      id:
+        type: string
+      player_id:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
     type: object
   models.UpdateCasinoRequest:
     properties:
@@ -1448,6 +1507,71 @@ paths:
       summary: Get player statistics
       tags:
       - players
+  /transactions:
+    post:
+      consumes:
+      - application/json
+      description: Create a new transaction with the given input data
+      parameters:
+      - description: Create transaction request
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.TransactionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new transaction
+      tags:
+      - transactions
+  /transactions/game-summary/{gameSummaryId}:
+    get:
+      consumes:
+      - application/json
+      description: Get all transactions associated with a specific game summary
+      parameters:
+      - description: Game Summary ID
+        in: path
+        name: gameSummaryId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.TransactionResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get transactions for a game summary
+      tags:
+      - transactions
 securityDefinitions:
   BearerAuth:
     in: header

@@ -1350,6 +1350,103 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/transactions": {
+            "post": {
+                "description": "Create a new transaction with the given input data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Create a new transaction",
+                "parameters": [
+                    {
+                        "description": "Create transaction request",
+                        "name": "transaction",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateTransactionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.TransactionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions/game-summary/{gameSummaryId}": {
+            "get": {
+                "description": "Get all transactions associated with a specific game summary",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Get transactions for a game summary",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game Summary ID",
+                        "name": "gameSummaryId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.TransactionResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1609,6 +1706,29 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CreateTransactionRequest": {
+            "type": "object",
+            "required": [
+                "amount",
+                "game_summary_id",
+                "player_id",
+                "type"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "game_summary_id": {
+                    "type": "string"
+                },
+                "player_id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Dealer": {
             "type": "object",
             "properties": {
@@ -1821,6 +1941,12 @@ const docTemplate = `{
                 "total_pot": {
                     "type": "number"
                 },
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Transaction"
+                    }
+                },
                 "updated_at": {
                     "type": "string"
                 }
@@ -1981,6 +2107,65 @@ const docTemplate = `{
                     "minLength": 8
                 },
                 "passwordConfirm": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Transaction": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "game_summary": {
+                    "$ref": "#/definitions/models.GameSummary"
+                },
+                "game_summary_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "player": {
+                    "$ref": "#/definitions/models.Player"
+                },
+                "player_id": {
+                    "type": "string"
+                },
+                "type": {
+                    "description": "\"bet\" or \"win\"",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.TransactionResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "game_summary_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "player_id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }

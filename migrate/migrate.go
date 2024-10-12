@@ -42,7 +42,6 @@ func main() {
 
 	initializers.DB.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"")
 
-	// AutoMigrate all models
 	err := initializers.DB.AutoMigrate(
 		&models.User{},
 		&models.Casino{},
@@ -50,6 +49,7 @@ func main() {
 		&models.Dealer{},
 		&models.Player{},
 		&models.GameSummary{},
+		&models.Transaction{},
 	)
 
 	if err != nil {

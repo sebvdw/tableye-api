@@ -3,12 +3,24 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/suidevv/tableye-api/initializers"
 	"github.com/suidevv/tableye-api/models"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
+)
+
+const (
+	numUsers         = 100 // Increased to accommodate dealers
+	numCasinos       = 10
+	numGames         = 5
+	numDealers       = 30
+	numPlayers       = 50
+	numGameSummaries = 100
+	numTransactions  = 500
 )
 
 func init() {
@@ -18,247 +30,261 @@ func init() {
 	}
 
 	initializers.ConnectDB(&config)
-}
-
-func clearTables() {
-	tables := []string{
-		"game_players",
-		"casino_dealers",
-		"casino_games",
-		"game_summaries",
-		"players",
-		"dealers",
-		"games",
-		"casinos",
-		"users",
-	}
-
-	for _, table := range tables {
-		result := initializers.DB.Exec(fmt.Sprintf("DELETE FROM %s", table))
-		if result.Error != nil {
-			log.Fatalf("Failed to clear table %s: %v", table, result.Error)
-		}
-		fmt.Printf("Cleared table: %s\n", table)
-	}
-
-	fmt.Println("All tables cleared successfully")
+	rand.Seed(time.Now().UnixNano())
 }
 
 func main() {
-	clearTables()
+	db := initializers.DB
 
-	// Seed Users
-	users := []models.User{
-		{
-			ID:        uuid.New(),
-			Name:      "John Doe",
-			Email:     "john@example.com",
-			Password:  hashPassword("password123"),
-			Role:      "admin",
-			Provider:  "local",
-			Verified:  true,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
-		{
-			ID:        uuid.New(),
-			Name:      "Jane Smith",
-			Email:     "jane@example.com",
-			Password:  hashPassword("password456"),
-			Role:      "user",
-			Provider:  "local",
-			Verified:  true,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
+	clearTables(db)
+
+	users := seedUsers(db)
+	casinos := seedCasinos(db, users[:numCasinos]) // Use first 10 users for casinos
+	games := seedGames(db)
+	dealers := seedDealers(db, users[numCasinos:numCasinos+numDealers]) // Use next 30 users for dealers
+	players := seedPlayers(db, users[numCasinos+numDealers:])           // Use remaining users for players
+	gameSummaries := seedGameSummaries(db, games, casinos, dealers)
+	seedTransactions(db, gameSummaries, players)
+
+	createRelationships(db, casinos, dealers, games, gameSummaries, players)
+
+	fmt.Println("Seeding completed successfully!")
+}
+
+func clearTables(db *gorm.DB) {
+	tables := []string{
+		"game_players", "casino_dealers", "casino_games",
+		"transactions", "game_summaries", "players", "dealers", "games", "casinos", "users",
 	}
 
-	for _, user := range users {
-		if err := initializers.DB.Create(&user).Error; err != nil {
-			log.Fatalf("Failed to create user: %v", err)
+	for _, table := range tables {
+		if err := db.Exec(fmt.Sprintf("DELETE FROM %s", table)).Error; err != nil {
+			log.Fatalf("Failed to clear table %s: %v", table, err)
+		}
+		fmt.Printf("Cleared table: %s\n", table)
+	}
+}
+
+func seedUsers(db *gorm.DB) []models.User {
+	users := make([]models.User, numUsers)
+	for i := 0; i < numUsers; i++ {
+		users[i] = models.User{
+			ID:        uuid.New(),
+			Name:      fmt.Sprintf("User %d", i+1),
+			Email:     fmt.Sprintf("user%d@example.com", i+1),
+			Password:  hashPassword(fmt.Sprintf("password%d", i+1)),
+			Role:      []string{"admin", "user", "dealer"}[rand.Intn(3)],
+			Provider:  "local",
+			Verified:  true,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		}
 	}
 
-	// Seed Casinos
-	casinos := []models.Casino{
-		{
+	if err := db.Create(&users).Error; err != nil {
+		log.Fatalf("Failed to create users: %v", err)
+	}
+
+	return users
+}
+
+func seedCasinos(db *gorm.DB, users []models.User) []models.Casino {
+	casinos := make([]models.Casino, numCasinos)
+	for i := 0; i < numCasinos; i++ {
+		casinos[i] = models.Casino{
 			ID:            uuid.New(),
-			Name:          "Golden Nugget",
-			Location:      "Las Vegas",
-			LicenseNumber: "LV12345",
-			Description:   "A luxurious casino in the heart of Las Vegas",
+			Name:          fmt.Sprintf("Casino %d", i+1),
+			Location:      fmt.Sprintf("City %d", i+1),
+			LicenseNumber: fmt.Sprintf("LN%05d", i+1),
+			Description:   fmt.Sprintf("Description for Casino %d", i+1),
 			OpeningHours:  "24/7",
-			Website:       "https://goldennugget.com",
-			PhoneNumber:   "+1-123-456-7890",
-			MaxCapacity:   1000,
+			Website:       fmt.Sprintf("https://casino%d.com", i+1),
+			PhoneNumber:   fmt.Sprintf("+1-123-456-%04d", i+1),
+			MaxCapacity:   500 + rand.Intn(1500),
 			Status:        "Active",
-			Rating:        4.5,
-			OwnerID:       users[0].ID,
-		},
-		{
-			ID:            uuid.New(),
-			Name:          "Royal Flush",
-			Location:      "Atlantic City",
-			LicenseNumber: "AC67890",
-			Description:   "Experience the royal treatment at Atlantic City's finest",
-			OpeningHours:  "10:00 AM - 4:00 AM",
-			Website:       "https://royalflush.com",
-			PhoneNumber:   "+1-987-654-3210",
-			MaxCapacity:   800,
-			Status:        "Active",
-			Rating:        4.2,
-			OwnerID:       users[1].ID,
-		},
+			Rating:        4.0 + rand.Float32(),
+			OwnerID:       users[rand.Intn(len(users))].ID,
+		}
 	}
 
+	if err := db.Create(&casinos).Error; err != nil {
+		log.Fatalf("Failed to create casinos: %v", err)
+	}
+
+	return casinos
+}
+
+func seedGames(db *gorm.DB) []models.Game {
+	gameTypes := []string{"Poker", "Blackjack", "Roulette", "Slots", "Baccarat"}
+	games := make([]models.Game, numGames)
+	for i := 0; i < numGames; i++ {
+		games[i] = models.Game{
+			ID:          uuid.New(),
+			Name:        fmt.Sprintf("%s %d", gameTypes[i], i+1),
+			Type:        gameTypes[i],
+			Description: fmt.Sprintf("Description for %s %d", gameTypes[i], i+1),
+			MaxPlayers:  4 + rand.Intn(8),
+			MinPlayers:  1 + rand.Intn(3),
+			MinBet:      float64(5 + rand.Intn(20)),
+			MaxBet:      float64(100 + rand.Intn(900)),
+		}
+	}
+
+	if err := db.Create(&games).Error; err != nil {
+		log.Fatalf("Failed to create games: %v", err)
+	}
+
+	return games
+}
+
+func seedDealers(db *gorm.DB, dealerUsers []models.User) []models.Dealer {
+	dealers := make([]models.Dealer, numDealers)
+	for i := 0; i < numDealers; i++ {
+		dealers[i] = models.Dealer{
+			ID:         uuid.New(),
+			UserID:     dealerUsers[i].ID,
+			DealerCode: fmt.Sprintf("D%04d", i+1),
+			Status:     "Active",
+			GamesDealt: rand.Intn(200),
+			Rating:     4.0 + rand.Float32(),
+		}
+	}
+
+	if err := db.Create(&dealers).Error; err != nil {
+		log.Fatalf("Failed to create dealers: %v", err)
+	}
+
+	return dealers
+}
+
+func seedPlayers(db *gorm.DB, playerUsers []models.User) []models.Player {
+	ranks := []string{"Bronze", "Silver", "Gold", "Platinum", "Diamond"}
+	players := make([]models.Player, numPlayers)
+	for i := 0; i < numPlayers; i++ {
+		players[i] = models.Player{
+			ID:            uuid.New(),
+			UserID:        playerUsers[i].ID,
+			Nickname:      fmt.Sprintf("Player%d", i+1),
+			TotalWinnings: float64(rand.Intn(10000)),
+			GamesPlayed:   rand.Intn(100),
+			Rank:          ranks[rand.Intn(len(ranks))],
+			Status:        "Active",
+		}
+	}
+
+	if err := db.Create(&players).Error; err != nil {
+		log.Fatalf("Failed to create players: %v", err)
+	}
+
+	return players
+}
+
+func seedGameSummaries(db *gorm.DB, games []models.Game, casinos []models.Casino, dealers []models.Dealer) []models.GameSummary {
+	gameSummaries := make([]models.GameSummary, numGameSummaries)
+
+	for i := 0; i < numGameSummaries; i++ {
+		startTime := time.Now().Add(time.Duration(-rand.Intn(30)) * 24 * time.Hour)
+		endTime := startTime.Add(time.Duration(rand.Intn(4)+1) * time.Hour)
+
+		gameSummaries[i] = models.GameSummary{
+			ID:           uuid.New(),
+			GameID:       games[rand.Intn(len(games))].ID,
+			CasinoID:     casinos[rand.Intn(len(casinos))].ID,
+			StartTime:    startTime,
+			EndTime:      endTime,
+			DealerID:     dealers[rand.Intn(len(dealers))].ID,
+			TotalPot:     float64(100 + rand.Intn(10000)),
+			Status:       []string{"Completed", "In Progress"}[rand.Intn(2)],
+			RoundsPlayed: rand.Intn(50),
+			HighestBet:   float64(50 + rand.Intn(950)),
+		}
+	}
+
+	if err := db.Create(&gameSummaries).Error; err != nil {
+		log.Fatalf("Failed to create game summaries: %v", err)
+	}
+
+	return gameSummaries
+}
+
+func seedTransactions(db *gorm.DB, gameSummaries []models.GameSummary, players []models.Player) {
+	transactions := make([]models.Transaction, numTransactions)
+
+	for i := 0; i < numTransactions; i++ {
+		gameSummary := gameSummaries[rand.Intn(len(gameSummaries))]
+		player := players[rand.Intn(len(players))]
+		transactionTime := gameSummary.StartTime.Add(time.Duration(rand.Intn(int(gameSummary.EndTime.Sub(gameSummary.StartTime)))))
+
+		transactions[i] = models.Transaction{
+			ID:            uuid.New(),
+			GameSummaryID: gameSummary.ID,
+			PlayerID:      player.ID,
+			Amount:        float64(10 + rand.Intn(990)),
+			Type:          []string{"bet", "win"}[rand.Intn(2)],
+			CreatedAt:     transactionTime,
+			UpdatedAt:     transactionTime,
+		}
+	}
+
+	if err := db.Create(&transactions).Error; err != nil {
+		log.Fatalf("Failed to create transactions: %v", err)
+	}
+}
+
+func createRelationships(db *gorm.DB, casinos []models.Casino, dealers []models.Dealer, games []models.Game, gameSummaries []models.GameSummary, players []models.Player) {
+	// Casino - Dealers (each casino has 2-5 unique dealers)
+	casinoDealerMap := make(map[string]map[string]bool)
 	for _, casino := range casinos {
-		if err := initializers.DB.Create(&casino).Error; err != nil {
-			log.Fatalf("Failed to create casino: %v", err)
-		}
-	}
-
-	// Seed Games
-	games := []models.Game{
-		{
-			ID:          uuid.New(),
-			Name:        "Texas Hold'em",
-			Type:        "Poker",
-			Description: "The most popular variant of poker",
-			MaxPlayers:  10,
-			MinPlayers:  2,
-			MinBet:      5.0,
-			MaxBet:      500.0,
-		},
-		{
-			ID:          uuid.New(),
-			Name:        "Blackjack",
-			Type:        "Card Game",
-			Description: "Try to beat the dealer without going over 21",
-			MaxPlayers:  7,
-			MinPlayers:  1,
-			MinBet:      10.0,
-			MaxBet:      1000.0,
-		},
-	}
-
-	for _, game := range games {
-		if err := initializers.DB.Create(&game).Error; err != nil {
-			log.Fatalf("Failed to create game: %v", err)
-		}
-	}
-
-	// Seed Dealers
-	dealers := []models.Dealer{
-		{
-			ID:         uuid.New(),
-			UserID:     users[0].ID,
-			DealerCode: "D001",
-			Status:     "Active",
-			GamesDealt: 100,
-			Rating:     4.8,
-		},
-		{
-			ID:         uuid.New(),
-			UserID:     users[1].ID,
-			DealerCode: "D002",
-			Status:     "Active",
-			GamesDealt: 75,
-			Rating:     4.6,
-		},
-	}
-
-	for _, dealer := range dealers {
-		if err := initializers.DB.Create(&dealer).Error; err != nil {
-			log.Fatalf("Failed to create dealer: %v", err)
-		}
-	}
-
-	// Seed Players
-	players := []models.Player{
-		{
-			ID:            uuid.New(),
-			UserID:        users[0].ID,
-			Nickname:      "Lucky John",
-			TotalWinnings: 5000.0,
-			GamesPlayed:   50,
-			Rank:          "Gold",
-			Status:        "Active",
-		},
-		{
-			ID:            uuid.New(),
-			UserID:        users[1].ID,
-			Nickname:      "Queen Jane",
-			TotalWinnings: 3500.0,
-			GamesPlayed:   35,
-			Rank:          "Silver",
-			Status:        "Active",
-		},
-	}
-
-	for _, player := range players {
-		if err := initializers.DB.Create(&player).Error; err != nil {
-			log.Fatalf("Failed to create player: %v", err)
-		}
-	}
-
-	// Seed Game Summaries
-	gameSummaries := []models.GameSummary{
-		{
-			ID:           uuid.New(),
-			GameID:       games[0].ID,
-			CasinoID:     casinos[0].ID,
-			StartTime:    time.Now().Add(-2 * time.Hour),
-			EndTime:      time.Now().Add(-30 * time.Minute),
-			DealerID:     dealers[0].ID,
-			TotalPot:     1000.0,
-			Status:       "Completed",
-			RoundsPlayed: 30,
-			HighestBet:   100.0,
-		},
-		{
-			ID:           uuid.New(),
-			GameID:       games[1].ID,
-			CasinoID:     casinos[1].ID,
-			StartTime:    time.Now().Add(-1 * time.Hour),
-			DealerID:     dealers[1].ID,
-			TotalPot:     500.0,
-			Status:       "In Progress",
-			RoundsPlayed: 15,
-			HighestBet:   50.0,
-		},
-	}
-
-	for _, gameSummary := range gameSummaries {
-		if err := initializers.DB.Create(&gameSummary).Error; err != nil {
-			log.Fatalf("Failed to create game summary: %v", err)
-		}
-	}
-
-	// Add relationships
-	// Casino - Dealers
-	for i, casino := range casinos {
-		if err := initializers.DB.Exec("INSERT INTO casino_dealers (casino_id, dealer_id) VALUES (?, ?)", casino.ID, dealers[i].ID).Error; err != nil {
-			log.Fatalf("Failed to create casino-dealer relationship: %v", err)
-		}
-	}
-
-	// Casino - Games
-	for i, casino := range casinos {
-		if err := initializers.DB.Exec("INSERT INTO casino_games (casino_id, game_id) VALUES (?, ?)", casino.ID, games[i].ID).Error; err != nil {
-			log.Fatalf("Failed to create casino-game relationship: %v", err)
-		}
-	}
-
-	// Game Summary - Players
-	for _, gameSummary := range gameSummaries {
-		for _, player := range players {
-			if err := initializers.DB.Exec("INSERT INTO game_players (game_summary_id, player_id) VALUES (?, ?)", gameSummary.ID, player.ID).Error; err != nil {
-				log.Fatalf("Failed to create game summary-player relationship: %v", err)
+		casinoDealerMap[casino.ID.String()] = make(map[string]bool)
+		numDealers := rand.Intn(4) + 2
+		dealersAdded := 0
+		for dealersAdded < numDealers {
+			dealer := dealers[rand.Intn(len(dealers))]
+			if !casinoDealerMap[casino.ID.String()][dealer.ID.String()] {
+				if err := db.Exec("INSERT INTO casino_dealers (casino_id, dealer_id) VALUES (?, ?)", casino.ID, dealer.ID).Error; err != nil {
+					log.Fatalf("Failed to create casino-dealer relationship: %v", err)
+				}
+				casinoDealerMap[casino.ID.String()][dealer.ID.String()] = true
+				dealersAdded++
 			}
 		}
 	}
 
-	fmt.Println("Seeding completed successfully!")
+	// Casino - Games (each casino offers 2-4 unique games)
+	casinoGameMap := make(map[string]map[string]bool)
+	for _, casino := range casinos {
+		casinoGameMap[casino.ID.String()] = make(map[string]bool)
+		numGames := rand.Intn(3) + 2
+		gamesAdded := 0
+		for gamesAdded < numGames {
+			game := games[rand.Intn(len(games))]
+			if !casinoGameMap[casino.ID.String()][game.ID.String()] {
+				if err := db.Exec("INSERT INTO casino_games (casino_id, game_id) VALUES (?, ?)", casino.ID, game.ID).Error; err != nil {
+					log.Fatalf("Failed to create casino-game relationship: %v", err)
+				}
+				casinoGameMap[casino.ID.String()][game.ID.String()] = true
+				gamesAdded++
+			}
+		}
+	}
+
+	// Game Summary - Players (each game summary has 2-7 unique players)
+	gameSummaryPlayerMap := make(map[string]map[string]bool)
+	for _, gameSummary := range gameSummaries {
+		gameSummaryPlayerMap[gameSummary.ID.String()] = make(map[string]bool)
+		numPlayers := rand.Intn(6) + 2
+		playersAdded := 0
+		for playersAdded < numPlayers {
+			player := players[rand.Intn(len(players))]
+			if !gameSummaryPlayerMap[gameSummary.ID.String()][player.ID.String()] {
+				if err := db.Exec("INSERT INTO game_players (game_summary_id, player_id) VALUES (?, ?)", gameSummary.ID, player.ID).Error; err != nil {
+					log.Fatalf("Failed to create game summary-player relationship: %v", err)
+				}
+				gameSummaryPlayerMap[gameSummary.ID.String()][player.ID.String()] = true
+				playersAdded++
+			}
+		}
+	}
 }
 
 func hashPassword(password string) string {
