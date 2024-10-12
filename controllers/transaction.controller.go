@@ -43,15 +43,31 @@ func (tc *TransactionController) CreateTransaction(ctx *gin.Context) {
 		return
 	}
 
-	now := time.Now()
-	newTransaction := models.Transaction{
-		PlayerID:  playerID,
-		Amount:    payload.Amount,
-		Type:      payload.Type,
-		CreatedAt: now,
-		UpdatedAt: now,
+	gameSummaryID, err := uuid.Parse(payload.GameSummaryID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid player ID"})
+		return
 	}
 
+	if payload.Outcome == "win" && payload.Amount < 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Win amount cannot be negative"})
+		return
+	}
+	if payload.Outcome == "loss" && payload.Amount > 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Loss amount should be negative"})
+		return
+	}
+
+	now := time.Now()
+	newTransaction := models.Transaction{
+		GameSummaryID: gameSummaryID,
+		PlayerID:      playerID,
+		Amount:        payload.Amount,
+		Type:          payload.Type,
+		Outcome:       payload.Outcome,
+		CreatedAt:     now,
+		UpdatedAt:     now,
+	}
 	result := tc.DB.Create(&newTransaction)
 	if result.Error != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})

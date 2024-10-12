@@ -214,12 +214,27 @@ func seedTransactions(db *gorm.DB, gameSummaries []models.GameSummary, players [
 		player := players[rand.Intn(len(players))]
 		transactionTime := gameSummary.StartTime.Add(time.Duration(rand.Intn(int(gameSummary.EndTime.Sub(gameSummary.StartTime)))))
 
+		// Determine the transaction type
+		transactionType := []string{"bet", "win"}[rand.Intn(2)]
+
+		// Set the amount and outcome based on the transaction type
+		var amount float64
+		var outcome string
+		if transactionType == "bet" {
+			amount = -float64(10 + rand.Intn(990)) // Negative amount for bets
+			outcome = "loss"
+		} else { // win
+			amount = float64(10 + rand.Intn(990)) // Positive amount for wins
+			outcome = "win"
+		}
+
 		transactions[i] = models.Transaction{
 			ID:            uuid.New(),
 			GameSummaryID: gameSummary.ID,
 			PlayerID:      player.ID,
-			Amount:        float64(10 + rand.Intn(990)),
-			Type:          []string{"bet", "win"}[rand.Intn(2)],
+			Amount:        amount,
+			Type:          transactionType,
+			Outcome:       outcome,
 			CreatedAt:     transactionTime,
 			UpdatedAt:     transactionTime,
 		}
