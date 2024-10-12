@@ -18,8 +18,8 @@ func (gc *GameRouteController) GameRoute(rg *gin.RouterGroup) {
 	router := rg.Group("games")
 
 	router.POST("/", middleware.DeserializeUser(), gc.gameController.CreateGame)
-	router.GET("/", gc.gameController.FindGames)
-	router.GET("/:gameId", gc.gameController.FindGameById)
+	router.GET("/", middleware.DeserializeUser(), gc.gameController.FindGames)
+	router.GET("/:gameId", middleware.DeserializeUser(), gc.gameController.FindGameById)
 	router.PUT("/:gameId", middleware.DeserializeUser(), gc.gameController.UpdateGame)
 	router.DELETE("/:gameId", middleware.DeserializeUser(), gc.gameController.DeleteGame)
 }

@@ -18,8 +18,8 @@ func (cc *CasinoRouteController) CasinoRoute(rg *gin.RouterGroup) {
 	router := rg.Group("casinos")
 
 	router.POST("/", middleware.DeserializeUser(), cc.casinoController.CreateCasino)
-	router.GET("/", cc.casinoController.FindCasinos)
-	router.GET("/:casinoId", cc.casinoController.FindCasinoById)
+	router.GET("/", middleware.DeserializeUser(), cc.casinoController.FindCasinos)
+	router.GET("/:casinoId", middleware.DeserializeUser(), cc.casinoController.FindCasinoById)
 	router.PUT("/:casinoId", middleware.DeserializeUser(), cc.casinoController.UpdateCasino)
 	router.DELETE("/:casinoId", middleware.DeserializeUser(), cc.casinoController.DeleteCasino)
 }

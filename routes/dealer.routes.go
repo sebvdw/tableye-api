@@ -18,8 +18,8 @@ func (dc *DealerRouteController) DealerRoute(rg *gin.RouterGroup) {
 	router := rg.Group("dealers")
 
 	router.POST("/", middleware.DeserializeUser(), dc.dealerController.CreateDealer)
-	router.GET("/", dc.dealerController.FindDealers)
-	router.GET("/:dealerId", dc.dealerController.FindDealerById)
+	router.GET("/", middleware.DeserializeUser(), dc.dealerController.FindDealers)
+	router.GET("/:dealerId", middleware.DeserializeUser(), dc.dealerController.FindDealerById)
 	router.PUT("/:dealerId", middleware.DeserializeUser(), dc.dealerController.UpdateDealer)
 	router.DELETE("/:dealerId", middleware.DeserializeUser(), dc.dealerController.DeleteDealer)
 }

@@ -18,9 +18,9 @@ func (pc *PlayerRouteController) PlayerRoute(rg *gin.RouterGroup) {
 	router := rg.Group("players")
 
 	router.POST("/", middleware.DeserializeUser(), pc.playerController.CreatePlayer)
-	router.GET("/", pc.playerController.FindPlayers)
-	router.GET("/:playerId", pc.playerController.FindPlayerById)
+	router.GET("/", middleware.DeserializeUser(), pc.playerController.FindPlayers)
+	router.GET("/:playerId", middleware.DeserializeUser(), pc.playerController.FindPlayerById)
 	router.PUT("/:playerId", middleware.DeserializeUser(), pc.playerController.UpdatePlayer)
 	router.DELETE("/:playerId", middleware.DeserializeUser(), pc.playerController.DeletePlayer)
-	router.GET("/:playerId/stats", pc.playerController.FindPlayerStats)
+	router.GET("/:playerId/stats", middleware.DeserializeUser(), pc.playerController.FindPlayerStats)
 }
