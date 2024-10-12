@@ -301,20 +301,14 @@ definitions:
     properties:
       casino:
         $ref: '#/definitions/models.Casino'
-      casino_id:
-        type: string
       created_at:
         type: string
       dealer:
         $ref: '#/definitions/models.Dealer'
-      dealer_id:
-        type: string
       end_time:
         type: string
       game:
         $ref: '#/definitions/models.Game'
-      game_id:
-        type: string
       highest_bet:
         type: number
       id:
