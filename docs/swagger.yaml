@@ -177,6 +177,11 @@ definitions:
         type: number
       game_summary_id:
         type: string
+      outcome:
+        enum:
+        - win
+        - loss
+        type: string
       player_id:
         type: string
       type:
@@ -184,6 +189,7 @@ definitions:
     required:
     - amount
     - game_summary_id
+    - outcome
     - player_id
     - type
     type: object
@@ -440,34 +446,12 @@ definitions:
         type: number
       created_at:
         type: string
-      game_summary:
-        $ref: '#/definitions/models.GameSummary'
-      game_summary_id:
-        type: string
       id:
+        type: string
+      outcome:
         type: string
       player:
         $ref: '#/definitions/models.Player'
-      player_id:
-        type: string
-      type:
-        description: '"bet" or "win"'
-        type: string
-      updated_at:
-        type: string
-    type: object
-  models.TransactionResponse:
-    properties:
-      amount:
-        type: number
-      created_at:
-        type: string
-      game_summary_id:
-        type: string
-      id:
-        type: string
-      player_id:
-        type: string
       type:
         type: string
       updated_at:
@@ -1547,7 +1531,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.TransactionResponse'
+            $ref: '#/definitions/models.Transaction'
         "400":
           description: Bad Request
           schema:
@@ -1561,15 +1545,15 @@ paths:
       summary: Create a new transaction
       tags:
       - transactions
-  /transactions/game-summary/{gameSummaryId}:
+  /transactions/{transactionId}:
     get:
       consumes:
       - application/json
-      description: Get all transactions associated with a specific game summary
+      description: Get details of a transaction by its ID
       parameters:
-      - description: Game Summary ID
+      - description: Transaction ID
         in: path
-        name: gameSummaryId
+        name: transactionId
         required: true
         type: string
       produces:
@@ -1578,20 +1562,13 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.TransactionResponse'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.Transaction'
         "404":
           description: Not Found
           schema:
             additionalProperties: true
             type: object
-      summary: Get transactions for a game summary
+      summary: Get a transaction by ID
       tags:
       - transactions
 securityDefinitions:

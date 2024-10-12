@@ -26,7 +26,7 @@ func NewTransactionController(DB *gorm.DB) TransactionController {
 // @Accept json
 // @Produce json
 // @Param transaction body models.CreateTransactionRequest true "Create transaction request"
-// @Success 201 {object} models.TransactionResponse
+// @Success 201 {object} models.Transaction
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /transactions [post]
@@ -127,7 +127,7 @@ func (tc *TransactionController) FindTransactions(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param transactionId path string true "Transaction ID"
-// @Success 200 {object} models.TransactionResponse
+// @Success 200 {object} models.Transaction
 // @Failure 404 {object} map[string]interface{}
 // @Router /transactions/{transactionId} [get]
 func (tc *TransactionController) FindTransactionById(ctx *gin.Context) {

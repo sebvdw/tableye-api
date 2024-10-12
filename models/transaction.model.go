@@ -14,7 +14,7 @@ type Transaction struct {
 	Player        Player      `gorm:"foreignKey:PlayerID" json:"player,omitempty"`
 	Amount        float64     `gorm:"type:decimal(10,2);not null" json:"amount,omitempty"`
 	Type          string      `gorm:"type:varchar(50);not null" json:"type,omitempty"`
-	Outcome       string      `gorm:"type:varchar(10);not null" json:"outcome,omitempty"`
+	Outcome       string      `gorm:"type:varchar(10);not null;default:'loss'" json:"outcome,omitempty"`
 	CreatedAt     time.Time   `gorm:"not null" json:"created_at,omitempty"`
 	UpdatedAt     time.Time   `gorm:"not null" json:"updated_at,omitempty"`
 }

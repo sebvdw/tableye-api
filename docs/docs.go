@@ -1424,7 +1424,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.TransactionResponse"
+                            "$ref": "#/definitions/models.Transaction"
                         }
                     },
                     "400": {
@@ -1444,9 +1444,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/transactions/game-summary/{gameSummaryId}": {
+        "/transactions/{transactionId}": {
             "get": {
-                "description": "Get all transactions associated with a specific game summary",
+                "description": "Get details of a transaction by its ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -1456,12 +1456,12 @@ const docTemplate = `{
                 "tags": [
                     "transactions"
                 ],
-                "summary": "Get transactions for a game summary",
+                "summary": "Get a transaction by ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Game Summary ID",
-                        "name": "gameSummaryId",
+                        "description": "Transaction ID",
+                        "name": "transactionId",
                         "in": "path",
                         "required": true
                     }
@@ -1470,17 +1470,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.TransactionResponse"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.Transaction"
                         }
                     },
                     "404": {
@@ -1752,6 +1742,7 @@ const docTemplate = `{
             "required": [
                 "amount",
                 "game_summary_id",
+                "outcome",
                 "player_id",
                 "type"
             ],
@@ -1761,6 +1752,13 @@ const docTemplate = `{
                 },
                 "game_summary_id": {
                     "type": "string"
+                },
+                "outcome": {
+                    "type": "string",
+                    "enum": [
+                        "win",
+                        "loss"
+                    ]
                 },
                 "player_id": {
                     "type": "string"
@@ -2152,47 +2150,14 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
-                "game_summary": {
-                    "$ref": "#/definitions/models.GameSummary"
-                },
-                "game_summary_id": {
+                "id": {
                     "type": "string"
                 },
-                "id": {
+                "outcome": {
                     "type": "string"
                 },
                 "player": {
                     "$ref": "#/definitions/models.Player"
-                },
-                "player_id": {
-                    "type": "string"
-                },
-                "type": {
-                    "description": "\"bet\" or \"win\"",
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.TransactionResponse": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "number"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "game_summary_id": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "player_id": {
-                    "type": "string"
                 },
                 "type": {
                     "type": "string"
