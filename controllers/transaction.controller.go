@@ -63,10 +63,10 @@ func (tc *TransactionController) CreateTransaction(ctx *gin.Context) {
 		GameSummaryID: gameSummaryID,
 		PlayerID:      playerID,
 		Amount:        payload.Amount,
-		Type:          payload.Type,
-		Outcome:       payload.Outcome,
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		//Type:          payload.Type,
+		Outcome:   payload.Outcome,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 	result := tc.DB.Create(&newTransaction)
 	if result.Error != nil {
@@ -160,8 +160,9 @@ func (tc *TransactionController) UpdateTransaction(ctx *gin.Context) {
 	}
 
 	updatedTransaction := models.Transaction{
-		Amount: payload.Amount,
-		Type:   payload.Type,
+		Amount:  payload.Amount,
+		Outcome: payload.Outcome,
+		//Type:   payload.Type,
 	}
 
 	tc.DB.Model(&transaction).Updates(updatedTransaction)
