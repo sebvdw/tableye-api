@@ -1533,9 +1533,6 @@ const docTemplate = `{
                 "owner": {
                     "$ref": "#/definitions/models.User"
                 },
-                "owner_id": {
-                    "type": "string"
-                },
                 "phone_number": {
                     "type": "string"
                 },

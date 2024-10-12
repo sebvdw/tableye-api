@@ -32,8 +32,6 @@ definitions:
         type: string
       owner:
         $ref: '#/definitions/models.User'
-      owner_id:
-        type: string
       phone_number:
         type: string
       rating:

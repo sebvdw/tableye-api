@@ -18,7 +18,7 @@ type Casino struct {
 	MaxCapacity   int           `gorm:"not null" json:"max_capacity,omitempty"`
 	Status        string        `gorm:"type:varchar(50);not null" json:"status,omitempty"`
 	Rating        float32       `json:"rating,omitempty"`
-	OwnerID       uuid.UUID     `gorm:"type:uuid;not null" json:"owner_id,omitempty"`
+	OwnerID       uuid.UUID     `gorm:"type:uuid;not null" json:"-"`
 	Owner         User          `gorm:"foreignKey:OwnerID" json:"owner,omitempty"`
 	Dealers       []Dealer      `gorm:"many2many:casino_dealers;" json:"dealers,omitempty"`
 	Games         []Game        `gorm:"many2many:casino_games;" json:"games,omitempty"`
