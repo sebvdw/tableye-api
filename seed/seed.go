@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	numUsers         = 100 // Increased to accommodate dealers
+	numUsers         = 70 // Reduced to accommodate removal of player users
 	numCasinos       = 10
 	numGames         = 5
 	numDealers       = 30
@@ -42,7 +42,7 @@ func main() {
 	casinos := seedCasinos(db, users[:numCasinos]) // Use first 10 users for casinos
 	games := seedGames(db)
 	dealers := seedDealers(db, users[numCasinos:numCasinos+numDealers]) // Use next 30 users for dealers
-	players := seedPlayers(db, users[numCasinos+numDealers:])           // Use remaining users for players
+	players := seedPlayers(db)
 	gameSummaries := seedGameSummaries(db, games, casinos, dealers)
 	seedTransactions(db, gameSummaries, players)
 
@@ -157,13 +157,12 @@ func seedDealers(db *gorm.DB, dealerUsers []models.User) []models.Dealer {
 	return dealers
 }
 
-func seedPlayers(db *gorm.DB, playerUsers []models.User) []models.Player {
+func seedPlayers(db *gorm.DB) []models.Player {
 	ranks := []string{"Bronze", "Silver", "Gold", "Platinum", "Diamond"}
 	players := make([]models.Player, numPlayers)
 	for i := 0; i < numPlayers; i++ {
 		players[i] = models.Player{
 			ID:            uuid.New(),
-			UserID:        playerUsers[i].ID,
 			Nickname:      fmt.Sprintf("Player%d", i+1),
 			TotalWinnings: float64(rand.Intn(10000)),
 			GamesPlayed:   rand.Intn(100),

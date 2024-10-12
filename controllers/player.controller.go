@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/suidevv/tableye-api/models"
 	"gorm.io/gorm"
 )
@@ -39,15 +38,8 @@ func (pc *PlayerController) CreatePlayer(ctx *gin.Context) {
 		return
 	}
 
-	userID, err := uuid.Parse(payload.UserID)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid user ID"})
-		return
-	}
-
 	now := time.Now()
 	newPlayer := models.Player{
-		UserID:        userID,
 		Nickname:      payload.Nickname,
 		TotalWinnings: 0,
 		GamesPlayed:   0,
@@ -60,7 +52,7 @@ func (pc *PlayerController) CreatePlayer(ctx *gin.Context) {
 	result := pc.DB.Create(&newPlayer)
 	if result.Error != nil {
 		if strings.Contains(result.Error.Error(), "duplicate key") {
-			ctx.JSON(http.StatusConflict, gin.H{"status": "fail", "message": "Player with that user ID already exists"})
+			ctx.JSON(http.StatusConflict, gin.H{"status": "fail", "message": "Player with that nickname already exists"})
 			return
 		}
 		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": result.Error.Error()})
@@ -126,7 +118,7 @@ func (pc *PlayerController) FindPlayerById(ctx *gin.Context) {
 	playerId := ctx.Param("playerId")
 
 	var player models.Player
-	result := pc.DB.Preload("User").Preload("PlayedGames").First(&player, "id = ?", playerId)
+	result := pc.DB.Preload("PlayedGames").First(&player, "id = ?", playerId)
 	if result.Error != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No player with that ID exists"})
 		return
@@ -155,7 +147,7 @@ func (pc *PlayerController) FindPlayers(ctx *gin.Context) {
 	offset := (intPage - 1) * intLimit
 
 	var players []models.Player
-	results := pc.DB.Preload("User").Limit(intLimit).Offset(offset).Find(&players)
+	results := pc.DB.Limit(intLimit).Offset(offset).Find(&players)
 	if results.Error != nil {
 		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": results.Error})
 		return
