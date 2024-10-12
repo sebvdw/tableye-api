@@ -178,20 +178,18 @@ definitions:
       game_summary_id:
         type: string
       outcome:
+        description: Type          string  `json:"type" binding:"required"`
         enum:
         - win
         - loss
         type: string
       player_id:
         type: string
-      type:
-        type: string
     required:
     - amount
     - game_summary_id
     - outcome
     - player_id
-    - type
     type: object
   models.Dealer:
     properties:
@@ -452,8 +450,6 @@ definitions:
         type: string
       player:
         $ref: '#/definitions/models.Player'
-      type:
-        type: string
       updated_at:
         type: string
     type: object

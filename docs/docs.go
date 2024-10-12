@@ -1743,8 +1743,7 @@ const docTemplate = `{
                 "amount",
                 "game_summary_id",
                 "outcome",
-                "player_id",
-                "type"
+                "player_id"
             ],
             "properties": {
                 "amount": {
@@ -1754,6 +1753,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "outcome": {
+                    "description": "Type          string  ` + "`" + `json:\"type\" binding:\"required\"` + "`" + `",
                     "type": "string",
                     "enum": [
                         "win",
@@ -1761,9 +1761,6 @@ const docTemplate = `{
                     ]
                 },
                 "player_id": {
-                    "type": "string"
-                },
-                "type": {
                     "type": "string"
                 }
             }
@@ -2158,9 +2155,6 @@ const docTemplate = `{
                 },
                 "player": {
                     "$ref": "#/definitions/models.Player"
-                },
-                "type": {
-                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
