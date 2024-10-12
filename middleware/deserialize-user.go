@@ -15,8 +15,10 @@ func DeserializeUser() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var access_token string
 		cookie, err := ctx.Cookie("access_token")
+
 		authorizationHeader := ctx.Request.Header.Get("Authorization")
 		fields := strings.Fields(authorizationHeader)
+
 		if len(fields) != 0 && fields[0] == "Bearer" {
 			access_token = fields[1]
 		} else if err == nil {
@@ -31,18 +33,14 @@ func DeserializeUser() gin.HandlerFunc {
 		config, _ := initializers.LoadConfig(".")
 		sub, err := utils.ValidateToken(access_token, config.AccessTokenPublicKey)
 		if err != nil {
-			if err == utils.ErrTokenExpired {
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": "Your session has expired. Please log in again."})
-			} else {
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": err.Error()})
-			}
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": err.Error()})
 			return
 		}
 
 		var user models.User
 		result := initializers.DB.First(&user, "id = ?", fmt.Sprint(sub))
 		if result.Error != nil {
-			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"status": "fail", "message": "The user belonging to this token no longer exists"})
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"status": "fail", "message": "the user belonging to this token no logger exists"})
 			return
 		}
 
