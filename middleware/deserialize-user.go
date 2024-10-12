@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/suidevv/tableye-api/initializers"
@@ -23,26 +22,20 @@ func DeserializeUser() gin.HandlerFunc {
 		} else if err == nil {
 			access_token = cookie
 		}
+
 		if access_token == "" {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": "You are not logged in"})
 			return
 		}
 
 		config, _ := initializers.LoadConfig(".")
-		sub, claims, err := utils.ValidateToken(access_token, config.AccessTokenPublicKey)
+		sub, err := utils.ValidateToken(access_token, config.AccessTokenPublicKey)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": err.Error()})
-			return
-		}
-
-		// Check if the token has expired
-		if exp, ok := claims["exp"].(float64); ok {
-			if time.Now().Unix() > int64(exp) {
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": "Token has expired"})
-				return
+			if err == utils.ErrTokenExpired {
+				ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": "Your session has expired. Please log in again."})
+			} else {
+				ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": err.Error()})
 			}
-		} else {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": "Invalid token expiration"})
 			return
 		}
 
