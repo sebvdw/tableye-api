@@ -9,9 +9,7 @@ import (
 type GameSummary struct {
 	ID           uuid.UUID     `gorm:"type:uuid;default:uuid_generate_v4();primary_key" json:"id,omitempty"`
 	GameID       uuid.UUID     `gorm:"type:uuid;not null" json:"-"`
-	Game         Game          `gorm:"foreignKey:GameID" json:"game,omitempty"`
 	CasinoID     uuid.UUID     `gorm:"type:uuid;not null" json:"-"`
-	Casino       Casino        `gorm:"foreignKey:CasinoID" json:"casino,omitempty"`
 	DealerID     uuid.UUID     `gorm:"type:uuid;not null" json:"-"`
 	Dealer       Dealer        `gorm:"foreignKey:DealerID" json:"dealer,omitempty"`
 	Players      []Player      `gorm:"many2many:game_players;" json:"players,omitempty"`

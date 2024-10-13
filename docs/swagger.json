@@ -15,7 +15,6 @@
         },
         "version": "1.0"
     },
-    "host": "https://suidev.nl",
     "basePath": "/api",
     "paths": {
         "/auth/login": {
@@ -735,7 +734,7 @@
                 }
             },
             "put": {
-                "description": "Update a game summary with the given input data",
+                "description": "Update a game summary with the given input data and return the updated summary with all related information",
                 "consumes": [
                     "application/json"
                 ],
@@ -795,7 +794,7 @@
                 }
             },
             "delete": {
-                "description": "Delete a game summary by its ID",
+                "description": "Delete a game summary by its ID and all associated data",
                 "consumes": [
                     "application/json"
                 ],
@@ -821,6 +820,13 @@
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -1876,12 +1882,6 @@
         "models.Dealer": {
             "type": "object",
             "properties": {
-                "casinos": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Casino"
-                    }
-                },
                 "created_at": {
                     "type": "string"
                 },
@@ -2034,9 +2034,6 @@
         "models.GameSummary": {
             "type": "object",
             "properties": {
-                "casino": {
-                    "$ref": "#/definitions/models.Casino"
-                },
                 "created_at": {
                     "type": "string"
                 },
@@ -2045,9 +2042,6 @@
                 },
                 "end_time": {
                     "type": "string"
-                },
-                "game": {
-                    "$ref": "#/definitions/models.Game"
                 },
                 "highest_bet": {
                     "type": "number"

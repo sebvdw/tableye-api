@@ -1,0 +1,1750 @@
+components:
+    schemas:
+        models.Casino:
+            properties:
+                created_at:
+                    type: string
+                dealers:
+                    items:
+                        $ref: '#/components/schemas/models.Dealer'
+                    type: array
+                description:
+                    type: string
+                game_summaries:
+                    items:
+                        $ref: '#/components/schemas/models.GameSummary'
+                    type: array
+                games:
+                    items:
+                        $ref: '#/components/schemas/models.Game'
+                    type: array
+                id:
+                    type: string
+                license_number:
+                    type: string
+                location:
+                    type: string
+                max_capacity:
+                    type: integer
+                name:
+                    type: string
+                opening_hours:
+                    type: string
+                phone_number:
+                    type: string
+                rating:
+                    type: number
+                status:
+                    type: string
+                updated_at:
+                    type: string
+                website:
+                    type: string
+            type: object
+        models.CasinoResponse:
+            properties:
+                created_at:
+                    type: string
+                description:
+                    type: string
+                id:
+                    type: string
+                license_number:
+                    type: string
+                location:
+                    type: string
+                max_capacity:
+                    type: integer
+                name:
+                    type: string
+                opening_hours:
+                    type: string
+                phone_number:
+                    type: string
+                rating:
+                    type: number
+                status:
+                    type: string
+                updated_at:
+                    type: string
+                website:
+                    type: string
+            type: object
+        models.CreateCasinoRequest:
+            properties:
+                description:
+                    type: string
+                license_number:
+                    type: string
+                location:
+                    type: string
+                max_capacity:
+                    type: integer
+                name:
+                    type: string
+                opening_hours:
+                    type: string
+                phone_number:
+                    type: string
+                status:
+                    type: string
+                website:
+                    type: string
+            required:
+                - license_number
+                - location
+                - max_capacity
+                - name
+                - status
+            type: object
+        models.CreateDealerRequest:
+            properties:
+                dealer_code:
+                    type: string
+                status:
+                    type: string
+                user_id:
+                    type: string
+            required:
+                - dealer_code
+                - status
+                - user_id
+            type: object
+        models.CreateGameRequest:
+            properties:
+                description:
+                    type: string
+                max_bet:
+                    type: number
+                max_players:
+                    type: integer
+                min_bet:
+                    type: number
+                min_players:
+                    type: integer
+                name:
+                    type: string
+                type:
+                    type: string
+            required:
+                - max_bet
+                - max_players
+                - min_bet
+                - min_players
+                - name
+                - type
+            type: object
+        models.CreateGameSummaryRequest:
+            properties:
+                casino_id:
+                    type: string
+                dealer_id:
+                    type: string
+                game_id:
+                    type: string
+                player_ids:
+                    items:
+                        type: string
+                    type: array
+                start_time:
+                    type: string
+            required:
+                - casino_id
+                - dealer_id
+                - game_id
+                - player_ids
+                - start_time
+            type: object
+        models.CreatePlayerRequest:
+            properties:
+                nickname:
+                    type: string
+            required:
+                - nickname
+            type: object
+        models.CreateTransactionRequest:
+            properties:
+                amount:
+                    type: number
+                game_summary_id:
+                    type: string
+                outcome:
+                    description: Type          string  `json:"type" binding:"required"`
+                    enum:
+                        - win
+                        - loss
+                    type: string
+                player_id:
+                    type: string
+            required:
+                - amount
+                - game_summary_id
+                - outcome
+                - player_id
+            type: object
+        models.Dealer:
+            properties:
+                created_at:
+                    type: string
+                dealer_code:
+                    type: string
+                game_summaries:
+                    items:
+                        $ref: '#/components/schemas/models.GameSummary'
+                    type: array
+                games_dealt:
+                    type: integer
+                id:
+                    type: string
+                last_active_at:
+                    type: string
+                rating:
+                    type: number
+                status:
+                    type: string
+                updated_at:
+                    type: string
+                user:
+                    $ref: '#/components/schemas/models.User'
+            type: object
+        models.DealerResponse:
+            properties:
+                created_at:
+                    type: string
+                dealer_code:
+                    type: string
+                games_dealt:
+                    type: integer
+                id:
+                    type: string
+                last_active_at:
+                    type: string
+                rating:
+                    type: number
+                status:
+                    type: string
+                updated_at:
+                    type: string
+                user:
+                    $ref: '#/components/schemas/models.UserResponse'
+            type: object
+        models.Game:
+            properties:
+                casinos:
+                    items:
+                        $ref: '#/components/schemas/models.Casino'
+                    type: array
+                created_at:
+                    type: string
+                description:
+                    type: string
+                game_summaries:
+                    items:
+                        $ref: '#/components/schemas/models.GameSummary'
+                    type: array
+                id:
+                    type: string
+                max_bet:
+                    type: number
+                max_players:
+                    type: integer
+                min_bet:
+                    type: number
+                min_players:
+                    type: integer
+                name:
+                    type: string
+                type:
+                    type: string
+                updated_at:
+                    type: string
+            type: object
+        models.GameResponse:
+            properties:
+                created_at:
+                    type: string
+                description:
+                    type: string
+                id:
+                    type: string
+                max_bet:
+                    type: number
+                max_players:
+                    type: integer
+                min_bet:
+                    type: number
+                min_players:
+                    type: integer
+                name:
+                    type: string
+                type:
+                    type: string
+                updated_at:
+                    type: string
+            type: object
+        models.GameSummary:
+            properties:
+                created_at:
+                    type: string
+                dealer:
+                    $ref: '#/components/schemas/models.Dealer'
+                end_time:
+                    type: string
+                highest_bet:
+                    type: number
+                id:
+                    type: string
+                players:
+                    items:
+                        $ref: '#/components/schemas/models.Player'
+                    type: array
+                rounds_played:
+                    type: integer
+                start_time:
+                    type: string
+                status:
+                    type: string
+                total_pot:
+                    type: number
+                transactions:
+                    items:
+                        $ref: '#/components/schemas/models.Transaction'
+                    type: array
+                updated_at:
+                    type: string
+            type: object
+        models.GameSummaryResponse:
+            properties:
+                casino:
+                    $ref: '#/components/schemas/models.CasinoResponse'
+                created_at:
+                    type: string
+                dealer:
+                    $ref: '#/components/schemas/models.DealerResponse'
+                end_time:
+                    type: string
+                game:
+                    $ref: '#/components/schemas/models.GameResponse'
+                highest_bet:
+                    type: number
+                id:
+                    type: string
+                players:
+                    items:
+                        $ref: '#/components/schemas/models.PlayerResponse'
+                    type: array
+                rounds_played:
+                    type: integer
+                start_time:
+                    type: string
+                status:
+                    type: string
+                total_pot:
+                    type: number
+                updated_at:
+                    type: string
+            type: object
+        models.Player:
+            properties:
+                created_at:
+                    type: string
+                games_played:
+                    type: integer
+                id:
+                    type: string
+                nickname:
+                    type: string
+                played_games:
+                    items:
+                        $ref: '#/components/schemas/models.GameSummary'
+                    type: array
+                rank:
+                    type: string
+                status:
+                    type: string
+                total_winnings:
+                    type: number
+                updated_at:
+                    type: string
+            type: object
+        models.PlayerResponse:
+            properties:
+                created_at:
+                    type: string
+                games_played:
+                    type: integer
+                id:
+                    type: string
+                nickname:
+                    type: string
+                rank:
+                    type: string
+                status:
+                    type: string
+                total_winnings:
+                    type: number
+                updated_at:
+                    type: string
+            type: object
+        models.SignInInput:
+            properties:
+                email:
+                    type: string
+                password:
+                    type: string
+            required:
+                - email
+                - password
+            type: object
+        models.SignUpInput:
+            properties:
+                email:
+                    type: string
+                name:
+                    type: string
+                password:
+                    minLength: 8
+                    type: string
+                passwordConfirm:
+                    type: string
+            required:
+                - email
+                - name
+                - password
+                - passwordConfirm
+            type: object
+        models.Transaction:
+            properties:
+                amount:
+                    type: number
+                created_at:
+                    type: string
+                id:
+                    type: string
+                outcome:
+                    type: string
+                player:
+                    $ref: '#/components/schemas/models.Player'
+                updated_at:
+                    type: string
+            type: object
+        models.TransactionResponse:
+            properties:
+                amount:
+                    type: number
+                created_at:
+                    type: string
+                id:
+                    type: string
+                outcome:
+                    type: string
+                player:
+                    $ref: '#/components/schemas/models.PlayerResponse'
+                updated_at:
+                    type: string
+            type: object
+        models.UpdateCasinoRequest:
+            properties:
+                description:
+                    type: string
+                license_number:
+                    type: string
+                location:
+                    type: string
+                max_capacity:
+                    type: integer
+                name:
+                    type: string
+                opening_hours:
+                    type: string
+                phone_number:
+                    type: string
+                rating:
+                    type: number
+                status:
+                    type: string
+                website:
+                    type: string
+            type: object
+        models.UpdateDealerRequest:
+            properties:
+                games_dealt:
+                    type: integer
+                last_active_at:
+                    type: string
+                rating:
+                    type: number
+                status:
+                    type: string
+            type: object
+        models.UpdateGameRequest:
+            properties:
+                description:
+                    type: string
+                max_bet:
+                    type: number
+                max_players:
+                    type: integer
+                min_bet:
+                    type: number
+                min_players:
+                    type: integer
+                name:
+                    type: string
+                type:
+                    type: string
+            type: object
+        models.UpdateGameSummaryRequest:
+            properties:
+                end_time:
+                    type: string
+                highest_bet:
+                    type: number
+                rounds_played:
+                    type: integer
+                status:
+                    type: string
+                total_pot:
+                    type: number
+            type: object
+        models.UpdatePlayerRequest:
+            properties:
+                games_played:
+                    type: integer
+                nickname:
+                    type: string
+                rank:
+                    type: string
+                status:
+                    type: string
+                total_winnings:
+                    type: number
+            type: object
+        models.User:
+            properties:
+                created_at:
+                    type: string
+                email:
+                    type: string
+                id:
+                    type: string
+                name:
+                    type: string
+                provider:
+                    type: string
+                role:
+                    type: string
+                updated_at:
+                    type: string
+                verified:
+                    type: boolean
+            type: object
+        models.UserResponse:
+            properties:
+                created_at:
+                    type: string
+                email:
+                    type: string
+                id:
+                    type: string
+                name:
+                    type: string
+                provider:
+                    type: string
+                role:
+                    type: string
+                updated_at:
+                    type: string
+                verified:
+                    type: boolean
+            type: object
+    securitySchemes:
+        BearerAuth:
+            in: header
+            name: Authorization
+            type: apiKey
+info:
+    contact:
+        email: support@swagger.io
+        name: API Support
+        url: http://www.swagger.io/support
+    description: A REST API for Tableye application
+    license:
+        name: Apache 2.0
+        url: http://www.apache.org/licenses/LICENSE-2.0.html
+    termsOfService: http://swagger.io/terms/
+    title: Tableye API
+    version: "1.0"
+openapi: 3.0.3
+paths:
+    /auth/login:
+        post:
+            description: Authenticate a user and return access/refresh tokens
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/models.SignInInput'
+                description: User login credentials
+                required: true
+                x-originalParamName: request
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Login successful
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Invalid credentials
+            summary: Login a user
+            tags:
+                - authentication
+    /auth/logout:
+        post:
+            description: Clear authentication cookies
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Logged out successfully
+            summary: Logout user
+            tags:
+                - authentication
+    /auth/refresh:
+        post:
+            description: Get a new access token using refresh token
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Token refreshed successfully
+                "403":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Invalid refresh token
+            summary: Refresh access token
+            tags:
+                - authentication
+    /auth/register:
+        post:
+            description: Register a new user with the provided details
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/models.SignUpInput'
+                description: User registration details
+                required: true
+                x-originalParamName: request
+            responses:
+                "201":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.UserResponse'
+                    description: User successfully created
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad request
+                "409":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: User already exists
+                "502":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Server error
+            summary: Register a new user
+            tags:
+                - authentication
+    /casinos:
+        get:
+            description: Get a list of casinos
+            parameters:
+                - description: Page number
+                  in: query
+                  name: page
+                  schema:
+                    type: integer
+                - description: Number of items per page
+                  in: query
+                  name: limit
+                  schema:
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: OK
+                "502":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Gateway
+            summary: List casinos
+            tags:
+                - casinos
+        post:
+            description: Create a new casino with the input payload
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/models.CreateCasinoRequest'
+                description: Create casino request
+                required: true
+                x-originalParamName: casino
+            responses:
+                "201":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.Casino'
+                    description: Created
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Request
+                "409":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Conflict
+                "502":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Gateway
+            summary: Create a new casino
+            tags:
+                - casinos
+    /casinos/{casinoId}:
+        delete:
+            description: Delete a casino by its ID
+            parameters:
+                - description: Casino ID
+                  in: path
+                  name: casinoId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "204":
+                    description: No Content
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+            summary: Delete a casino
+            tags:
+                - casinos
+        get:
+            description: Get a single casino by its ID
+            parameters:
+                - description: Casino ID
+                  in: path
+                  name: casinoId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.Casino'
+                    description: OK
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+            summary: Get a casino by ID
+            tags:
+                - casinos
+        put:
+            description: Update a casino with the input payload
+            parameters:
+                - description: Casino ID
+                  in: path
+                  name: casinoId
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/models.UpdateCasinoRequest'
+                description: Update casino request
+                required: true
+                x-originalParamName: casino
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.Casino'
+                    description: OK
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Request
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+            summary: Update a casino
+            tags:
+                - casinos
+    /dealers:
+        get:
+            description: Get a list of dealers
+            parameters:
+                - description: Page number
+                  in: query
+                  name: page
+                  schema:
+                    type: integer
+                - description: Number of items per page
+                  in: query
+                  name: limit
+                  schema:
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: OK
+                "502":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Gateway
+            summary: List dealers
+            tags:
+                - dealers
+        post:
+            description: Create a new dealer with the input payload
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/models.CreateDealerRequest'
+                description: Create dealer request
+                required: true
+                x-originalParamName: dealer
+            responses:
+                "201":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.DealerResponse'
+                    description: Created
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Request
+                "409":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Conflict
+                "502":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Gateway
+            summary: Create a new dealer
+            tags:
+                - dealers
+    /dealers/{dealerId}:
+        delete:
+            description: Delete a dealer by ID
+            parameters:
+                - description: Dealer ID
+                  in: path
+                  name: dealerId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "204":
+                    description: No Content
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+            summary: Delete a dealer
+            tags:
+                - dealers
+        get:
+            description: Get details of a dealer by ID
+            parameters:
+                - description: Dealer ID
+                  in: path
+                  name: dealerId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.DealerResponse'
+                    description: OK
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+            summary: Get a dealer by ID
+            tags:
+                - dealers
+        put:
+            description: Update a dealer's information by ID
+            parameters:
+                - description: Dealer ID
+                  in: path
+                  name: dealerId
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/models.UpdateDealerRequest'
+                description: Update dealer request
+                required: true
+                x-originalParamName: dealer
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.DealerResponse'
+                    description: OK
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Request
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+            summary: Update a dealer
+            tags:
+                - dealers
+    /game-summaries:
+        get:
+            description: Get a list of game summaries with pagination, including transactions
+            parameters:
+                - description: Page number
+                  in: query
+                  name: page
+                  schema:
+                    default: 1
+                    type: integer
+                - description: Number of items per page
+                  in: query
+                  name: limit
+                  schema:
+                    default: 10
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: OK
+                "500":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Internal Server Error
+            summary: List game summaries
+            tags:
+                - gameSummaries
+        post:
+            description: Create a new game summary with the given input data, including game, casino, dealer, and players information
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/models.CreateGameSummaryRequest'
+                description: Create game summary request
+                required: true
+                x-originalParamName: gameSummary
+            responses:
+                "201":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.GameSummaryResponse'
+                    description: Successfully created game summary
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad request
+                "500":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Internal server error
+            summary: Create a new game summary
+            tags:
+                - gameSummaries
+    /game-summaries/{gameSummaryId}:
+        delete:
+            description: Delete a game summary by its ID and all associated data
+            parameters:
+                - description: Game Summary ID
+                  in: path
+                  name: gameSummaryId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "204":
+                    description: No Content
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+                "500":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Internal Server Error
+            summary: Delete a game summary
+            tags:
+                - gameSummaries
+        get:
+            description: Get details of a game summary by its ID, including transactions
+            parameters:
+                - description: Game Summary ID
+                  in: path
+                  name: gameSummaryId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.GameSummaryResponse'
+                    description: OK
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+            summary: Get a game summary by ID
+            tags:
+                - gameSummaries
+        put:
+            description: Update a game summary with the given input data and return the updated summary with all related information
+            parameters:
+                - description: Game Summary ID
+                  in: path
+                  name: gameSummaryId
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/models.UpdateGameSummaryRequest'
+                description: Update game summary request
+                required: true
+                x-originalParamName: gameSummary
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.GameSummaryResponse'
+                    description: OK
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Request
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+                "500":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Internal Server Error
+            summary: Update a game summary
+            tags:
+                - gameSummaries
+    /game-summaries/{gameSummaryId}/players:
+        post:
+            description: Add an array of players to an existing game summary
+            parameters:
+                - description: Game Summary ID
+                  in: path
+                  name: gameSummaryId
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            items:
+                                type: string
+                            type: array
+                description: Array of player IDs
+                required: true
+                x-originalParamName: players
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.GameSummaryResponse'
+                    description: OK
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Request
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+                "500":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Internal Server Error
+            summary: Add players to a game summary
+            tags:
+                - gameSummaries
+    /game-summaries/{gameSummaryId}/transactions:
+        post:
+            description: Add a new transaction to an existing game summary
+            parameters:
+                - description: Game Summary ID
+                  in: path
+                  name: gameSummaryId
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/models.CreateTransactionRequest'
+                description: Transaction details
+                required: true
+                x-originalParamName: transaction
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.TransactionResponse'
+                    description: OK
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Request
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+                "500":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Internal Server Error
+            summary: Add a transaction to a game summary
+            tags:
+                - gameSummaries
+    /games:
+        get:
+            description: Get a list of games
+            parameters:
+                - description: Page number
+                  in: query
+                  name: page
+                  schema:
+                    default: 1
+                    type: integer
+                - description: Number of items per page
+                  in: query
+                  name: limit
+                  schema:
+                    default: 10
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: OK
+                "502":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Gateway
+            summary: List games
+            tags:
+                - games
+        post:
+            description: Create a new game with the input payload
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/models.CreateGameRequest'
+                description: Create game request
+                required: true
+                x-originalParamName: game
+            responses:
+                "201":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.Game'
+                    description: Created
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Request
+                "409":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Conflict
+                "502":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Gateway
+            summary: Create a new game
+            tags:
+                - games
+    /games/{gameId}:
+        delete:
+            description: Delete a game by ID
+            parameters:
+                - description: Game ID
+                  in: path
+                  name: gameId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "204":
+                    description: No Content
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+            summary: Delete a game
+            tags:
+                - games
+        get:
+            description: Get details of a game by ID
+            parameters:
+                - description: Game ID
+                  in: path
+                  name: gameId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.Game'
+                    description: OK
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+            summary: Get a game by ID
+            tags:
+                - games
+        put:
+            description: Update a game's information by ID
+            parameters:
+                - description: Game ID
+                  in: path
+                  name: gameId
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/models.UpdateGameRequest'
+                description: Update game request
+                required: true
+                x-originalParamName: game
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.Game'
+                    description: OK
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Request
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+            summary: Update a game
+            tags:
+                - games
+    /healthchecker:
+        get:
+            description: Get API health status
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: OK
+            summary: Health check endpoint
+            tags:
+                - health
+    /players:
+        get:
+            description: Get a list of players
+            parameters:
+                - description: Page number
+                  in: query
+                  name: page
+                  schema:
+                    default: 1
+                    type: integer
+                - description: Number of items per page
+                  in: query
+                  name: limit
+                  schema:
+                    default: 10
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: OK
+                "502":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Gateway
+            summary: List players
+            tags:
+                - players
+        post:
+            description: Create a new player with the input payload
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/models.CreatePlayerRequest'
+                description: Create player request
+                required: true
+                x-originalParamName: player
+            responses:
+                "201":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.Player'
+                    description: Created
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Request
+                "409":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Conflict
+                "502":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Gateway
+            summary: Create a new player
+            tags:
+                - players
+    /players/{playerId}:
+        delete:
+            description: Delete a player by ID
+            parameters:
+                - description: Player ID
+                  in: path
+                  name: playerId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "204":
+                    description: No Content
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+            summary: Delete a player
+            tags:
+                - players
+        get:
+            description: Get details of a player by ID
+            parameters:
+                - description: Player ID
+                  in: path
+                  name: playerId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.Player'
+                    description: OK
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+            summary: Get a player by ID
+            tags:
+                - players
+        put:
+            description: Update a player's information by ID
+            parameters:
+                - description: Player ID
+                  in: path
+                  name: playerId
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/models.UpdatePlayerRequest'
+                description: Update player request
+                required: true
+                x-originalParamName: player
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.Player'
+                    description: OK
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Request
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+            summary: Update a player
+            tags:
+                - players
+    /players/{playerId}/stats:
+        get:
+            description: Get statistics of a player by ID
+            parameters:
+                - description: Player ID
+                  in: path
+                  name: playerId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: OK
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+            summary: Get player statistics
+            tags:
+                - players
+    /transactions:
+        get:
+            description: Get a list of transactions with pagination
+            parameters:
+                - description: Page number
+                  in: query
+                  name: page
+                  schema:
+                    default: 1
+                    type: integer
+                - description: Number of items per page
+                  in: query
+                  name: limit
+                  schema:
+                    default: 10
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: OK
+                "500":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Internal Server Error
+            summary: List transactions
+            tags:
+                - transactions
+        post:
+            description: Create a new transaction with the given input data
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/models.CreateTransactionRequest'
+                description: Create transaction request
+                required: true
+                x-originalParamName: transaction
+            responses:
+                "201":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.TransactionResponse'
+                    description: Created
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Bad Request
+                "500":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Internal Server Error
+            summary: Create a new transaction
+            tags:
+                - transactions
+    /transactions/{transactionId}:
+        get:
+            description: Get details of a transaction by its ID
+            parameters:
+                - description: Transaction ID
+                  in: path
+                  name: transactionId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/models.TransactionResponse'
+                    description: OK
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                additionalProperties: true
+                                type: object
+                    description: Not Found
+            summary: Get a transaction by ID
+            tags:
+                - transactions

@@ -14,7 +14,6 @@ type Dealer struct {
 	Status        string        `gorm:"type:varchar(255);not null" json:"status,omitempty"`
 	GamesDealt    int           `gorm:"not null" json:"games_dealt,omitempty"`
 	Rating        float32       `gorm:"not null" json:"rating,omitempty"`
-	Casinos       []Casino      `gorm:"many2many:casino_dealers;" json:"casinos,omitempty"`
 	GameSummaries []GameSummary `gorm:"foreignKey:DealerID" json:"game_summaries,omitempty"`
 	LastActiveAt  time.Time     `json:"last_active_at,omitempty"`
 	CreatedAt     time.Time     `gorm:"not null" json:"created_at,omitempty"`

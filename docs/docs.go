@@ -741,7 +741,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Update a game summary with the given input data",
+                "description": "Update a game summary with the given input data and return the updated summary with all related information",
                 "consumes": [
                     "application/json"
                 ],
@@ -801,7 +801,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete a game summary by its ID",
+                "description": "Delete a game summary by its ID and all associated data",
                 "consumes": [
                     "application/json"
                 ],
@@ -827,6 +827,13 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -1882,12 +1889,6 @@ const docTemplate = `{
         "models.Dealer": {
             "type": "object",
             "properties": {
-                "casinos": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Casino"
-                    }
-                },
                 "created_at": {
                     "type": "string"
                 },
@@ -2040,9 +2041,6 @@ const docTemplate = `{
         "models.GameSummary": {
             "type": "object",
             "properties": {
-                "casino": {
-                    "$ref": "#/definitions/models.Casino"
-                },
                 "created_at": {
                     "type": "string"
                 },
@@ -2051,9 +2049,6 @@ const docTemplate = `{
                 },
                 "end_time": {
                     "type": "string"
-                },
-                "game": {
-                    "$ref": "#/definitions/models.Game"
                 },
                 "highest_bet": {
                     "type": "number"
@@ -2475,7 +2470,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "https://suidev.nl",
+	Host:             "",
 	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "Tableye API",
