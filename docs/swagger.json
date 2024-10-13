@@ -605,7 +605,7 @@
         },
         "/game-summaries": {
             "get": {
-                "description": "Get a list of game summaries with pagination, including transactions",
+                "description": "Retrieve a list of game summaries with pagination",
                 "consumes": [
                     "application/json"
                 ],
@@ -613,7 +613,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "gameSummaries"
+                    "game-summaries"
                 ],
                 "summary": "List game summaries",
                 "parameters": [
@@ -636,8 +636,10 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.GameSummaryResponse"
+                            }
                         }
                     },
                     "500": {
@@ -650,7 +652,7 @@
                 }
             },
             "post": {
-                "description": "Create a new game summary with the given input data, including game, casino, dealer, and players information",
+                "description": "Create a new game summary with the input payload",
                 "consumes": [
                     "application/json"
                 ],
@@ -658,13 +660,13 @@
                     "application/json"
                 ],
                 "tags": [
-                    "gameSummaries"
+                    "game-summaries"
                 ],
                 "summary": "Create a new game summary",
                 "parameters": [
                     {
-                        "description": "Create game summary request",
-                        "name": "gameSummary",
+                        "description": "Create game summary payload",
+                        "name": "payload",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -674,20 +676,20 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "Successfully created game summary",
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/models.GameSummaryResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "Bad Request",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -698,7 +700,7 @@
         },
         "/game-summaries/{gameSummaryId}": {
             "get": {
-                "description": "Get details of a game summary by its ID, including transactions",
+                "description": "Retrieve a game summary by its ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -706,7 +708,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "gameSummaries"
+                    "game-summaries"
                 ],
                 "summary": "Get a game summary by ID",
                 "parameters": [
@@ -725,8 +727,22 @@
                             "$ref": "#/definitions/models.GameSummaryResponse"
                         }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -735,7 +751,7 @@
                 }
             },
             "put": {
-                "description": "Update a game summary with the given input data and return the updated summary with all related information",
+                "description": "Update an existing game summary",
                 "consumes": [
                     "application/json"
                 ],
@@ -743,7 +759,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "gameSummaries"
+                    "game-summaries"
                 ],
                 "summary": "Update a game summary",
                 "parameters": [
@@ -755,8 +771,8 @@
                         "required": true
                     },
                     {
-                        "description": "Update game summary request",
-                        "name": "gameSummary",
+                        "description": "Update game summary payload",
+                        "name": "payload",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -795,7 +811,7 @@
                 }
             },
             "delete": {
-                "description": "Delete a game summary by its ID and all associated data",
+                "description": "Delete a game summary by its ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -803,7 +819,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "gameSummaries"
+                    "game-summaries"
                 ],
                 "summary": "Delete a game summary",
                 "parameters": [
@@ -818,126 +834,6 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/game-summaries/{gameSummaryId}/players": {
-            "post": {
-                "description": "Add an array of players to an existing game summary",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "gameSummaries"
-                ],
-                "summary": "Add players to a game summary",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Game Summary ID",
-                        "name": "gameSummaryId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Array of player IDs",
-                        "name": "players",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.GameSummaryResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/game-summaries/{gameSummaryId}/transactions": {
-            "post": {
-                "description": "Add a new transaction to an existing game summary",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "gameSummaries"
-                ],
-                "summary": "Add a transaction to a game summary",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Game Summary ID",
-                        "name": "gameSummaryId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Transaction details",
-                        "name": "transaction",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.CreateTransactionRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.TransactionResponse"
-                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -2055,6 +1951,35 @@
                 }
             }
         },
+        "models.GameSummaryDealerResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "dealer_code": {
+                    "type": "string"
+                },
+                "games_dealt": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_active_at": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "models.GameSummaryResponse": {
             "type": "object",
             "properties": {
@@ -2065,7 +1990,7 @@
                     "type": "string"
                 },
                 "dealer": {
-                    "$ref": "#/definitions/models.DealerResponse"
+                    "$ref": "#/definitions/models.GameSummaryDealerResponse"
                 },
                 "end_time": {
                     "type": "string"
@@ -2096,6 +2021,12 @@
                 },
                 "total_pot": {
                     "type": "number"
+                },
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.TransactionResponse"
+                    }
                 },
                 "updated_at": {
                     "type": "string"

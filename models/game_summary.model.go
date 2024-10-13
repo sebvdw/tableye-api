@@ -41,17 +41,30 @@ type UpdateGameSummaryRequest struct {
 }
 
 type GameSummaryResponse struct {
-	ID           uuid.UUID        `json:"id,omitempty"`
-	Game         GameResponse     `json:"game,omitempty"`
-	Casino       CasinoResponse   `json:"casino,omitempty"`
-	StartTime    time.Time        `json:"start_time,omitempty"`
-	EndTime      time.Time        `json:"end_time,omitempty"`
-	Players      []PlayerResponse `json:"players,omitempty"`
-	Dealer       DealerResponse   `json:"dealer,omitempty"`
-	TotalPot     float64          `json:"total_pot,omitempty"`
-	Status       string           `json:"status,omitempty"`
-	RoundsPlayed int              `json:"rounds_played,omitempty"`
-	HighestBet   float64          `json:"highest_bet,omitempty"`
-	CreatedAt    time.Time        `json:"created_at,omitempty"`
-	UpdatedAt    time.Time        `json:"updated_at,omitempty"`
+	ID           uuid.UUID                 `json:"id,omitempty"`
+	Game         GameResponse              `json:"game,omitempty"`
+	Casino       CasinoResponse            `json:"casino,omitempty"`
+	StartTime    time.Time                 `json:"start_time,omitempty"`
+	EndTime      time.Time                 `json:"end_time,omitempty"`
+	Players      []PlayerResponse          `json:"players,omitempty"`
+	Dealer       GameSummaryDealerResponse `json:"dealer,omitempty"`
+	TotalPot     float64                   `json:"total_pot,omitempty"`
+	Status       string                    `json:"status,omitempty"`
+	RoundsPlayed int                       `json:"rounds_played,omitempty"`
+	HighestBet   float64                   `json:"highest_bet,omitempty"`
+	Transactions []TransactionResponse     `json:"transactions,omitempty"`
+	CreatedAt    time.Time                 `json:"created_at,omitempty"`
+	UpdatedAt    time.Time                 `json:"updated_at,omitempty"`
+}
+
+type GameSummaryDealerResponse struct {
+	ID           uuid.UUID    `json:"id,omitempty"`
+	User         UserResponse `json:"-"`
+	DealerCode   string       `json:"dealer_code,omitempty"`
+	Status       string       `json:"status,omitempty"`
+	GamesDealt   int          `json:"games_dealt,omitempty"`
+	Rating       float32      `json:"rating,omitempty"`
+	LastActiveAt time.Time    `json:"last_active_at,omitempty"`
+	CreatedAt    time.Time    `json:"created_at,omitempty"`
+	UpdatedAt    time.Time    `json:"updated_at,omitempty"`
 }

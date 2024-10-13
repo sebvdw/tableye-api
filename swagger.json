@@ -443,6 +443,35 @@
                 },
                 "type": "object"
             },
+            "models.GameSummaryDealerResponse": {
+                "properties": {
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "dealer_code": {
+                        "type": "string"
+                    },
+                    "games_dealt": {
+                        "type": "integer"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "last_active_at": {
+                        "type": "string"
+                    },
+                    "rating": {
+                        "type": "number"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
             "models.GameSummaryResponse": {
                 "properties": {
                     "casino": {
@@ -452,7 +481,7 @@
                         "type": "string"
                     },
                     "dealer": {
-                        "$ref": "#/components/schemas/models.DealerResponse"
+                        "$ref": "#/components/schemas/models.GameSummaryDealerResponse"
                     },
                     "end_time": {
                         "type": "string"
@@ -483,6 +512,12 @@
                     },
                     "total_pot": {
                         "type": "number"
+                    },
+                    "transactions": {
+                        "items": {
+                            "$ref": "#/components/schemas/models.TransactionResponse"
+                        },
+                        "type": "array"
                     },
                     "updated_at": {
                         "type": "string"
@@ -1507,7 +1542,7 @@
         },
         "/game-summaries": {
             "get": {
-                "description": "Get a list of game summaries with pagination, including transactions",
+                "description": "Retrieve a list of game summaries with pagination",
                 "parameters": [
                     {
                         "description": "Page number",
@@ -1533,8 +1568,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "additionalProperties": true,
-                                    "type": "object"
+                                    "items": {
+                                        "$ref": "#/components/schemas/models.GameSummaryResponse"
+                                    },
+                                    "type": "array"
                                 }
                             }
                         },
@@ -1554,11 +1591,11 @@
                 },
                 "summary": "List game summaries",
                 "tags": [
-                    "gameSummaries"
+                    "game-summaries"
                 ]
             },
             "post": {
-                "description": "Create a new game summary with the given input data, including game, casino, dealer, and players information",
+                "description": "Create a new game summary with the input payload",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -1567,9 +1604,9 @@
                             }
                         }
                     },
-                    "description": "Create game summary request",
+                    "description": "Create game summary payload",
                     "required": true,
-                    "x-originalParamName": "gameSummary"
+                    "x-originalParamName": "payload"
                 },
                 "responses": {
                     "201": {
@@ -1580,7 +1617,7 @@
                                 }
                             }
                         },
-                        "description": "Successfully created game summary"
+                        "description": "Created"
                     },
                     "400": {
                         "content": {
@@ -1591,7 +1628,7 @@
                                 }
                             }
                         },
-                        "description": "Bad request"
+                        "description": "Bad Request"
                     },
                     "500": {
                         "content": {
@@ -1602,18 +1639,18 @@
                                 }
                             }
                         },
-                        "description": "Internal server error"
+                        "description": "Internal Server Error"
                     }
                 },
                 "summary": "Create a new game summary",
                 "tags": [
-                    "gameSummaries"
+                    "game-summaries"
                 ]
             }
         },
         "/game-summaries/{gameSummaryId}": {
             "delete": {
-                "description": "Delete a game summary by its ID and all associated data",
+                "description": "Delete a game summary by its ID",
                 "parameters": [
                     {
                         "description": "Game Summary ID",
@@ -1628,6 +1665,17 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "404": {
                         "content": {
@@ -1654,11 +1702,11 @@
                 },
                 "summary": "Delete a game summary",
                 "tags": [
-                    "gameSummaries"
+                    "game-summaries"
                 ]
             },
             "get": {
-                "description": "Get details of a game summary by its ID, including transactions",
+                "description": "Retrieve a game summary by its ID",
                 "parameters": [
                     {
                         "description": "Game Summary ID",
@@ -1681,6 +1729,17 @@
                         },
                         "description": "OK"
                     },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
                     "404": {
                         "content": {
                             "application/json": {
@@ -1691,15 +1750,26 @@
                             }
                         },
                         "description": "Not Found"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "description": "Internal Server Error"
                     }
                 },
                 "summary": "Get a game summary by ID",
                 "tags": [
-                    "gameSummaries"
+                    "game-summaries"
                 ]
             },
             "put": {
-                "description": "Update a game summary with the given input data and return the updated summary with all related information",
+                "description": "Update an existing game summary",
                 "parameters": [
                     {
                         "description": "Game Summary ID",
@@ -1719,9 +1789,9 @@
                             }
                         }
                     },
-                    "description": "Update game summary request",
+                    "description": "Update game summary payload",
                     "required": true,
-                    "x-originalParamName": "gameSummary"
+                    "x-originalParamName": "payload"
                 },
                 "responses": {
                     "200": {
@@ -1770,164 +1840,7 @@
                 },
                 "summary": "Update a game summary",
                 "tags": [
-                    "gameSummaries"
-                ]
-            }
-        },
-        "/game-summaries/{gameSummaryId}/players": {
-            "post": {
-                "description": "Add an array of players to an existing game summary",
-                "parameters": [
-                    {
-                        "description": "Game Summary ID",
-                        "in": "path",
-                        "name": "gameSummaryId",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "items": {
-                                    "type": "string"
-                                },
-                                "type": "array"
-                            }
-                        }
-                    },
-                    "description": "Array of player IDs",
-                    "required": true,
-                    "x-originalParamName": "players"
-                },
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/models.GameSummaryResponse"
-                                }
-                            }
-                        },
-                        "description": "OK"
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "additionalProperties": true,
-                                    "type": "object"
-                                }
-                            }
-                        },
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "additionalProperties": true,
-                                    "type": "object"
-                                }
-                            }
-                        },
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "additionalProperties": true,
-                                    "type": "object"
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error"
-                    }
-                },
-                "summary": "Add players to a game summary",
-                "tags": [
-                    "gameSummaries"
-                ]
-            }
-        },
-        "/game-summaries/{gameSummaryId}/transactions": {
-            "post": {
-                "description": "Add a new transaction to an existing game summary",
-                "parameters": [
-                    {
-                        "description": "Game Summary ID",
-                        "in": "path",
-                        "name": "gameSummaryId",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/models.CreateTransactionRequest"
-                            }
-                        }
-                    },
-                    "description": "Transaction details",
-                    "required": true,
-                    "x-originalParamName": "transaction"
-                },
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/models.TransactionResponse"
-                                }
-                            }
-                        },
-                        "description": "OK"
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "additionalProperties": true,
-                                    "type": "object"
-                                }
-                            }
-                        },
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "additionalProperties": true,
-                                    "type": "object"
-                                }
-                            }
-                        },
-                        "description": "Not Found"
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "additionalProperties": true,
-                                    "type": "object"
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error"
-                    }
-                },
-                "summary": "Add a transaction to a game summary",
-                "tags": [
-                    "gameSummaries"
+                    "game-summaries"
                 ]
             }
         },

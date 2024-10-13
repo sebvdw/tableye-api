@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -20,402 +21,332 @@ func NewGameSummaryController(DB *gorm.DB) GameSummaryController {
 }
 
 // CreateGameSummary godoc
-//	@Summary		Create a new game summary
-//	@Description	Create a new game summary with the given input data, including game, casino, dealer, and players information
-//	@Tags			gameSummaries
-//	@Accept			json
-//	@Produce		json
-//	@Param			gameSummary	body		models.CreateGameSummaryRequest	true	"Create game summary request"
-//	@Success		201			{object}	models.GameSummaryResponse		"Successfully created game summary"
-//	@Failure		400			{object}	map[string]interface{}			"Bad request"
-//	@Failure		500			{object}	map[string]interface{}			"Internal server error"
-//	@Router			/game-summaries [post]
+// @Summary Create a new game summary
+// @Description Create a new game summary with the input payload
+// @Tags game-summaries
+// @Accept json
+// @Produce json
+// @Param payload body models.CreateGameSummaryRequest true "Create game summary payload"
+// @Success 201 {object} models.GameSummaryResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /game-summaries [post]
 func (gsc *GameSummaryController) CreateGameSummary(ctx *gin.Context) {
-	var payload *models.CreateGameSummaryRequest
+	var payload models.CreateGameSummaryRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
 		return
 	}
 
-	gameID, err := uuid.Parse(payload.GameID)
+	newGameSummary, err := gsc.createGameSummaryFromPayload(payload)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid game ID"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
 		return
 	}
 
-	casinoID, err := uuid.Parse(payload.CasinoID)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid casino ID"})
-		return
-	}
-
-	dealerID, err := uuid.Parse(payload.DealerID)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid dealer ID"})
-		return
-	}
-
-	playerIDs := make([]uuid.UUID, len(payload.PlayerIDs))
-	for i, playerIDStr := range payload.PlayerIDs {
-		playerID, err := uuid.Parse(playerIDStr)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid player ID"})
-			return
+	if err := gsc.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&newGameSummary).Error; err != nil {
+			return err
 		}
-		playerIDs[i] = playerID
-	}
-
-	now := time.Now()
-	newGameSummary := models.GameSummary{
-		GameID:       gameID,
-		CasinoID:     casinoID,
-		StartTime:    payload.StartTime,
-		DealerID:     dealerID,
-		Status:       "In Progress",
-		RoundsPlayed: 0,
-		CreatedAt:    now,
-		UpdatedAt:    now,
-	}
-
-	// Start a database transaction
-	tx := gsc.DB.Begin()
-	if tx.Error != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to start transaction"})
+		return gsc.addPlayersToGameSummary(tx, newGameSummary.ID, payload.PlayerIDs)
+	}); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to create game summary"})
 		return
 	}
 
-	// Create the game summary
-	if err := tx.Create(&newGameSummary).Error; err != nil {
-		tx.Rollback()
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": err.Error()})
-		return
-	}
-
-	// Add players to the game summary
-	for _, playerID := range playerIDs {
-		if err := tx.Exec("INSERT INTO game_players (game_summary_id, player_id) VALUES (?, ?)", newGameSummary.ID, playerID).Error; err != nil {
-			tx.Rollback()
-			ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to add player to game summary"})
-			return
-		}
-	}
-
-	// Commit the transaction
-	if err := tx.Commit().Error; err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to commit transaction"})
-		return
-	}
-
-	// Fetch the complete game summary with all related data
-	var completeSummary models.GameSummary
-	if err := gsc.DB.Preload("Game").
-		Preload("Casino").
-		Preload("Dealer").
-		Preload("Dealer.User").
-		Preload("Players").
-		First(&completeSummary, newGameSummary.ID).Error; err != nil {
+	response, err := gsc.getGameSummaryResponse(newGameSummary.ID)
+	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to fetch complete game summary"})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": completeSummary})
+	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": response})
 }
 
 // UpdateGameSummary godoc
-//	@Summary		Update a game summary
-//	@Description	Update a game summary with the given input data and return the updated summary with all related information
-//	@Tags			gameSummaries
-//	@Accept			json
-//	@Produce		json
-//	@Param			gameSummaryId	path		string							true	"Game Summary ID"
-//	@Param			gameSummary		body		models.UpdateGameSummaryRequest	true	"Update game summary request"
-//	@Success		200				{object}	models.GameSummaryResponse
-//	@Failure		400				{object}	map[string]interface{}
-//	@Failure		404				{object}	map[string]interface{}
-//	@Failure		500				{object}	map[string]interface{}
-//	@Router			/game-summaries/{gameSummaryId} [put]
+// @Summary Update a game summary
+// @Description Update an existing game summary
+// @Tags game-summaries
+// @Accept json
+// @Produce json
+// @Param gameSummaryId path string true "Game Summary ID"
+// @Param payload body models.UpdateGameSummaryRequest true "Update game summary payload"
+// @Success 200 {object} models.GameSummaryResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /game-summaries/{gameSummaryId} [put]
 func (gsc *GameSummaryController) UpdateGameSummary(ctx *gin.Context) {
-	gameSummaryId := ctx.Param("gameSummaryId")
-	var payload *models.UpdateGameSummaryRequest
-
-	if err := ctx.ShouldBindJSON(&payload); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
-		return
-	}
-
-	var gameSummary models.GameSummary
-	result := gsc.DB.First(&gameSummary, "id = ?", gameSummaryId)
-	if result.Error != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No game summary with that ID exists"})
-		return
-	}
-
-	now := time.Now()
-	gameSummaryToUpdate := models.GameSummary{
-		EndTime:      payload.EndTime,
-		TotalPot:     payload.TotalPot,
-		Status:       payload.Status,
-		RoundsPlayed: payload.RoundsPlayed,
-		HighestBet:   payload.HighestBet,
-		UpdatedAt:    now,
-	}
-
-	// Start a transaction
-	tx := gsc.DB.Begin()
-	if tx.Error != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to start transaction"})
-		return
-	}
-
-	// Update the game summary
-	if err := tx.Model(&gameSummary).Updates(gameSummaryToUpdate).Error; err != nil {
-		tx.Rollback()
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to update game summary"})
-		return
-	}
-
-	// Commit the transaction
-	if err := tx.Commit().Error; err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to commit transaction"})
-		return
-	}
-
-	// Fetch the updated game summary with all related data
-	var updatedSummary models.GameSummary
-	if err := gsc.DB.Preload("Game").
-		Preload("Casino").
-		Preload("Dealer").
-		Preload("Dealer.User").
-		Preload("Players").
-		Preload("Transactions").
-		Preload("Transactions.Player").
-		First(&updatedSummary, gameSummary.ID).Error; err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to fetch updated game summary"})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": updatedSummary})
-}
-
-// FindGameSummaryById godoc
-//	@Summary		Get a game summary by ID
-//	@Description	Get details of a game summary by its ID, including transactions
-//	@Tags			gameSummaries
-//	@Accept			json
-//	@Produce		json
-//	@Param			gameSummaryId	path		string	true	"Game Summary ID"
-//	@Success		200				{object}	models.GameSummaryResponse
-//	@Failure		404				{object}	map[string]interface{}
-//	@Router			/game-summaries/{gameSummaryId} [get]
-func (gsc *GameSummaryController) FindGameSummaryById(ctx *gin.Context) {
-	gameSummaryId := ctx.Param("gameSummaryId")
-
-	var gameSummary models.GameSummary
-	result := gsc.DB.Preload("Game").
-		Preload("Casino").
-		Preload("Players").
-		Preload("Dealer").
-		Preload("Dealer.User").
-		Preload("Transactions").
-		Preload("Transactions.Player").
-		First(&gameSummary, "id = ?", gameSummaryId)
-	if result.Error != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No game summary with that ID exists"})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": gameSummary})
-}
-
-// FindGameSummaries godoc
-//	@Summary		List game summaries
-//	@Description	Get a list of game summaries with pagination, including transactions
-//	@Tags			gameSummaries
-//	@Accept			json
-//	@Produce		json
-//	@Param			page	query		int	false	"Page number"				default(1)
-//	@Param			limit	query		int	false	"Number of items per page"	default(10)
-//	@Success		200		{object}	map[string]interface{}
-//	@Failure		500		{object}	map[string]interface{}
-//	@Router			/game-summaries [get]
-func (gsc *GameSummaryController) FindGameSummaries(ctx *gin.Context) {
-	var page = ctx.DefaultQuery("page", "1")
-	var limit = ctx.DefaultQuery("limit", "10")
-
-	intPage, _ := strconv.Atoi(page)
-	intLimit, _ := strconv.Atoi(limit)
-	offset := (intPage - 1) * intLimit
-
-	var gameSummaries []models.GameSummary
-	results := gsc.DB.Preload("Game").
-		Preload("Casino").
-		Preload("Players").
-		Preload("Dealer").
-		Preload("Dealer.User").
-		Preload("Transactions").
-		Preload("Transactions.Player").
-		Limit(intLimit).Offset(offset).
-		Find(&gameSummaries)
-	if results.Error != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": results.Error})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "results": len(gameSummaries), "data": gameSummaries})
-}
-
-// DeleteGameSummary godoc
-//	@Summary		Delete a game summary
-//	@Description	Delete a game summary by its ID and all associated data
-//	@Tags			gameSummaries
-//	@Accept			json
-//	@Produce		json
-//	@Param			gameSummaryId	path	string	true	"Game Summary ID"
-//	@Success		204				"No Content"
-//	@Failure		404				{object}	map[string]interface{}
-//	@Failure		500				{object}	map[string]interface{}
-//	@Router			/game-summaries/{gameSummaryId} [delete]
-func (gsc *GameSummaryController) DeleteGameSummary(ctx *gin.Context) {
-	gameSummaryId := ctx.Param("gameSummaryId")
-
-	// Parse the game summary ID
-	gameSummaryUUID, err := uuid.Parse(gameSummaryId)
+	gameSummaryId, err := uuid.Parse(ctx.Param("gameSummaryId"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid game summary ID"})
 		return
 	}
 
-	// Start a transaction
-	tx := gsc.DB.Begin()
-	if tx.Error != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to start transaction"})
+	var payload models.UpdateGameSummaryRequest
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
 		return
 	}
 
-	// Delete associated transactions
-	if err := tx.Where("game_summary_id = ?", gameSummaryUUID).Delete(&models.Transaction{}).Error; err != nil {
-		tx.Rollback()
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to delete associated transactions"})
+	if err := gsc.DB.Model(&models.GameSummary{}).Where("id = ?", gameSummaryId).Updates(payload).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No game summary with that ID exists"})
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to update game summary"})
+		}
 		return
 	}
 
-	// Remove associations with players (game_players table)
-	if err := tx.Exec("DELETE FROM game_players WHERE game_summary_id = ?", gameSummaryUUID).Error; err != nil {
-		tx.Rollback()
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to remove player associations"})
+	response, err := gsc.getGameSummaryResponse(gameSummaryId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to fetch updated game summary"})
 		return
 	}
 
-	// Delete the game summary
-	if err := tx.Delete(&models.GameSummary{}, gameSummaryUUID).Error; err != nil {
-		tx.Rollback()
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": response})
+}
+
+// FindGameSummaryById godoc
+// @Summary Get a game summary by ID
+// @Description Retrieve a game summary by its ID
+// @Tags game-summaries
+// @Accept json
+// @Produce json
+// @Param gameSummaryId path string true "Game Summary ID"
+// @Success 200 {object} models.GameSummaryResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /game-summaries/{gameSummaryId} [get]
+func (gsc *GameSummaryController) FindGameSummaryById(ctx *gin.Context) {
+	gameSummaryId, err := uuid.Parse(ctx.Param("gameSummaryId"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid game summary ID"})
+		return
+	}
+
+	response, err := gsc.getGameSummaryResponse(gameSummaryId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No game summary with that ID exists"})
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to fetch game summary"})
+		}
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": response})
+}
+
+// FindGameSummaries godoc
+// @Summary List game summaries
+// @Description Retrieve a list of game summaries with pagination
+// @Tags game-summaries
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Number of items per page" default(10)
+// @Success 200 {array} models.GameSummaryResponse
+// @Failure 500 {object} map[string]interface{}
+// @Router /game-summaries [get]
+func (gsc *GameSummaryController) FindGameSummaries(ctx *gin.Context) {
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
+	offset := (page - 1) * limit
+
+	var gameSummaries []models.GameSummary
+	if err := gsc.DB.Limit(limit).Offset(offset).Find(&gameSummaries).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to fetch game summaries"})
+		return
+	}
+
+	responses, err := gsc.getMultipleGameSummaryResponses(gameSummaries)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to process game summaries"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "results": len(responses), "data": responses})
+}
+
+// DeleteGameSummary godoc
+// @Summary Delete a game summary
+// @Description Delete a game summary by its ID
+// @Tags game-summaries
+// @Accept json
+// @Produce json
+// @Param gameSummaryId path string true "Game Summary ID"
+// @Success 204 "No Content"
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /game-summaries/{gameSummaryId} [delete]
+func (gsc *GameSummaryController) DeleteGameSummary(ctx *gin.Context) {
+	gameSummaryId, err := uuid.Parse(ctx.Param("gameSummaryId"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid game summary ID"})
+		return
+	}
+
+	result := gsc.DB.Delete(&models.GameSummary{}, gameSummaryId)
+	if result.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to delete game summary"})
+		return
+	}
+
+	if result.RowsAffected == 0 {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No game summary with that ID exists"})
-		return
-	}
-
-	// Commit the transaction
-	if err := tx.Commit().Error; err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to commit transaction"})
 		return
 	}
 
 	ctx.JSON(http.StatusNoContent, nil)
 }
 
-// AddTransactionToGameSummary godoc
-//	@Summary		Add a transaction to a game summary
-//	@Description	Add a new transaction to an existing game summary
-//	@Tags			gameSummaries
-//	@Accept			json
-//	@Produce		json
-//	@Param			gameSummaryId	path		string							true	"Game Summary ID"
-//	@Param			transaction		body		models.CreateTransactionRequest	true	"Transaction details"
-//	@Success		200				{object}	models.TransactionResponse
-//	@Failure		400				{object}	map[string]interface{}
-//	@Failure		404				{object}	map[string]interface{}
-//	@Failure		500				{object}	map[string]interface{}
-//	@Router			/game-summaries/{gameSummaryId}/transactions [post]
-func (gsc *GameSummaryController) AddTransactionToGameSummary(ctx *gin.Context) {
-	gameSummaryId := ctx.Param("gameSummaryId")
-
-	var payload models.CreateTransactionRequest
-	if err := ctx.ShouldBindJSON(&payload); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
-		return
-	}
-
-	var gameSummary models.GameSummary
-	if err := gsc.DB.First(&gameSummary, "id = ?", gameSummaryId).Error; err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "Game summary not found"})
-		return
-	}
-
-	playerID, err := uuid.Parse(payload.PlayerID)
+func (gsc *GameSummaryController) createGameSummaryFromPayload(payload models.CreateGameSummaryRequest) (models.GameSummary, error) {
+	gameID, err := uuid.Parse(payload.GameID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid player ID"})
-		return
+		return models.GameSummary{}, errors.New("invalid game ID")
 	}
 
-	transaction := models.Transaction{
-		GameSummaryID: gameSummary.ID,
-		PlayerID:      playerID,
-		Amount:        payload.Amount,
-		Outcome:       payload.Outcome,
-		//Type:          payload.Type,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+	casinoID, err := uuid.Parse(payload.CasinoID)
+	if err != nil {
+		return models.GameSummary{}, errors.New("invalid casino ID")
 	}
 
-	if err := gsc.DB.Create(&transaction).Error; err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to create transaction"})
-		return
+	dealerID, err := uuid.Parse(payload.DealerID)
+	if err != nil {
+		return models.GameSummary{}, errors.New("invalid dealer ID")
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": transaction})
+	return models.GameSummary{
+		ID:           uuid.New(),
+		GameID:       gameID,
+		CasinoID:     casinoID,
+		StartTime:    payload.StartTime,
+		DealerID:     dealerID,
+		Status:       "In Progress",
+		RoundsPlayed: 0,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
+	}, nil
 }
 
-// AddPlayersToGameSummary godoc
-//	@Summary		Add players to a game summary
-//	@Description	Add an array of players to an existing game summary
-//	@Tags			gameSummaries
-//	@Accept			json
-//	@Produce		json
-//	@Param			gameSummaryId	path		string		true	"Game Summary ID"
-//	@Param			players			body		[]string	true	"Array of player IDs"
-//	@Success		200				{object}	models.GameSummaryResponse
-//	@Failure		400				{object}	map[string]interface{}
-//	@Failure		404				{object}	map[string]interface{}
-//	@Failure		500				{object}	map[string]interface{}
-//	@Router			/game-summaries/{gameSummaryId}/players [post]
-func (gsc *GameSummaryController) AddPlayersToGameSummary(ctx *gin.Context) {
-	gameSummaryId := ctx.Param("gameSummaryId")
-
-	var playerIDs []string
-	if err := ctx.ShouldBindJSON(&playerIDs); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
-		return
-	}
-
-	var gameSummary models.GameSummary
-	if err := gsc.DB.First(&gameSummary, "id = ?", gameSummaryId).Error; err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "Game summary not found"})
-		return
-	}
-
-	var players []models.Player
-	for _, playerID := range playerIDs {
-		var player models.Player
-		if err := gsc.DB.First(&player, "id = ?", playerID).Error; err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "Player not found: " + playerID})
-			return
+func (gsc *GameSummaryController) addPlayersToGameSummary(tx *gorm.DB, gameSummaryID uuid.UUID, playerIDs []string) error {
+	for _, playerIDStr := range playerIDs {
+		playerID, err := uuid.Parse(playerIDStr)
+		if err != nil {
+			return errors.New("invalid player ID")
 		}
-		players = append(players, player)
+		if err := tx.Exec("INSERT INTO game_players (game_summary_id, player_id) VALUES (?, ?)", gameSummaryID, playerID).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (gsc *GameSummaryController) getGameSummaryResponse(id uuid.UUID) (models.GameSummaryResponse, error) {
+	var gameSummary models.GameSummary
+	if err := gsc.DB.Preload("Dealer").Preload("Players").Preload("Transactions.Player").First(&gameSummary, id).Error; err != nil {
+		return models.GameSummaryResponse{}, err
 	}
 
-	if err := gsc.DB.Model(&gameSummary).Association("Players").Append(players); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to add players"})
-		return
+	var game models.Game
+	if err := gsc.DB.First(&game, gameSummary.GameID).Error; err != nil {
+		return models.GameSummaryResponse{}, err
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "Players added successfully"})
+	var casino models.Casino
+	if err := gsc.DB.First(&casino, gameSummary.CasinoID).Error; err != nil {
+		return models.GameSummaryResponse{}, err
+	}
+
+	return convertToGameSummaryResponse(gameSummary, game, casino), nil
+}
+
+func (gsc *GameSummaryController) getMultipleGameSummaryResponses(gameSummaries []models.GameSummary) ([]models.GameSummaryResponse, error) {
+	var responses []models.GameSummaryResponse
+	for _, summary := range gameSummaries {
+		response, err := gsc.getGameSummaryResponse(summary.ID)
+		if err != nil {
+			return nil, err
+		}
+		responses = append(responses, response)
+	}
+	return responses, nil
+}
+
+func convertToGameSummaryResponse(gameSummary models.GameSummary, game models.Game, casino models.Casino) models.GameSummaryResponse {
+	return models.GameSummaryResponse{
+		ID:           gameSummary.ID,
+		Game:         models.GameResponse{ID: game.ID, Name: game.Name},
+		Casino:       models.CasinoResponse{ID: casino.ID, Name: casino.Name},
+		StartTime:    gameSummary.StartTime,
+		EndTime:      gameSummary.EndTime,
+		Players:      convertToPlayerResponses(gameSummary.Players),
+		Dealer:       convertToDealerResponse(gameSummary.Dealer),
+		TotalPot:     gameSummary.TotalPot,
+		Status:       gameSummary.Status,
+		RoundsPlayed: gameSummary.RoundsPlayed,
+		HighestBet:   gameSummary.HighestBet,
+		Transactions: convertToTransactionResponses(gameSummary.Transactions),
+		CreatedAt:    gameSummary.CreatedAt,
+		UpdatedAt:    gameSummary.UpdatedAt,
+	}
+}
+
+func convertToPlayerResponses(players []models.Player) []models.PlayerResponse {
+	responses := make([]models.PlayerResponse, len(players))
+	for i, player := range players {
+		responses[i] = models.PlayerResponse{
+			ID:            player.ID,
+			Nickname:      player.Nickname,
+			TotalWinnings: player.TotalWinnings,
+			Rank:          player.Rank,
+			Status:        player.Status,
+			CreatedAt:     player.CreatedAt,
+			UpdatedAt:     player.UpdatedAt,
+		}
+	}
+	return responses
+}
+
+func convertToDealerResponse(dealer models.Dealer) models.GameSummaryDealerResponse {
+	return models.GameSummaryDealerResponse{
+		ID:           dealer.ID,
+		DealerCode:   dealer.DealerCode,
+		Status:       dealer.Status,
+		GamesDealt:   dealer.GamesDealt,
+		Rating:       dealer.Rating,
+		LastActiveAt: dealer.LastActiveAt,
+		CreatedAt:    dealer.CreatedAt,
+		UpdatedAt:    dealer.UpdatedAt,
+	}
+}
+
+func convertToTransactionResponses(transactions []models.Transaction) []models.TransactionResponse {
+	responses := make([]models.TransactionResponse, len(transactions))
+	for i, transaction := range transactions {
+		responses[i] = models.TransactionResponse{
+			ID:        transaction.ID,
+			Player:    convertToPlayerResponse(transaction.Player),
+			Amount:    transaction.Amount,
+			Outcome:   transaction.Outcome,
+			CreatedAt: transaction.CreatedAt,
+			UpdatedAt: transaction.UpdatedAt,
+		}
+	}
+	return responses
+}
+
+func convertToPlayerResponse(player models.Player) models.PlayerResponse {
+	return models.PlayerResponse{
+		ID:            player.ID,
+		Nickname:      player.Nickname,
+		TotalWinnings: player.TotalWinnings,
+		Rank:          player.Rank,
+		Status:        player.Status,
+		CreatedAt:     player.CreatedAt,
+		UpdatedAt:     player.UpdatedAt,
+	}
 }

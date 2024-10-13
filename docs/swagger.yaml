@@ -297,6 +297,25 @@ definitions:
       updated_at:
         type: string
     type: object
+  models.GameSummaryDealerResponse:
+    properties:
+      created_at:
+        type: string
+      dealer_code:
+        type: string
+      games_dealt:
+        type: integer
+      id:
+        type: string
+      last_active_at:
+        type: string
+      rating:
+        type: number
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
   models.GameSummaryResponse:
     properties:
       casino:
@@ -304,7 +323,7 @@ definitions:
       created_at:
         type: string
       dealer:
-        $ref: '#/definitions/models.DealerResponse'
+        $ref: '#/definitions/models.GameSummaryDealerResponse'
       end_time:
         type: string
       game:
@@ -325,6 +344,10 @@ definitions:
         type: string
       total_pot:
         type: number
+      transactions:
+        items:
+          $ref: '#/definitions/models.TransactionResponse'
+        type: array
       updated_at:
         type: string
     type: object
@@ -944,7 +967,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get a list of game summaries with pagination, including transactions
+      description: Retrieve a list of game summaries with pagination
       parameters:
       - default: 1
         description: Page number
@@ -962,8 +985,9 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            items:
+              $ref: '#/definitions/models.GameSummaryResponse'
+            type: array
         "500":
           description: Internal Server Error
           schema:
@@ -971,16 +995,15 @@ paths:
             type: object
       summary: List game summaries
       tags:
-      - gameSummaries
+      - game-summaries
     post:
       consumes:
       - application/json
-      description: Create a new game summary with the given input data, including
-        game, casino, dealer, and players information
+      description: Create a new game summary with the input payload
       parameters:
-      - description: Create game summary request
+      - description: Create game summary payload
         in: body
-        name: gameSummary
+        name: payload
         required: true
         schema:
           $ref: '#/definitions/models.CreateGameSummaryRequest'
@@ -988,27 +1011,27 @@ paths:
       - application/json
       responses:
         "201":
-          description: Successfully created game summary
+          description: Created
           schema:
             $ref: '#/definitions/models.GameSummaryResponse'
         "400":
-          description: Bad request
+          description: Bad Request
           schema:
             additionalProperties: true
             type: object
         "500":
-          description: Internal server error
+          description: Internal Server Error
           schema:
             additionalProperties: true
             type: object
       summary: Create a new game summary
       tags:
-      - gameSummaries
+      - game-summaries
   /game-summaries/{gameSummaryId}:
     delete:
       consumes:
       - application/json
-      description: Delete a game summary by its ID and all associated data
+      description: Delete a game summary by its ID
       parameters:
       - description: Game Summary ID
         in: path
@@ -1020,6 +1043,11 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
         "404":
           description: Not Found
           schema:
@@ -1032,11 +1060,11 @@ paths:
             type: object
       summary: Delete a game summary
       tags:
-      - gameSummaries
+      - game-summaries
     get:
       consumes:
       - application/json
-      description: Get details of a game summary by its ID, including transactions
+      description: Retrieve a game summary by its ID
       parameters:
       - description: Game Summary ID
         in: path
@@ -1050,28 +1078,37 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.GameSummaryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
         "404":
           description: Not Found
           schema:
             additionalProperties: true
             type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
       summary: Get a game summary by ID
       tags:
-      - gameSummaries
+      - game-summaries
     put:
       consumes:
       - application/json
-      description: Update a game summary with the given input data and return the
-        updated summary with all related information
+      description: Update an existing game summary
       parameters:
       - description: Game Summary ID
         in: path
         name: gameSummaryId
         required: true
         type: string
-      - description: Update game summary request
+      - description: Update game summary payload
         in: body
-        name: gameSummary
+        name: payload
         required: true
         schema:
           $ref: '#/definitions/models.UpdateGameSummaryRequest'
@@ -1099,93 +1136,7 @@ paths:
             type: object
       summary: Update a game summary
       tags:
-      - gameSummaries
-  /game-summaries/{gameSummaryId}/players:
-    post:
-      consumes:
-      - application/json
-      description: Add an array of players to an existing game summary
-      parameters:
-      - description: Game Summary ID
-        in: path
-        name: gameSummaryId
-        required: true
-        type: string
-      - description: Array of player IDs
-        in: body
-        name: players
-        required: true
-        schema:
-          items:
-            type: string
-          type: array
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.GameSummaryResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Add players to a game summary
-      tags:
-      - gameSummaries
-  /game-summaries/{gameSummaryId}/transactions:
-    post:
-      consumes:
-      - application/json
-      description: Add a new transaction to an existing game summary
-      parameters:
-      - description: Game Summary ID
-        in: path
-        name: gameSummaryId
-        required: true
-        type: string
-      - description: Transaction details
-        in: body
-        name: transaction
-        required: true
-        schema:
-          $ref: '#/definitions/models.CreateTransactionRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.TransactionResponse'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Add a transaction to a game summary
-      tags:
-      - gameSummaries
+      - game-summaries
   /games:
     get:
       consumes:
