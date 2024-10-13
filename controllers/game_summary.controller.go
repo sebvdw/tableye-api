@@ -21,14 +21,14 @@ func NewGameSummaryController(DB *gorm.DB) GameSummaryController {
 
 // CreateGameSummary godoc
 // @Summary Create a new game summary
-// @Description Create a new game summary with the given input data
+// @Description Create a new game summary with the given input data, including game, casino, dealer, and players information
 // @Tags gameSummaries
 // @Accept json
 // @Produce json
 // @Param gameSummary body models.CreateGameSummaryRequest true "Create game summary request"
-// @Success 201 {object} models.GameSummaryResponse
-// @Failure 400 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
+// @Success 201 {object} models.GameSummaryResponse "Successfully created game summary"
+// @Failure 400 {object} map[string]interface{} "Bad request"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
 // @Router /game-summaries [post]
 func (gsc *GameSummaryController) CreateGameSummary(ctx *gin.Context) {
 	var payload *models.CreateGameSummaryRequest
@@ -77,18 +77,48 @@ func (gsc *GameSummaryController) CreateGameSummary(ctx *gin.Context) {
 		UpdatedAt:    now,
 	}
 
-	result := gsc.DB.Create(&newGameSummary)
-	if result.Error != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})
+	// Start a database transaction
+	tx := gsc.DB.Begin()
+	if tx.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to start transaction"})
+		return
+	}
+
+	// Create the game summary
+	if err := tx.Create(&newGameSummary).Error; err != nil {
+		tx.Rollback()
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": err.Error()})
 		return
 	}
 
 	// Add players to the game summary
 	for _, playerID := range playerIDs {
-		gsc.DB.Exec("INSERT INTO game_players (game_summary_id, player_id) VALUES (?, ?)", newGameSummary.ID, playerID)
+		if err := tx.Exec("INSERT INTO game_players (game_summary_id, player_id) VALUES (?, ?)", newGameSummary.ID, playerID).Error; err != nil {
+			tx.Rollback()
+			ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to add player to game summary"})
+			return
+		}
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": newGameSummary})
+	// Commit the transaction
+	if err := tx.Commit().Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to commit transaction"})
+		return
+	}
+
+	// Fetch the complete game summary with all related data
+	var completeSummary models.GameSummary
+	if err := gsc.DB.Preload("Game").
+		Preload("Casino").
+		Preload("Dealer").
+		Preload("Dealer.User").
+		Preload("Players").
+		First(&completeSummary, newGameSummary.ID).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to fetch complete game summary"})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": completeSummary})
 }
 
 // UpdateGameSummary godoc

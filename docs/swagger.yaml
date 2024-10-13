@@ -1009,7 +1009,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a new game summary with the given input data
+      description: Create a new game summary with the given input data, including
+        game, casino, dealer, and players information
       parameters:
       - description: Create game summary request
         in: body
@@ -1021,16 +1022,16 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
+          description: Successfully created game summary
           schema:
             $ref: '#/definitions/models.GameSummaryResponse'
         "400":
-          description: Bad Request
+          description: Bad request
           schema:
             additionalProperties: true
             type: object
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
             additionalProperties: true
             type: object

@@ -656,7 +656,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new game summary with the given input data",
+                "description": "Create a new game summary with the given input data, including game, casino, dealer, and players information",
                 "consumes": [
                     "application/json"
                 ],
@@ -680,20 +680,20 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Successfully created game summary",
                         "schema": {
                             "$ref": "#/definitions/models.GameSummaryResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Bad request",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
