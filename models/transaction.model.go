@@ -7,16 +7,15 @@ import (
 )
 
 type Transaction struct {
-	ID            uuid.UUID   `gorm:"type:uuid;default:uuid_generate_v4();primary_key" json:"id,omitempty"`
-	GameSummaryID uuid.UUID   `gorm:"type:uuid;not null" json:"-"`
-	GameSummary   GameSummary `gorm:"foreignKey:GameSummaryID" json:"-"`
-	PlayerID      uuid.UUID   `gorm:"type:uuid;not null" json:"-"`
-	Player        Player      `gorm:"foreignKey:PlayerID" json:"player,omitempty"`
-	Amount        float64     `gorm:"type:decimal(10,2);not null" json:"amount,omitempty"`
-	Type          string      `gorm:"type:varchar(50);not null" json:"-"`
-	Outcome       string      `gorm:"type:varchar(10);not null;default:'loss'" json:"outcome,omitempty"`
-	CreatedAt     time.Time   `gorm:"not null" json:"created_at,omitempty"`
-	UpdatedAt     time.Time   `gorm:"not null" json:"updated_at,omitempty"`
+	ID            uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key" json:"id,omitempty"`
+	GameSummaryID uuid.UUID `gorm:"type:uuid;not null" json:"id,omitempty"`
+	PlayerID      uuid.UUID `gorm:"type:uuid;not null" json:"id,omitempty"`
+	Player        Player    `gorm:"foreignKey:PlayerID" json:"player,omitempty"`
+	Amount        float64   `gorm:"type:decimal(10,2);not null" json:"amount,omitempty"`
+	Type          string    `gorm:"type:varchar(50);not null" json:"-"`
+	Outcome       string    `gorm:"type:varchar(10);not null;default:'loss'" json:"outcome,omitempty"`
+	CreatedAt     time.Time `gorm:"not null" json:"created_at,omitempty"`
+	UpdatedAt     time.Time `gorm:"not null" json:"updated_at,omitempty"`
 }
 
 type CreateTransactionRequest struct {

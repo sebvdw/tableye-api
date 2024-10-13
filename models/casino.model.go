@@ -7,22 +7,19 @@ import (
 )
 
 type Casino struct {
-	ID            uuid.UUID     `gorm:"type:uuid;default:uuid_generate_v4();primary_key" json:"id,omitempty"`
-	Name          string        `gorm:"type:varchar(255);not null;uniqueIndex" json:"name,omitempty"`
-	Location      string        `gorm:"type:varchar(255);not null" json:"location,omitempty"`
-	LicenseNumber string        `gorm:"type:varchar(100);not null;uniqueIndex" json:"license_number,omitempty"`
-	Description   string        `gorm:"type:text" json:"description,omitempty"`
-	OpeningHours  string        `gorm:"type:varchar(255)" json:"opening_hours,omitempty"`
-	Website       string        `gorm:"type:varchar(255)" json:"website,omitempty"`
-	PhoneNumber   string        `gorm:"type:varchar(50)" json:"phone_number,omitempty"`
-	MaxCapacity   int           `gorm:"not null" json:"max_capacity,omitempty"`
-	Status        string        `gorm:"type:varchar(50);not null" json:"status,omitempty"`
-	Rating        float32       `json:"rating,omitempty"`
-	Dealers       []Dealer      `gorm:"many2many:casino_dealers;" json:"dealers,omitempty"`
-	Games         []Game        `gorm:"many2many:casino_games;" json:"games,omitempty"`
-	GameSummaries []GameSummary `gorm:"foreignKey:CasinoID" json:"game_summaries,omitempty"`
-	CreatedAt     time.Time     `gorm:"not null" json:"created_at,omitempty"`
-	UpdatedAt     time.Time     `gorm:"not null" json:"updated_at,omitempty"`
+	ID            uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key" json:"id,omitempty"`
+	Name          string    `gorm:"type:varchar(255);not null;uniqueIndex" json:"name,omitempty"`
+	Location      string    `gorm:"type:varchar(255);not null" json:"location,omitempty"`
+	LicenseNumber string    `gorm:"type:varchar(100);not null;uniqueIndex" json:"license_number,omitempty"`
+	Description   string    `gorm:"type:text" json:"description,omitempty"`
+	OpeningHours  string    `gorm:"type:varchar(255)" json:"opening_hours,omitempty"`
+	Website       string    `gorm:"type:varchar(255)" json:"website,omitempty"`
+	PhoneNumber   string    `gorm:"type:varchar(50)" json:"phone_number,omitempty"`
+	MaxCapacity   int       `gorm:"not null" json:"max_capacity,omitempty"`
+	Status        string    `gorm:"type:varchar(50);not null" json:"status,omitempty"`
+	Rating        float32   `json:"rating,omitempty"`
+	CreatedAt     time.Time `gorm:"not null" json:"created_at,omitempty"`
+	UpdatedAt     time.Time `gorm:"not null" json:"updated_at,omitempty"`
 }
 
 type CreateCasinoRequest struct {

@@ -7,17 +7,16 @@ import (
 )
 
 type Dealer struct {
-	ID            uuid.UUID     `gorm:"type:uuid;default:uuid_generate_v4();primary_key" json:"id,omitempty"`
-	UserID        uuid.UUID     `gorm:"type:uuid;not null;uniqueIndex" json:"-"`
-	User          User          `gorm:"foreignKey:UserID" json:"user,omitempty"`
-	DealerCode    string        `gorm:"uniqueIndex;not null" json:"dealer_code,omitempty"`
-	Status        string        `gorm:"type:varchar(255);not null" json:"status,omitempty"`
-	GamesDealt    int           `gorm:"not null" json:"games_dealt,omitempty"`
-	Rating        float32       `gorm:"not null" json:"rating,omitempty"`
-	GameSummaries []GameSummary `gorm:"foreignKey:DealerID" json:"game_summaries,omitempty"`
-	LastActiveAt  time.Time     `json:"last_active_at,omitempty"`
-	CreatedAt     time.Time     `gorm:"not null" json:"created_at,omitempty"`
-	UpdatedAt     time.Time     `gorm:"not null" json:"updated_at,omitempty"`
+	ID           uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key" json:"id,omitempty"`
+	UserID       uuid.UUID `gorm:"type:uuid;not null;uniqueIndex" json:"-"`
+	User         User      `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	DealerCode   string    `gorm:"uniqueIndex;not null" json:"dealer_code,omitempty"`
+	Status       string    `gorm:"type:varchar(255);not null" json:"status,omitempty"`
+	GamesDealt   int       `gorm:"not null" json:"games_dealt,omitempty"`
+	Rating       float32   `gorm:"not null" json:"rating,omitempty"`
+	LastActiveAt time.Time `json:"last_active_at,omitempty"`
+	CreatedAt    time.Time `gorm:"not null" json:"created_at,omitempty"`
+	UpdatedAt    time.Time `gorm:"not null" json:"updated_at,omitempty"`
 }
 
 type CreateDealerRequest struct {

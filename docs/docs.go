@@ -1625,26 +1625,8 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
-                "dealers": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Dealer"
-                    }
-                },
                 "description": {
                     "type": "string"
-                },
-                "game_summaries": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.GameSummary"
-                    }
-                },
-                "games": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Game"
-                    }
                 },
                 "id": {
                     "type": "string"
@@ -1895,12 +1877,6 @@ const docTemplate = `{
                 "dealer_code": {
                     "type": "string"
                 },
-                "game_summaries": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.GameSummary"
-                    }
-                },
                 "games_dealt": {
                     "type": "integer"
                 },
@@ -2138,20 +2114,11 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
-                "games_played": {
-                    "type": "integer"
-                },
                 "id": {
                     "type": "string"
                 },
                 "nickname": {
                     "type": "string"
-                },
-                "played_games": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.GameSummary"
-                    }
                 },
                 "rank": {
                     "type": "string"
@@ -2172,9 +2139,6 @@ const docTemplate = `{
             "properties": {
                 "created_at": {
                     "type": "string"
-                },
-                "games_played": {
-                    "type": "integer"
                 },
                 "id": {
                     "type": "string"
@@ -2382,9 +2346,6 @@ const docTemplate = `{
         "models.UpdatePlayerRequest": {
             "type": "object",
             "properties": {
-                "games_played": {
-                    "type": "integer"
-                },
                 "nickname": {
                     "type": "string"
                 },

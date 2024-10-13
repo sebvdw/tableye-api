@@ -4,20 +4,8 @@ definitions:
     properties:
       created_at:
         type: string
-      dealers:
-        items:
-          $ref: '#/definitions/models.Dealer'
-        type: array
       description:
         type: string
-      game_summaries:
-        items:
-          $ref: '#/definitions/models.GameSummary'
-        type: array
-      games:
-        items:
-          $ref: '#/definitions/models.Game'
-        type: array
       id:
         type: string
       license_number:
@@ -188,10 +176,6 @@ definitions:
         type: string
       dealer_code:
         type: string
-      game_summaries:
-        items:
-          $ref: '#/definitions/models.GameSummary'
-        type: array
       games_dealt:
         type: integer
       id:
@@ -348,16 +332,10 @@ definitions:
     properties:
       created_at:
         type: string
-      games_played:
-        type: integer
       id:
         type: string
       nickname:
         type: string
-      played_games:
-        items:
-          $ref: '#/definitions/models.GameSummary'
-        type: array
       rank:
         type: string
       status:
@@ -371,8 +349,6 @@ definitions:
     properties:
       created_at:
         type: string
-      games_played:
-        type: integer
       id:
         type: string
       nickname:
@@ -509,8 +485,6 @@ definitions:
     type: object
   models.UpdatePlayerRequest:
     properties:
-      games_played:
-        type: integer
       nickname:
         type: string
       rank:

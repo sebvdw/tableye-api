@@ -20,6 +20,7 @@ func NewPlayerController(DB *gorm.DB) PlayerController {
 }
 
 // CreatePlayer godoc
+//
 //	@Summary		Create a new player
 //	@Description	Create a new player with the input payload
 //	@Tags			players
@@ -42,7 +43,6 @@ func (pc *PlayerController) CreatePlayer(ctx *gin.Context) {
 	newPlayer := models.Player{
 		Nickname:      payload.Nickname,
 		TotalWinnings: 0,
-		GamesPlayed:   0,
 		Rank:          "Beginner",
 		Status:        "Active",
 		CreatedAt:     now,
@@ -63,6 +63,7 @@ func (pc *PlayerController) CreatePlayer(ctx *gin.Context) {
 }
 
 // UpdatePlayer godoc
+//
 //	@Summary		Update a player
 //	@Description	Update a player's information by ID
 //	@Tags			players
@@ -94,7 +95,6 @@ func (pc *PlayerController) UpdatePlayer(ctx *gin.Context) {
 	playerToUpdate := models.Player{
 		Nickname:      payload.Nickname,
 		TotalWinnings: payload.TotalWinnings,
-		GamesPlayed:   payload.GamesPlayed,
 		Rank:          payload.Rank,
 		Status:        payload.Status,
 		UpdatedAt:     now,
@@ -105,6 +105,7 @@ func (pc *PlayerController) UpdatePlayer(ctx *gin.Context) {
 }
 
 // FindPlayerById godoc
+//
 //	@Summary		Get a player by ID
 //	@Description	Get details of a player by ID
 //	@Tags			players
@@ -118,7 +119,7 @@ func (pc *PlayerController) FindPlayerById(ctx *gin.Context) {
 	playerId := ctx.Param("playerId")
 
 	var player models.Player
-	result := pc.DB.Preload("PlayedGames").First(&player, "id = ?", playerId)
+	result := pc.DB.First(&player, "id = ?", playerId)
 	if result.Error != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No player with that ID exists"})
 		return
@@ -128,6 +129,7 @@ func (pc *PlayerController) FindPlayerById(ctx *gin.Context) {
 }
 
 // FindPlayers godoc
+//
 //	@Summary		List players
 //	@Description	Get a list of players
 //	@Tags			players
@@ -157,6 +159,7 @@ func (pc *PlayerController) FindPlayers(ctx *gin.Context) {
 }
 
 // DeletePlayer godoc
+//
 //	@Summary		Delete a player
 //	@Description	Delete a player by ID
 //	@Tags			players
@@ -181,6 +184,7 @@ func (pc *PlayerController) DeletePlayer(ctx *gin.Context) {
 }
 
 // FindPlayerStats godoc
+//
 //	@Summary		Get player statistics
 //	@Description	Get statistics of a player by ID
 //	@Tags			players
@@ -200,21 +204,10 @@ func (pc *PlayerController) FindPlayerStats(ctx *gin.Context) {
 		return
 	}
 
-	// Calculate win rate
-	var winCount int64
-	pc.DB.Model(&models.GameSummary{}).
-		Joins("JOIN game_players ON game_summaries.id = game_players.game_summary_id").
-		Where("game_players.player_id = ? AND game_summaries.status = ?", player.ID, "Completed").
-		Count(&winCount)
-
 	winRate := float64(0)
-	if player.GamesPlayed > 0 {
-		winRate = float64(winCount) / float64(player.GamesPlayed) * 100
-	}
 
 	stats := gin.H{
 		"total_winnings": player.TotalWinnings,
-		"games_played":   player.GamesPlayed,
 		"win_rate":       winRate,
 		"rank":           player.Rank,
 	}

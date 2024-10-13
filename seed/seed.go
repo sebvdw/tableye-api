@@ -164,7 +164,6 @@ func seedPlayers(db *gorm.DB) []models.Player {
 			ID:            uuid.New(),
 			Nickname:      fmt.Sprintf("Player%d", i+1),
 			TotalWinnings: float64(rand.Intn(10000)),
-			GamesPlayed:   rand.Intn(100),
 			Rank:          ranks[rand.Intn(len(ranks))],
 			Status:        "Active",
 		}
