@@ -188,6 +188,7 @@ func (gsc *GameSummaryController) FindGameSummaries(ctx *gin.Context) {
 	results := gsc.DB.Preload("Game").
 		Preload("Casino").
 		Preload("Casino.Owner").
+		Preload("Players").
 		Preload("Dealer").
 		Preload("Dealer.User").
 		Preload("Transactions").
