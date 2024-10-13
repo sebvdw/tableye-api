@@ -148,7 +148,14 @@ func (gsc *GameSummaryController) FindGameSummaryById(ctx *gin.Context) {
 	gameSummaryId := ctx.Param("gameSummaryId")
 
 	var gameSummary models.GameSummary
-	result := gsc.DB.Preload("Game").Preload("Casino").Preload("Players").Preload("Dealer").Preload("Transactions").First(&gameSummary, "id = ?", gameSummaryId)
+	result := gsc.DB.Preload("Game").
+		Preload("Casino").
+		Preload("Casino.Owner").
+		Preload("Players").
+		Preload("Dealer").
+		Preload("Dealer.User").
+		Preload("Transactions").
+		First(&gameSummary, "id = ?", gameSummaryId)
 	if result.Error != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No game summary with that ID exists"})
 		return
@@ -177,7 +184,14 @@ func (gsc *GameSummaryController) FindGameSummaries(ctx *gin.Context) {
 	offset := (intPage - 1) * intLimit
 
 	var gameSummaries []models.GameSummary
-	results := gsc.DB.Preload("Game").Preload("Casino").Preload("Dealer").Preload("Transactions").Limit(intLimit).Offset(offset).Find(&gameSummaries)
+	results := gsc.DB.Preload("Game").
+		Preload("Casino").
+		Preload("Casino.Owner").
+		Preload("Dealer").
+		Preload("Dealer.User").
+		Preload("Transactions").
+		Limit(intLimit).Offset(offset).
+		Find(&gameSummaries)
 	if results.Error != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": results.Error})
 		return
