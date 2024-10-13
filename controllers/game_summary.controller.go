@@ -148,12 +148,14 @@ func (gsc *GameSummaryController) FindGameSummaryById(ctx *gin.Context) {
 	gameSummaryId := ctx.Param("gameSummaryId")
 
 	var gameSummary models.GameSummary
-	result := gsc.DB.Preload("Game").
+	result := gsc.DB.
+		Preload("Game").
 		Preload("Casino", func(db *gorm.DB) *gorm.DB {
-			return db.Omit("Owner")
+			return db.Select("id, name, location, license_number, description, opening_hours, website, phone_number, max_capacity, status, rating, created_at, updated_at")
 		}).
-		Preload("Players").
-		Preload("Dealer").
+		Preload("Dealer", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, dealer_code, status, games_dealt, rating, last_active_at, created_at, updated_at")
+		}).
 		Preload("Transactions").
 		First(&gameSummary, "id = ?", gameSummaryId)
 
@@ -185,7 +187,8 @@ func (gsc *GameSummaryController) FindGameSummaries(ctx *gin.Context) {
 	offset := (intPage - 1) * intLimit
 
 	var gameSummaries []models.GameSummary
-	results := gsc.DB.Preload("Game").
+	results := gsc.DB.
+		Preload("Game").
 		Preload("Casino", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, name, location, license_number, description, opening_hours, website, phone_number, max_capacity, status, rating, created_at, updated_at")
 		}).
@@ -202,7 +205,7 @@ func (gsc *GameSummaryController) FindGameSummaries(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "results": len(gameSummaries), "data": gameSummaries})
+	ctx.JSON(http.StatusOK, gin.H{"status": "success"})
 }
 
 // DeleteGameSummary godoc
