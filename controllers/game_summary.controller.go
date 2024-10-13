@@ -266,25 +266,59 @@ func (gsc *GameSummaryController) FindGameSummaries(ctx *gin.Context) {
 
 // DeleteGameSummary godoc
 // @Summary Delete a game summary
-// @Description Delete a game summary by its ID
+// @Description Delete a game summary by its ID and all associated data
 // @Tags gameSummaries
 // @Accept json
 // @Produce json
 // @Param gameSummaryId path string true "Game Summary ID"
 // @Success 204 "No Content"
 // @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
 // @Router /game-summaries/{gameSummaryId} [delete]
 func (gsc *GameSummaryController) DeleteGameSummary(ctx *gin.Context) {
 	gameSummaryId := ctx.Param("gameSummaryId")
 
-	var gameSummary models.GameSummary
-	result := gsc.DB.First(&gameSummary, "id = ?", gameSummaryId)
-	if result.Error != nil {
+	// Parse the game summary ID
+	gameSummaryUUID, err := uuid.Parse(gameSummaryId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid game summary ID"})
+		return
+	}
+
+	// Start a transaction
+	tx := gsc.DB.Begin()
+	if tx.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to start transaction"})
+		return
+	}
+
+	// Delete associated transactions
+	if err := tx.Where("game_summary_id = ?", gameSummaryUUID).Delete(&models.Transaction{}).Error; err != nil {
+		tx.Rollback()
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to delete associated transactions"})
+		return
+	}
+
+	// Remove associations with players (game_players table)
+	if err := tx.Exec("DELETE FROM game_players WHERE game_summary_id = ?", gameSummaryUUID).Error; err != nil {
+		tx.Rollback()
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to remove player associations"})
+		return
+	}
+
+	// Delete the game summary
+	if err := tx.Delete(&models.GameSummary{}, gameSummaryUUID).Error; err != nil {
+		tx.Rollback()
 		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No game summary with that ID exists"})
 		return
 	}
 
-	gsc.DB.Delete(&gameSummary)
+	// Commit the transaction
+	if err := tx.Commit().Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to commit transaction"})
+		return
+	}
+
 	ctx.JSON(http.StatusNoContent, nil)
 }
 
