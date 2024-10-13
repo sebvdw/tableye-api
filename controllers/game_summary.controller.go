@@ -189,14 +189,34 @@ func (gsc *GameSummaryController) DeleteGameSummary(ctx *gin.Context) {
 		return
 	}
 
-	result := gsc.DB.Delete(&models.GameSummary{}, gameSummaryId)
-	if result.Error != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to delete game summary"})
-		return
-	}
+	err = gsc.DB.Transaction(func(tx *gorm.DB) error {
+		// Delete related records in game_players table
+		if err := tx.Exec("DELETE FROM game_players WHERE game_summary_id = ?", gameSummaryId).Error; err != nil {
+			return err
+		}
 
-	if result.RowsAffected == 0 {
-		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No game summary with that ID exists"})
+		// Delete related transactions
+		if err := tx.Where("game_summary_id = ?", gameSummaryId).Delete(&models.Transaction{}).Error; err != nil {
+			return err
+		}
+
+		// Delete the game summary
+		result := tx.Delete(&models.GameSummary{}, gameSummaryId)
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected == 0 {
+			return gorm.ErrRecordNotFound
+		}
+		return nil
+	})
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No game summary with that ID exists"})
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to delete game summary"})
+		}
 		return
 	}
 
