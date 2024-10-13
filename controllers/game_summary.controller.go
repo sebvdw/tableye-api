@@ -155,6 +155,7 @@ func (gsc *GameSummaryController) FindGameSummaryById(ctx *gin.Context) {
 		Preload("Dealer").
 		Preload("Dealer.User").
 		Preload("Transactions").
+		Preload("Transactions.Player").
 		First(&gameSummary, "id = ?", gameSummaryId)
 	if result.Error != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No game summary with that ID exists"})
@@ -190,6 +191,7 @@ func (gsc *GameSummaryController) FindGameSummaries(ctx *gin.Context) {
 		Preload("Dealer").
 		Preload("Dealer.User").
 		Preload("Transactions").
+		Preload("Transactions.Player").
 		Limit(intLimit).Offset(offset).
 		Find(&gameSummaries)
 	if results.Error != nil {
