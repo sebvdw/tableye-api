@@ -835,6 +835,133 @@ const docTemplate = `{
                 }
             }
         },
+        "/game-summaries/{gameSummaryId}/players": {
+            "post": {
+                "description": "Add an array of players to an existing game summary",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "gameSummaries"
+                ],
+                "summary": "Add players to a game summary",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game Summary ID",
+                        "name": "gameSummaryId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Array of player IDs",
+                        "name": "players",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GameSummaryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/game-summaries/{gameSummaryId}/transactions": {
+            "post": {
+                "description": "Add a new transaction to an existing game summary",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "gameSummaries"
+                ],
+                "summary": "Add a transaction to a game summary",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game Summary ID",
+                        "name": "gameSummaryId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Transaction details",
+                        "name": "transaction",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateTransactionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.TransactionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/games": {
             "get": {
                 "description": "Get a list of games",
@@ -1424,7 +1551,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Transaction"
+                            "$ref": "#/definitions/models.TransactionResponse"
                         }
                     },
                     "400": {
@@ -1470,7 +1597,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Transaction"
+                            "$ref": "#/definitions/models.TransactionResponse"
                         }
                     },
                     "404": {
@@ -2130,6 +2257,29 @@ const docTemplate = `{
                 },
                 "player": {
                     "$ref": "#/definitions/models.Player"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.TransactionResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "outcome": {
+                    "type": "string"
+                },
+                "player": {
+                    "$ref": "#/definitions/models.PlayerResponse"
                 },
                 "updated_at": {
                     "type": "string"

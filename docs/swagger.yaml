@@ -436,6 +436,21 @@ definitions:
       updated_at:
         type: string
     type: object
+  models.TransactionResponse:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      id:
+        type: string
+      outcome:
+        type: string
+      player:
+        $ref: '#/definitions/models.PlayerResponse'
+      updated_at:
+        type: string
+    type: object
   models.UpdateCasinoRequest:
     properties:
       description:
@@ -1112,6 +1127,92 @@ paths:
       summary: Update a game summary
       tags:
       - gameSummaries
+  /game-summaries/{gameSummaryId}/players:
+    post:
+      consumes:
+      - application/json
+      description: Add an array of players to an existing game summary
+      parameters:
+      - description: Game Summary ID
+        in: path
+        name: gameSummaryId
+        required: true
+        type: string
+      - description: Array of player IDs
+        in: body
+        name: players
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GameSummaryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add players to a game summary
+      tags:
+      - gameSummaries
+  /game-summaries/{gameSummaryId}/transactions:
+    post:
+      consumes:
+      - application/json
+      description: Add a new transaction to an existing game summary
+      parameters:
+      - description: Game Summary ID
+        in: path
+        name: gameSummaryId
+        required: true
+        type: string
+      - description: Transaction details
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TransactionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add a transaction to a game summary
+      tags:
+      - gameSummaries
   /games:
     get:
       consumes:
@@ -1510,7 +1611,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Transaction'
+            $ref: '#/definitions/models.TransactionResponse'
         "400":
           description: Bad Request
           schema:
@@ -1541,7 +1642,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Transaction'
+            $ref: '#/definitions/models.TransactionResponse'
         "404":
           description: Not Found
           schema:

@@ -26,12 +26,12 @@ func NewTransactionController(DB *gorm.DB) TransactionController {
 // @Accept json
 // @Produce json
 // @Param transaction body models.CreateTransactionRequest true "Create transaction request"
-// @Success 201 {object} models.Transaction
+// @Success 201 {object} models.TransactionResponse
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /transactions [post]
 func (tc *TransactionController) CreateTransaction(ctx *gin.Context) {
-	var payload *models.CreateTransactionRequest
+	var payload models.CreateTransactionRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
 		return
@@ -45,7 +45,7 @@ func (tc *TransactionController) CreateTransaction(ctx *gin.Context) {
 
 	gameSummaryID, err := uuid.Parse(payload.GameSummaryID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid player ID"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid game summary ID"})
 		return
 	}
 
@@ -63,29 +63,30 @@ func (tc *TransactionController) CreateTransaction(ctx *gin.Context) {
 		GameSummaryID: gameSummaryID,
 		PlayerID:      playerID,
 		Amount:        payload.Amount,
-		//Type:          payload.Type,
-		Outcome:   payload.Outcome,
-		CreatedAt: now,
-		UpdatedAt: now,
+		Outcome:       payload.Outcome,
+		CreatedAt:     now,
+		UpdatedAt:     now,
 	}
+
 	result := tc.DB.Create(&newTransaction)
 	if result.Error != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": result.Error.Error()})
 		return
 	}
 
-	var player models.Player
-	if err := tc.DB.First(&player, "id = ?", playerID).Error; err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to retrieve player data"})
+	// Fetch the full transaction with associated player
+	if err := tc.DB.Preload("Player").First(&newTransaction, newTransaction.ID).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to fetch created transaction"})
 		return
 	}
 
-	response := struct {
-		Transaction models.Transaction `json:"transaction"`
-		Player      models.Player      `json:"player"`
-	}{
-		Transaction: newTransaction,
-		Player:      player,
+	response := models.TransactionResponse{
+		ID:        newTransaction.ID,
+		Player:    models.PlayerResponse{ID: newTransaction.Player.ID, Nickname: newTransaction.Player.Nickname},
+		Amount:    newTransaction.Amount,
+		Outcome:   newTransaction.Outcome,
+		CreatedAt: newTransaction.CreatedAt,
+		UpdatedAt: newTransaction.UpdatedAt,
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": response})
@@ -117,7 +118,19 @@ func (tc *TransactionController) FindTransactions(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "results": len(transactions), "data": transactions})
+	transactionResponses := make([]models.TransactionResponse, len(transactions))
+	for i, transaction := range transactions {
+		transactionResponses[i] = models.TransactionResponse{
+			ID:        transaction.ID,
+			Player:    models.PlayerResponse{ID: transaction.Player.ID, Nickname: transaction.Player.Nickname},
+			Amount:    transaction.Amount,
+			Outcome:   transaction.Outcome,
+			CreatedAt: transaction.CreatedAt,
+			UpdatedAt: transaction.UpdatedAt,
+		}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "results": len(transactionResponses), "data": transactionResponses})
 }
 
 // FindTransactionById godoc
@@ -127,7 +140,7 @@ func (tc *TransactionController) FindTransactions(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param transactionId path string true "Transaction ID"
-// @Success 200 {object} models.Transaction
+// @Success 200 {object} models.TransactionResponse
 // @Failure 404 {object} map[string]interface{}
 // @Router /transactions/{transactionId} [get]
 func (tc *TransactionController) FindTransactionById(ctx *gin.Context) {
@@ -140,7 +153,16 @@ func (tc *TransactionController) FindTransactionById(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": transaction})
+	response := models.TransactionResponse{
+		ID:        transaction.ID,
+		Player:    models.PlayerResponse{ID: transaction.Player.ID, Nickname: transaction.Player.Nickname},
+		Amount:    transaction.Amount,
+		Outcome:   transaction.Outcome,
+		CreatedAt: transaction.CreatedAt,
+		UpdatedAt: transaction.UpdatedAt,
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": response})
 }
 
 func (tc *TransactionController) UpdateTransaction(ctx *gin.Context) {
@@ -159,18 +181,26 @@ func (tc *TransactionController) UpdateTransaction(ctx *gin.Context) {
 		return
 	}
 
-	updatedTransaction := models.Transaction{
+	updates := models.Transaction{
 		Amount:  payload.Amount,
 		Outcome: payload.Outcome,
-		//Type:   payload.Type,
 	}
 
-	tc.DB.Model(&transaction).Updates(updatedTransaction)
+	tc.DB.Model(&transaction).Updates(updates)
 
 	// Fetch the updated transaction with player data
 	tc.DB.Preload("Player").First(&transaction, "id = ?", transactionId)
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": transaction})
+	response := models.TransactionResponse{
+		ID:        transaction.ID,
+		Player:    models.PlayerResponse{ID: transaction.Player.ID, Nickname: transaction.Player.Nickname},
+		Amount:    transaction.Amount,
+		Outcome:   transaction.Outcome,
+		CreatedAt: transaction.CreatedAt,
+		UpdatedAt: transaction.UpdatedAt,
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": response})
 }
 
 func (tc *TransactionController) DeleteTransaction(ctx *gin.Context) {

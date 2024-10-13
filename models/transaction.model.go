@@ -32,3 +32,12 @@ type UpdateTransactionRequest struct {
 	//Type    string  `json:"type,omitempty"`
 	Outcome string `json:"outcome,omitempty"`
 }
+
+type TransactionResponse struct {
+	ID        uuid.UUID      `json:"id"`
+	Player    PlayerResponse `json:"player"`
+	Amount    float64        `json:"amount"`
+	Outcome   string         `json:"outcome"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+}

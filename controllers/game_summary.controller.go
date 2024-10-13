@@ -224,3 +224,101 @@ func (gsc *GameSummaryController) DeleteGameSummary(ctx *gin.Context) {
 	gsc.DB.Delete(&gameSummary)
 	ctx.JSON(http.StatusNoContent, nil)
 }
+
+// AddTransactionToGameSummary godoc
+// @Summary Add a transaction to a game summary
+// @Description Add a new transaction to an existing game summary
+// @Tags gameSummaries
+// @Accept json
+// @Produce json
+// @Param gameSummaryId path string true "Game Summary ID"
+// @Param transaction body models.CreateTransactionRequest true "Transaction details"
+// @Success 200 {object} models.TransactionResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /game-summaries/{gameSummaryId}/transactions [post]
+func (gsc *GameSummaryController) AddTransactionToGameSummary(ctx *gin.Context) {
+	gameSummaryId := ctx.Param("gameSummaryId")
+
+	var payload models.CreateTransactionRequest
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
+		return
+	}
+
+	var gameSummary models.GameSummary
+	if err := gsc.DB.First(&gameSummary, "id = ?", gameSummaryId).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "Game summary not found"})
+		return
+	}
+
+	playerID, err := uuid.Parse(payload.PlayerID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid player ID"})
+		return
+	}
+
+	transaction := models.Transaction{
+		GameSummaryID: gameSummary.ID,
+		PlayerID:      playerID,
+		Amount:        payload.Amount,
+		Outcome:       payload.Outcome,
+		//Type:          payload.Type,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	if err := gsc.DB.Create(&transaction).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to create transaction"})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{"status": "success", "data": transaction})
+}
+
+// AddPlayersToGameSummary godoc
+// @Summary Add players to a game summary
+// @Description Add an array of players to an existing game summary
+// @Tags gameSummaries
+// @Accept json
+// @Produce json
+// @Param gameSummaryId path string true "Game Summary ID"
+// @Param players body []string true "Array of player IDs"
+// @Success 200 {object} models.GameSummaryResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /game-summaries/{gameSummaryId}/players [post]
+func (gsc *GameSummaryController) AddPlayersToGameSummary(ctx *gin.Context) {
+	gameSummaryId := ctx.Param("gameSummaryId")
+
+	var playerIDs []string
+	if err := ctx.ShouldBindJSON(&playerIDs); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
+		return
+	}
+
+	var gameSummary models.GameSummary
+	if err := gsc.DB.First(&gameSummary, "id = ?", gameSummaryId).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "Game summary not found"})
+		return
+	}
+
+	var players []models.Player
+	for _, playerID := range playerIDs {
+		var player models.Player
+		if err := gsc.DB.First(&player, "id = ?", playerID).Error; err != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "Player not found: " + playerID})
+			return
+		}
+		players = append(players, player)
+	}
+
+	if err := gsc.DB.Model(&gameSummary).Association("Players").Append(players); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to add players"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "Players added successfully"})
+}
