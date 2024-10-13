@@ -2700,5 +2700,10 @@
                 ]
             }
         }
-    }
+    },
+    "servers": [
+        {
+            "url": "https://suidev.nl/api"
+        }
+    ]
 }

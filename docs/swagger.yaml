@@ -558,6 +558,7 @@ definitions:
       verified:
         type: boolean
     type: object
+host: suidev.nl
 info:
   contact:
     email: support@swagger.io

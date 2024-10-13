@@ -1748,3 +1748,5 @@ paths:
             summary: Get a transaction by ID
             tags:
                 - transactions
+servers:
+    - url: https://suidev.nl/api
