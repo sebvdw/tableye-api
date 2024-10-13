@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/suidevv/tableye-api/models"
 	"gorm.io/gorm"
 )
@@ -40,11 +39,6 @@ func (cc *CasinoController) CreateCasino(ctx *gin.Context) {
 	}
 
 	now := time.Now()
-	ownerID, err := uuid.Parse(payload.OwnerID)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid owner ID"})
-		return
-	}
 
 	newCasino := models.Casino{
 		Name:          payload.Name,
@@ -56,7 +50,6 @@ func (cc *CasinoController) CreateCasino(ctx *gin.Context) {
 		PhoneNumber:   payload.PhoneNumber,
 		MaxCapacity:   payload.MaxCapacity,
 		Status:        payload.Status,
-		OwnerID:       ownerID,
 		CreatedAt:     now,
 		UpdatedAt:     now,
 	}
@@ -134,7 +127,7 @@ func (cc *CasinoController) FindCasinoById(ctx *gin.Context) {
 	casinoId := ctx.Param("casinoId")
 
 	var casino models.Casino
-	result := cc.DB.Preload("Owner").Preload("Dealers").Preload("Games").First(&casino, "id = ?", casinoId)
+	result := cc.DB.Preload("Dealers").Preload("Games").First(&casino, "id = ?", casinoId)
 	if result.Error != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No casino with that ID exists"})
 		return
@@ -162,7 +155,7 @@ func (cc *CasinoController) FindCasinos(ctx *gin.Context) {
 	offset := (intPage - 1) * intLimit
 
 	var casinos []models.Casino
-	results := cc.DB.Preload("Owner").Limit(intLimit).Offset(offset).Find(&casinos)
+	results := cc.DB.Limit(intLimit).Offset(offset).Find(&casinos)
 	if results.Error != nil {
 		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": results.Error})
 		return
@@ -186,11 +179,6 @@ func (cc *CasinoController) FindCasinos(ctx *gin.Context) {
 			"rating":         casino.Rating,
 			"created_at":     casino.CreatedAt,
 			"updated_at":     casino.UpdatedAt,
-			"owner": gin.H{
-				"id":    casino.Owner.ID,
-				"name":  casino.Owner.Name,
-				"email": casino.Owner.Email,
-			},
 		}
 		casinosResponse[i] = casinoResponse
 	}

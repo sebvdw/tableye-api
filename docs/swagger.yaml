@@ -30,8 +30,6 @@ definitions:
         type: string
       opening_hours:
         type: string
-      owner:
-        $ref: '#/definitions/models.User'
       phone_number:
         type: string
       rating:
@@ -61,8 +59,6 @@ definitions:
         type: string
       opening_hours:
         type: string
-      owner:
-        $ref: '#/definitions/models.UserResponse'
       phone_number:
         type: string
       rating:
@@ -88,8 +84,6 @@ definitions:
         type: string
       opening_hours:
         type: string
-      owner_id:
-        type: string
       phone_number:
         type: string
       status:
@@ -101,7 +95,6 @@ definitions:
     - location
     - max_capacity
     - name
-    - owner_id
     - status
     type: object
   models.CreateDealerRequest:
@@ -217,8 +210,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-      user_id:
-        type: string
     type: object
   models.DealerResponse:
     properties:

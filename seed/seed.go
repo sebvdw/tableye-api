@@ -103,7 +103,6 @@ func seedCasinos(db *gorm.DB, users []models.User) []models.Casino {
 			MaxCapacity:   500 + rand.Intn(1500),
 			Status:        "Active",
 			Rating:        4.0 + rand.Float32(),
-			OwnerID:       users[rand.Intn(len(users))].ID,
 		}
 	}
 

@@ -150,7 +150,6 @@ func (gsc *GameSummaryController) FindGameSummaryById(ctx *gin.Context) {
 	var gameSummary models.GameSummary
 	result := gsc.DB.Preload("Game").
 		Preload("Casino").
-		Preload("Casino.Owner").
 		Preload("Players").
 		Preload("Dealer").
 		Preload("Dealer.User").
@@ -187,7 +186,6 @@ func (gsc *GameSummaryController) FindGameSummaries(ctx *gin.Context) {
 	var gameSummaries []models.GameSummary
 	results := gsc.DB.Preload("Game").
 		Preload("Casino").
-		Preload("Casino.Owner").
 		Preload("Players").
 		Preload("Dealer").
 		Preload("Dealer.User").

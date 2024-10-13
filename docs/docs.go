@@ -1530,9 +1530,6 @@ const docTemplate = `{
                 "opening_hours": {
                     "type": "string"
                 },
-                "owner": {
-                    "$ref": "#/definitions/models.User"
-                },
                 "phone_number": {
                     "type": "string"
                 },
@@ -1577,9 +1574,6 @@ const docTemplate = `{
                 "opening_hours": {
                     "type": "string"
                 },
-                "owner": {
-                    "$ref": "#/definitions/models.UserResponse"
-                },
                 "phone_number": {
                     "type": "string"
                 },
@@ -1604,7 +1598,6 @@ const docTemplate = `{
                 "location",
                 "max_capacity",
                 "name",
-                "owner_id",
                 "status"
             ],
             "properties": {
@@ -1624,9 +1617,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "opening_hours": {
-                    "type": "string"
-                },
-                "owner_id": {
                     "type": "string"
                 },
                 "phone_number": {
@@ -1803,9 +1793,6 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/models.User"
-                },
-                "user_id": {
-                    "type": "string"
                 }
             }
         },

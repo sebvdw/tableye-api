@@ -18,8 +18,6 @@ type Casino struct {
 	MaxCapacity   int           `gorm:"not null" json:"max_capacity,omitempty"`
 	Status        string        `gorm:"type:varchar(50);not null" json:"status,omitempty"`
 	Rating        float32       `json:"rating,omitempty"`
-	OwnerID       uuid.UUID     `gorm:"type:uuid;not null" json:"-"`
-	Owner         User          `gorm:"foreignKey:OwnerID" json:"owner,omitempty"`
 	Dealers       []Dealer      `gorm:"many2many:casino_dealers;" json:"dealers,omitempty"`
 	Games         []Game        `gorm:"many2many:casino_games;" json:"games,omitempty"`
 	GameSummaries []GameSummary `gorm:"foreignKey:CasinoID" json:"game_summaries,omitempty"`
@@ -37,7 +35,6 @@ type CreateCasinoRequest struct {
 	PhoneNumber   string `json:"phone_number"`
 	MaxCapacity   int    `json:"max_capacity" binding:"required"`
 	Status        string `json:"status" binding:"required"`
-	OwnerID       string `json:"owner_id" binding:"required"`
 }
 
 type UpdateCasinoRequest struct {
@@ -54,18 +51,17 @@ type UpdateCasinoRequest struct {
 }
 
 type CasinoResponse struct {
-	ID            uuid.UUID    `json:"id,omitempty"`
-	Name          string       `json:"name,omitempty"`
-	Location      string       `json:"location,omitempty"`
-	LicenseNumber string       `json:"license_number,omitempty"`
-	Description   string       `json:"description,omitempty"`
-	OpeningHours  string       `json:"opening_hours,omitempty"`
-	Website       string       `json:"website,omitempty"`
-	PhoneNumber   string       `json:"phone_number,omitempty"`
-	MaxCapacity   int          `json:"max_capacity,omitempty"`
-	Status        string       `json:"status,omitempty"`
-	Rating        float32      `json:"rating,omitempty"`
-	Owner         UserResponse `json:"owner,omitempty"`
-	CreatedAt     time.Time    `json:"created_at,omitempty"`
-	UpdatedAt     time.Time    `json:"updated_at,omitempty"`
+	ID            uuid.UUID `json:"id,omitempty"`
+	Name          string    `json:"name,omitempty"`
+	Location      string    `json:"location,omitempty"`
+	LicenseNumber string    `json:"license_number,omitempty"`
+	Description   string    `json:"description,omitempty"`
+	OpeningHours  string    `json:"opening_hours,omitempty"`
+	Website       string    `json:"website,omitempty"`
+	PhoneNumber   string    `json:"phone_number,omitempty"`
+	MaxCapacity   int       `json:"max_capacity,omitempty"`
+	Status        string    `json:"status,omitempty"`
+	Rating        float32   `json:"rating,omitempty"`
+	CreatedAt     time.Time `json:"created_at,omitempty"`
+	UpdatedAt     time.Time `json:"updated_at,omitempty"`
 }

@@ -1524,9 +1524,6 @@
                 "opening_hours": {
                     "type": "string"
                 },
-                "owner": {
-                    "$ref": "#/definitions/models.User"
-                },
                 "phone_number": {
                     "type": "string"
                 },
@@ -1571,9 +1568,6 @@
                 "opening_hours": {
                     "type": "string"
                 },
-                "owner": {
-                    "$ref": "#/definitions/models.UserResponse"
-                },
                 "phone_number": {
                     "type": "string"
                 },
@@ -1598,7 +1592,6 @@
                 "location",
                 "max_capacity",
                 "name",
-                "owner_id",
                 "status"
             ],
             "properties": {
@@ -1618,9 +1611,6 @@
                     "type": "string"
                 },
                 "opening_hours": {
-                    "type": "string"
-                },
-                "owner_id": {
                     "type": "string"
                 },
                 "phone_number": {
@@ -1797,9 +1787,6 @@
                 },
                 "user": {
                     "$ref": "#/definitions/models.User"
-                },
-                "user_id": {
-                    "type": "string"
                 }
             }
         },
