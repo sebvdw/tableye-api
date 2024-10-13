@@ -123,7 +123,7 @@ func (gsc *GameSummaryController) CreateGameSummary(ctx *gin.Context) {
 
 // UpdateGameSummary godoc
 // @Summary Update a game summary
-// @Description Update a game summary with the given input data
+// @Description Update a game summary with the given input data and return the updated summary with all related information
 // @Tags gameSummaries
 // @Accept json
 // @Produce json
@@ -160,8 +160,41 @@ func (gsc *GameSummaryController) UpdateGameSummary(ctx *gin.Context) {
 		UpdatedAt:    now,
 	}
 
-	gsc.DB.Model(&gameSummary).Updates(gameSummaryToUpdate)
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": gameSummary})
+	// Start a transaction
+	tx := gsc.DB.Begin()
+	if tx.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to start transaction"})
+		return
+	}
+
+	// Update the game summary
+	if err := tx.Model(&gameSummary).Updates(gameSummaryToUpdate).Error; err != nil {
+		tx.Rollback()
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to update game summary"})
+		return
+	}
+
+	// Commit the transaction
+	if err := tx.Commit().Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to commit transaction"})
+		return
+	}
+
+	// Fetch the updated game summary with all related data
+	var updatedSummary models.GameSummary
+	if err := gsc.DB.Preload("Game").
+		Preload("Casino").
+		Preload("Dealer").
+		Preload("Dealer.User").
+		Preload("Players").
+		Preload("Transactions").
+		Preload("Transactions.Player").
+		First(&updatedSummary, gameSummary.ID).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to fetch updated game summary"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": updatedSummary})
 }
 
 // FindGameSummaryById godoc
