@@ -111,7 +111,7 @@ func main() {
 
 	server.Use(cors.New(corsConfig))
 
-	server.StaticFile("", "templates/index.html")
+	//server.StaticFile("", "templates/index.html")
 
 	router := server.Group("/api")
 
