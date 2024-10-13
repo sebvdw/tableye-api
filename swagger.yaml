@@ -559,10 +559,14 @@ components:
                     type: boolean
             type: object
     securitySchemes:
-        BearerAuth:
+        ApiKeyAuth:
+            description: Description for what is this security definition being used
             in: header
             name: Authorization
             type: apiKey
+        BearerAuth:
+            scheme: basic
+            type: http
 info:
     contact:
         email: support@swagger.io

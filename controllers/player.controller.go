@@ -20,17 +20,17 @@ func NewPlayerController(DB *gorm.DB) PlayerController {
 }
 
 // CreatePlayer godoc
-// @Summary Create a new player
-// @Description Create a new player with the input payload
-// @Tags players
-// @Accept json
-// @Produce json
-// @Param player body models.CreatePlayerRequest true "Create player request"
-// @Success 201 {object} models.Player
-// @Failure 400 {object} map[string]interface{}
-// @Failure 409 {object} map[string]interface{}
-// @Failure 502 {object} map[string]interface{}
-// @Router /players [post]
+//	@Summary		Create a new player
+//	@Description	Create a new player with the input payload
+//	@Tags			players
+//	@Accept			json
+//	@Produce		json
+//	@Param			player	body		models.CreatePlayerRequest	true	"Create player request"
+//	@Success		201		{object}	models.Player
+//	@Failure		400		{object}	map[string]interface{}
+//	@Failure		409		{object}	map[string]interface{}
+//	@Failure		502		{object}	map[string]interface{}
+//	@Router			/players [post]
 func (pc *PlayerController) CreatePlayer(ctx *gin.Context) {
 	var payload *models.CreatePlayerRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -63,17 +63,17 @@ func (pc *PlayerController) CreatePlayer(ctx *gin.Context) {
 }
 
 // UpdatePlayer godoc
-// @Summary Update a player
-// @Description Update a player's information by ID
-// @Tags players
-// @Accept json
-// @Produce json
-// @Param playerId path string true "Player ID"
-// @Param player body models.UpdatePlayerRequest true "Update player request"
-// @Success 200 {object} models.Player
-// @Failure 400 {object} map[string]interface{}
-// @Failure 404 {object} map[string]interface{}
-// @Router /players/{playerId} [put]
+//	@Summary		Update a player
+//	@Description	Update a player's information by ID
+//	@Tags			players
+//	@Accept			json
+//	@Produce		json
+//	@Param			playerId	path		string						true	"Player ID"
+//	@Param			player		body		models.UpdatePlayerRequest	true	"Update player request"
+//	@Success		200			{object}	models.Player
+//	@Failure		400			{object}	map[string]interface{}
+//	@Failure		404			{object}	map[string]interface{}
+//	@Router			/players/{playerId} [put]
 func (pc *PlayerController) UpdatePlayer(ctx *gin.Context) {
 	playerId := ctx.Param("playerId")
 	var payload *models.UpdatePlayerRequest
@@ -105,15 +105,15 @@ func (pc *PlayerController) UpdatePlayer(ctx *gin.Context) {
 }
 
 // FindPlayerById godoc
-// @Summary Get a player by ID
-// @Description Get details of a player by ID
-// @Tags players
-// @Accept json
-// @Produce json
-// @Param playerId path string true "Player ID"
-// @Success 200 {object} models.Player
-// @Failure 404 {object} map[string]interface{}
-// @Router /players/{playerId} [get]
+//	@Summary		Get a player by ID
+//	@Description	Get details of a player by ID
+//	@Tags			players
+//	@Accept			json
+//	@Produce		json
+//	@Param			playerId	path		string	true	"Player ID"
+//	@Success		200			{object}	models.Player
+//	@Failure		404			{object}	map[string]interface{}
+//	@Router			/players/{playerId} [get]
 func (pc *PlayerController) FindPlayerById(ctx *gin.Context) {
 	playerId := ctx.Param("playerId")
 
@@ -128,16 +128,16 @@ func (pc *PlayerController) FindPlayerById(ctx *gin.Context) {
 }
 
 // FindPlayers godoc
-// @Summary List players
-// @Description Get a list of players
-// @Tags players
-// @Accept json
-// @Produce json
-// @Param page query int false "Page number" default(1)
-// @Param limit query int false "Number of items per page" default(10)
-// @Success 200 {object} map[string]interface{}
-// @Failure 502 {object} map[string]interface{}
-// @Router /players [get]
+//	@Summary		List players
+//	@Description	Get a list of players
+//	@Tags			players
+//	@Accept			json
+//	@Produce		json
+//	@Param			page	query		int	false	"Page number"				default(1)
+//	@Param			limit	query		int	false	"Number of items per page"	default(10)
+//	@Success		200		{object}	map[string]interface{}
+//	@Failure		502		{object}	map[string]interface{}
+//	@Router			/players [get]
 func (pc *PlayerController) FindPlayers(ctx *gin.Context) {
 	var page = ctx.DefaultQuery("page", "1")
 	var limit = ctx.DefaultQuery("limit", "10")
@@ -157,15 +157,15 @@ func (pc *PlayerController) FindPlayers(ctx *gin.Context) {
 }
 
 // DeletePlayer godoc
-// @Summary Delete a player
-// @Description Delete a player by ID
-// @Tags players
-// @Accept json
-// @Produce json
-// @Param playerId path string true "Player ID"
-// @Success 204 "No Content"
-// @Failure 404 {object} map[string]interface{}
-// @Router /players/{playerId} [delete]
+//	@Summary		Delete a player
+//	@Description	Delete a player by ID
+//	@Tags			players
+//	@Accept			json
+//	@Produce		json
+//	@Param			playerId	path	string	true	"Player ID"
+//	@Success		204			"No Content"
+//	@Failure		404			{object}	map[string]interface{}
+//	@Router			/players/{playerId} [delete]
 func (pc *PlayerController) DeletePlayer(ctx *gin.Context) {
 	playerId := ctx.Param("playerId")
 
@@ -181,15 +181,15 @@ func (pc *PlayerController) DeletePlayer(ctx *gin.Context) {
 }
 
 // FindPlayerStats godoc
-// @Summary Get player statistics
-// @Description Get statistics of a player by ID
-// @Tags players
-// @Accept json
-// @Produce json
-// @Param playerId path string true "Player ID"
-// @Success 200 {object} map[string]interface{}
-// @Failure 404 {object} map[string]interface{}
-// @Router /players/{playerId}/stats [get]
+//	@Summary		Get player statistics
+//	@Description	Get statistics of a player by ID
+//	@Tags			players
+//	@Accept			json
+//	@Produce		json
+//	@Param			playerId	path		string	true	"Player ID"
+//	@Success		200			{object}	map[string]interface{}
+//	@Failure		404			{object}	map[string]interface{}
+//	@Router			/players/{playerId}/stats [get]
 func (pc *PlayerController) FindPlayerStats(ctx *gin.Context) {
 	playerId := ctx.Param("playerId")
 

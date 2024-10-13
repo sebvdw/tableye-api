@@ -22,17 +22,17 @@ func NewAuthController(DB *gorm.DB) AuthController {
 }
 
 // SignUpUser godoc
-// @Summary Register a new user
-// @Description Register a new user with the provided details
-// @Tags authentication
-// @Accept json
-// @Produce json
-// @Param request body models.SignUpInput true "User registration details"
-// @Success 201 {object} models.UserResponse "User successfully created"
-// @Failure 400 {object} map[string]interface{} "Bad request"
-// @Failure 409 {object} map[string]interface{} "User already exists"
-// @Failure 502 {object} map[string]interface{} "Server error"
-// @Router /auth/register [post]
+//	@Summary		Register a new user
+//	@Description	Register a new user with the provided details
+//	@Tags			authentication
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		models.SignUpInput		true	"User registration details"
+//	@Success		201		{object}	models.UserResponse		"User successfully created"
+//	@Failure		400		{object}	map[string]interface{}	"Bad request"
+//	@Failure		409		{object}	map[string]interface{}	"User already exists"
+//	@Failure		502		{object}	map[string]interface{}	"Server error"
+//	@Router			/auth/register [post]
 func (ac *AuthController) SignUpUser(ctx *gin.Context) {
 	var payload *models.SignUpInput
 
@@ -87,15 +87,15 @@ func (ac *AuthController) SignUpUser(ctx *gin.Context) {
 }
 
 // SignInUser godoc
-// @Summary Login a user
-// @Description Authenticate a user and return access/refresh tokens
-// @Tags authentication
-// @Accept json
-// @Produce json
-// @Param request body models.SignInInput true "User login credentials"
-// @Success 200 {object} map[string]interface{} "Login successful"
-// @Failure 400 {object} map[string]interface{} "Invalid credentials"
-// @Router /auth/login [post]
+//	@Summary		Login a user
+//	@Description	Authenticate a user and return access/refresh tokens
+//	@Tags			authentication
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		models.SignInInput		true	"User login credentials"
+//	@Success		200		{object}	map[string]interface{}	"Login successful"
+//	@Failure		400		{object}	map[string]interface{}	"Invalid credentials"
+//	@Router			/auth/login [post]
 func (ac *AuthController) SignInUser(ctx *gin.Context) {
 	var payload *models.SignInInput
 
@@ -138,13 +138,13 @@ func (ac *AuthController) SignInUser(ctx *gin.Context) {
 }
 
 // RefreshAccessToken godoc
-// @Summary Refresh access token
-// @Description Get a new access token using refresh token
-// @Tags authentication
-// @Produce json
-// @Success 200 {object} map[string]interface{} "Token refreshed successfully"
-// @Failure 403 {object} map[string]interface{} "Invalid refresh token"
-// @Router /auth/refresh [post]
+//	@Summary		Refresh access token
+//	@Description	Get a new access token using refresh token
+//	@Tags			authentication
+//	@Produce		json
+//	@Success		200	{object}	map[string]interface{}	"Token refreshed successfully"
+//	@Failure		403	{object}	map[string]interface{}	"Invalid refresh token"
+//	@Router			/auth/refresh [post]
 func (ac *AuthController) RefreshAccessToken(ctx *gin.Context) {
 	message := "could not refresh access token"
 
@@ -183,12 +183,12 @@ func (ac *AuthController) RefreshAccessToken(ctx *gin.Context) {
 }
 
 // LogoutUser godoc
-// @Summary Logout user
-// @Description Clear authentication cookies
-// @Tags authentication
-// @Produce json
-// @Success 200 {object} map[string]interface{} "Logged out successfully"
-// @Router /auth/logout [post]
+//	@Summary		Logout user
+//	@Description	Clear authentication cookies
+//	@Tags			authentication
+//	@Produce		json
+//	@Success		200	{object}	map[string]interface{}	"Logged out successfully"
+//	@Router			/auth/logout [post]
 func (ac *AuthController) LogoutUser(ctx *gin.Context) {
 	config, _ := initializers.LoadConfig(".")
 

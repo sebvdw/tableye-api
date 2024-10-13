@@ -20,16 +20,16 @@ func NewTransactionController(DB *gorm.DB) TransactionController {
 }
 
 // CreateTransaction godoc
-// @Summary Create a new transaction
-// @Description Create a new transaction with the given input data
-// @Tags transactions
-// @Accept json
-// @Produce json
-// @Param transaction body models.CreateTransactionRequest true "Create transaction request"
-// @Success 201 {object} models.TransactionResponse
-// @Failure 400 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
-// @Router /transactions [post]
+//	@Summary		Create a new transaction
+//	@Description	Create a new transaction with the given input data
+//	@Tags			transactions
+//	@Accept			json
+//	@Produce		json
+//	@Param			transaction	body		models.CreateTransactionRequest	true	"Create transaction request"
+//	@Success		201			{object}	models.TransactionResponse
+//	@Failure		400			{object}	map[string]interface{}
+//	@Failure		500			{object}	map[string]interface{}
+//	@Router			/transactions [post]
 func (tc *TransactionController) CreateTransaction(ctx *gin.Context) {
 	var payload models.CreateTransactionRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -93,16 +93,16 @@ func (tc *TransactionController) CreateTransaction(ctx *gin.Context) {
 }
 
 // FindTransactions godoc
-// @Summary List transactions
-// @Description Get a list of transactions with pagination
-// @Tags transactions
-// @Accept json
-// @Produce json
-// @Param page query int false "Page number" default(1)
-// @Param limit query int false "Number of items per page" default(10)
-// @Success 200 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
-// @Router /transactions [get]
+//	@Summary		List transactions
+//	@Description	Get a list of transactions with pagination
+//	@Tags			transactions
+//	@Accept			json
+//	@Produce		json
+//	@Param			page	query		int	false	"Page number"				default(1)
+//	@Param			limit	query		int	false	"Number of items per page"	default(10)
+//	@Success		200		{object}	map[string]interface{}
+//	@Failure		500		{object}	map[string]interface{}
+//	@Router			/transactions [get]
 func (tc *TransactionController) FindTransactions(ctx *gin.Context) {
 	var page = ctx.DefaultQuery("page", "1")
 	var limit = ctx.DefaultQuery("limit", "10")
@@ -134,15 +134,15 @@ func (tc *TransactionController) FindTransactions(ctx *gin.Context) {
 }
 
 // FindTransactionById godoc
-// @Summary Get a transaction by ID
-// @Description Get details of a transaction by its ID
-// @Tags transactions
-// @Accept json
-// @Produce json
-// @Param transactionId path string true "Transaction ID"
-// @Success 200 {object} models.TransactionResponse
-// @Failure 404 {object} map[string]interface{}
-// @Router /transactions/{transactionId} [get]
+//	@Summary		Get a transaction by ID
+//	@Description	Get details of a transaction by its ID
+//	@Tags			transactions
+//	@Accept			json
+//	@Produce		json
+//	@Param			transactionId	path		string	true	"Transaction ID"
+//	@Success		200				{object}	models.TransactionResponse
+//	@Failure		404				{object}	map[string]interface{}
+//	@Router			/transactions/{transactionId} [get]
 func (tc *TransactionController) FindTransactionById(ctx *gin.Context) {
 	transactionId := ctx.Param("transactionId")
 

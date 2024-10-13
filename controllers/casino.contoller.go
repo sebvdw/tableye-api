@@ -20,17 +20,17 @@ func NewCasinoController(DB *gorm.DB) CasinoController {
 }
 
 // CreateCasino godoc
-// @Summary Create a new casino
-// @Description Create a new casino with the input payload
-// @Tags casinos
-// @Accept json
-// @Produce json
-// @Param casino body models.CreateCasinoRequest true "Create casino request"
-// @Success 201 {object} models.Casino
-// @Failure 400 {object} map[string]interface{}
-// @Failure 409 {object} map[string]interface{}
-// @Failure 502 {object} map[string]interface{}
-// @Router /casinos [post]
+//	@Summary		Create a new casino
+//	@Description	Create a new casino with the input payload
+//	@Tags			casinos
+//	@Accept			json
+//	@Produce		json
+//	@Param			casino	body		models.CreateCasinoRequest	true	"Create casino request"
+//	@Success		201		{object}	models.Casino
+//	@Failure		400		{object}	map[string]interface{}
+//	@Failure		409		{object}	map[string]interface{}
+//	@Failure		502		{object}	map[string]interface{}
+//	@Router			/casinos [post]
 func (cc *CasinoController) CreateCasino(ctx *gin.Context) {
 	var payload *models.CreateCasinoRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -68,17 +68,17 @@ func (cc *CasinoController) CreateCasino(ctx *gin.Context) {
 }
 
 // UpdateCasino godoc
-// @Summary Update a casino
-// @Description Update a casino with the input payload
-// @Tags casinos
-// @Accept json
-// @Produce json
-// @Param casinoId path string true "Casino ID"
-// @Param casino body models.UpdateCasinoRequest true "Update casino request"
-// @Success 200 {object} models.Casino
-// @Failure 400 {object} map[string]interface{}
-// @Failure 404 {object} map[string]interface{}
-// @Router /casinos/{casinoId} [put]
+//	@Summary		Update a casino
+//	@Description	Update a casino with the input payload
+//	@Tags			casinos
+//	@Accept			json
+//	@Produce		json
+//	@Param			casinoId	path		string						true	"Casino ID"
+//	@Param			casino		body		models.UpdateCasinoRequest	true	"Update casino request"
+//	@Success		200			{object}	models.Casino
+//	@Failure		400			{object}	map[string]interface{}
+//	@Failure		404			{object}	map[string]interface{}
+//	@Router			/casinos/{casinoId} [put]
 func (cc *CasinoController) UpdateCasino(ctx *gin.Context) {
 	casinoId := ctx.Param("casinoId")
 	var payload *models.UpdateCasinoRequest
@@ -115,14 +115,14 @@ func (cc *CasinoController) UpdateCasino(ctx *gin.Context) {
 }
 
 // FindCasinoById godoc
-// @Summary Get a casino by ID
-// @Description Get a single casino by its ID
-// @Tags casinos
-// @Produce json
-// @Param casinoId path string true "Casino ID"
-// @Success 200 {object} models.Casino
-// @Failure 404 {object} map[string]interface{}
-// @Router /casinos/{casinoId} [get]
+//	@Summary		Get a casino by ID
+//	@Description	Get a single casino by its ID
+//	@Tags			casinos
+//	@Produce		json
+//	@Param			casinoId	path		string	true	"Casino ID"
+//	@Success		200			{object}	models.Casino
+//	@Failure		404			{object}	map[string]interface{}
+//	@Router			/casinos/{casinoId} [get]
 func (cc *CasinoController) FindCasinoById(ctx *gin.Context) {
 	casinoId := ctx.Param("casinoId")
 
@@ -137,15 +137,15 @@ func (cc *CasinoController) FindCasinoById(ctx *gin.Context) {
 }
 
 // FindCasinos godoc
-// @Summary List casinos
-// @Description Get a list of casinos
-// @Tags casinos
-// @Produce json
-// @Param page query int false "Page number"
-// @Param limit query int false "Number of items per page"
-// @Success 200 {object} map[string]interface{}
-// @Failure 502 {object} map[string]interface{}
-// @Router /casinos [get]
+//	@Summary		List casinos
+//	@Description	Get a list of casinos
+//	@Tags			casinos
+//	@Produce		json
+//	@Param			page	query		int	false	"Page number"
+//	@Param			limit	query		int	false	"Number of items per page"
+//	@Success		200		{object}	map[string]interface{}
+//	@Failure		502		{object}	map[string]interface{}
+//	@Router			/casinos [get]
 func (cc *CasinoController) FindCasinos(ctx *gin.Context) {
 	var page = ctx.DefaultQuery("page", "1")
 	var limit = ctx.DefaultQuery("limit", "10")
@@ -187,14 +187,14 @@ func (cc *CasinoController) FindCasinos(ctx *gin.Context) {
 }
 
 // DeleteCasino godoc
-// @Summary Delete a casino
-// @Description Delete a casino by its ID
-// @Tags casinos
-// @Produce json
-// @Param casinoId path string true "Casino ID"
-// @Success 204 "No Content"
-// @Failure 404 {object} map[string]interface{}
-// @Router /casinos/{casinoId} [delete]
+//	@Summary		Delete a casino
+//	@Description	Delete a casino by its ID
+//	@Tags			casinos
+//	@Produce		json
+//	@Param			casinoId	path	string	true	"Casino ID"
+//	@Success		204			"No Content"
+//	@Failure		404			{object}	map[string]interface{}
+//	@Router			/casinos/{casinoId} [delete]
 func (cc *CasinoController) DeleteCasino(ctx *gin.Context) {
 	casinoId := ctx.Param("casinoId")
 

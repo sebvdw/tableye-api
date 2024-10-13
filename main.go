@@ -15,21 +15,26 @@ import (
 	"github.com/suidevv/tableye-api/routes"
 )
 
-// @title           Tableye API
-// @version         1.0
-// @description     A REST API for Tableye application
-// @termsOfService  http://swagger.io/terms/
-// @contact.name   API Support
-// @contact.url    http://www.swagger.io/support
-// @contact.email  support@swagger.io
-// @license.name  Apache 2.0
-// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
-// @host      suidev.nl
-// @BasePath  /api
-// @securityDefinitions.apikey BearerAuth
-// @in header
-// @name Authorization
+//	@title						Tableye API
+//	@version					1.0
+//	@description				A REST API for Tableye application
+//	@termsOfService				http://swagger.io/terms/
+//	@contact.name				API Support
+//	@contact.url				http://www.swagger.io/support
+//	@contact.email				support@swagger.io
+//	@license.name				Apache 2.0
+//	@license.url				http://www.apache.org/licenses/LICENSE-2.0.html
+//	@host						suidev.nl
+//	@BasePath					/api
+//	@securityDefinitions.basic	BearerAuth
 
+//	@securityDefinitions.apikey	ApiKeyAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Description for what is this security definition being used
+//
+//	@in							header
+//	@name						Authorization
 var (
 	server                     *gin.Engine
 	AuthController             controllers.AuthController
@@ -85,13 +90,13 @@ func init() {
 	server = gin.Default()
 }
 
-// @Summary Health check endpoint
-// @Description Get API health status
-// @Tags health
-// @Accept json
-// @Produce json
-// @Success 200 {object} map[string]interface{}
-// @Router /healthchecker [get]
+//	@Summary		Health check endpoint
+//	@Description	Get API health status
+//	@Tags			health
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	map[string]interface{}
+//	@Router			/healthchecker [get]
 func healthHandler(ctx *gin.Context) {
 	message := "Welcome to Golang with Gorm and Postgres"
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": message})

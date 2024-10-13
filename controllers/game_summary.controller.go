@@ -20,16 +20,16 @@ func NewGameSummaryController(DB *gorm.DB) GameSummaryController {
 }
 
 // CreateGameSummary godoc
-// @Summary Create a new game summary
-// @Description Create a new game summary with the given input data, including game, casino, dealer, and players information
-// @Tags gameSummaries
-// @Accept json
-// @Produce json
-// @Param gameSummary body models.CreateGameSummaryRequest true "Create game summary request"
-// @Success 201 {object} models.GameSummaryResponse "Successfully created game summary"
-// @Failure 400 {object} map[string]interface{} "Bad request"
-// @Failure 500 {object} map[string]interface{} "Internal server error"
-// @Router /game-summaries [post]
+//	@Summary		Create a new game summary
+//	@Description	Create a new game summary with the given input data, including game, casino, dealer, and players information
+//	@Tags			gameSummaries
+//	@Accept			json
+//	@Produce		json
+//	@Param			gameSummary	body		models.CreateGameSummaryRequest	true	"Create game summary request"
+//	@Success		201			{object}	models.GameSummaryResponse		"Successfully created game summary"
+//	@Failure		400			{object}	map[string]interface{}			"Bad request"
+//	@Failure		500			{object}	map[string]interface{}			"Internal server error"
+//	@Router			/game-summaries [post]
 func (gsc *GameSummaryController) CreateGameSummary(ctx *gin.Context) {
 	var payload *models.CreateGameSummaryRequest
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
@@ -122,18 +122,18 @@ func (gsc *GameSummaryController) CreateGameSummary(ctx *gin.Context) {
 }
 
 // UpdateGameSummary godoc
-// @Summary Update a game summary
-// @Description Update a game summary with the given input data and return the updated summary with all related information
-// @Tags gameSummaries
-// @Accept json
-// @Produce json
-// @Param gameSummaryId path string true "Game Summary ID"
-// @Param gameSummary body models.UpdateGameSummaryRequest true "Update game summary request"
-// @Success 200 {object} models.GameSummaryResponse
-// @Failure 400 {object} map[string]interface{}
-// @Failure 404 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
-// @Router /game-summaries/{gameSummaryId} [put]
+//	@Summary		Update a game summary
+//	@Description	Update a game summary with the given input data and return the updated summary with all related information
+//	@Tags			gameSummaries
+//	@Accept			json
+//	@Produce		json
+//	@Param			gameSummaryId	path		string							true	"Game Summary ID"
+//	@Param			gameSummary		body		models.UpdateGameSummaryRequest	true	"Update game summary request"
+//	@Success		200				{object}	models.GameSummaryResponse
+//	@Failure		400				{object}	map[string]interface{}
+//	@Failure		404				{object}	map[string]interface{}
+//	@Failure		500				{object}	map[string]interface{}
+//	@Router			/game-summaries/{gameSummaryId} [put]
 func (gsc *GameSummaryController) UpdateGameSummary(ctx *gin.Context) {
 	gameSummaryId := ctx.Param("gameSummaryId")
 	var payload *models.UpdateGameSummaryRequest
@@ -198,15 +198,15 @@ func (gsc *GameSummaryController) UpdateGameSummary(ctx *gin.Context) {
 }
 
 // FindGameSummaryById godoc
-// @Summary Get a game summary by ID
-// @Description Get details of a game summary by its ID, including transactions
-// @Tags gameSummaries
-// @Accept json
-// @Produce json
-// @Param gameSummaryId path string true "Game Summary ID"
-// @Success 200 {object} models.GameSummaryResponse
-// @Failure 404 {object} map[string]interface{}
-// @Router /game-summaries/{gameSummaryId} [get]
+//	@Summary		Get a game summary by ID
+//	@Description	Get details of a game summary by its ID, including transactions
+//	@Tags			gameSummaries
+//	@Accept			json
+//	@Produce		json
+//	@Param			gameSummaryId	path		string	true	"Game Summary ID"
+//	@Success		200				{object}	models.GameSummaryResponse
+//	@Failure		404				{object}	map[string]interface{}
+//	@Router			/game-summaries/{gameSummaryId} [get]
 func (gsc *GameSummaryController) FindGameSummaryById(ctx *gin.Context) {
 	gameSummaryId := ctx.Param("gameSummaryId")
 
@@ -228,16 +228,16 @@ func (gsc *GameSummaryController) FindGameSummaryById(ctx *gin.Context) {
 }
 
 // FindGameSummaries godoc
-// @Summary List game summaries
-// @Description Get a list of game summaries with pagination, including transactions
-// @Tags gameSummaries
-// @Accept json
-// @Produce json
-// @Param page query int false "Page number" default(1)
-// @Param limit query int false "Number of items per page" default(10)
-// @Success 200 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
-// @Router /game-summaries [get]
+//	@Summary		List game summaries
+//	@Description	Get a list of game summaries with pagination, including transactions
+//	@Tags			gameSummaries
+//	@Accept			json
+//	@Produce		json
+//	@Param			page	query		int	false	"Page number"				default(1)
+//	@Param			limit	query		int	false	"Number of items per page"	default(10)
+//	@Success		200		{object}	map[string]interface{}
+//	@Failure		500		{object}	map[string]interface{}
+//	@Router			/game-summaries [get]
 func (gsc *GameSummaryController) FindGameSummaries(ctx *gin.Context) {
 	var page = ctx.DefaultQuery("page", "1")
 	var limit = ctx.DefaultQuery("limit", "10")
@@ -265,16 +265,16 @@ func (gsc *GameSummaryController) FindGameSummaries(ctx *gin.Context) {
 }
 
 // DeleteGameSummary godoc
-// @Summary Delete a game summary
-// @Description Delete a game summary by its ID and all associated data
-// @Tags gameSummaries
-// @Accept json
-// @Produce json
-// @Param gameSummaryId path string true "Game Summary ID"
-// @Success 204 "No Content"
-// @Failure 404 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
-// @Router /game-summaries/{gameSummaryId} [delete]
+//	@Summary		Delete a game summary
+//	@Description	Delete a game summary by its ID and all associated data
+//	@Tags			gameSummaries
+//	@Accept			json
+//	@Produce		json
+//	@Param			gameSummaryId	path	string	true	"Game Summary ID"
+//	@Success		204				"No Content"
+//	@Failure		404				{object}	map[string]interface{}
+//	@Failure		500				{object}	map[string]interface{}
+//	@Router			/game-summaries/{gameSummaryId} [delete]
 func (gsc *GameSummaryController) DeleteGameSummary(ctx *gin.Context) {
 	gameSummaryId := ctx.Param("gameSummaryId")
 
@@ -323,18 +323,18 @@ func (gsc *GameSummaryController) DeleteGameSummary(ctx *gin.Context) {
 }
 
 // AddTransactionToGameSummary godoc
-// @Summary Add a transaction to a game summary
-// @Description Add a new transaction to an existing game summary
-// @Tags gameSummaries
-// @Accept json
-// @Produce json
-// @Param gameSummaryId path string true "Game Summary ID"
-// @Param transaction body models.CreateTransactionRequest true "Transaction details"
-// @Success 200 {object} models.TransactionResponse
-// @Failure 400 {object} map[string]interface{}
-// @Failure 404 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
-// @Router /game-summaries/{gameSummaryId}/transactions [post]
+//	@Summary		Add a transaction to a game summary
+//	@Description	Add a new transaction to an existing game summary
+//	@Tags			gameSummaries
+//	@Accept			json
+//	@Produce		json
+//	@Param			gameSummaryId	path		string							true	"Game Summary ID"
+//	@Param			transaction		body		models.CreateTransactionRequest	true	"Transaction details"
+//	@Success		200				{object}	models.TransactionResponse
+//	@Failure		400				{object}	map[string]interface{}
+//	@Failure		404				{object}	map[string]interface{}
+//	@Failure		500				{object}	map[string]interface{}
+//	@Router			/game-summaries/{gameSummaryId}/transactions [post]
 func (gsc *GameSummaryController) AddTransactionToGameSummary(ctx *gin.Context) {
 	gameSummaryId := ctx.Param("gameSummaryId")
 
@@ -375,18 +375,18 @@ func (gsc *GameSummaryController) AddTransactionToGameSummary(ctx *gin.Context) 
 }
 
 // AddPlayersToGameSummary godoc
-// @Summary Add players to a game summary
-// @Description Add an array of players to an existing game summary
-// @Tags gameSummaries
-// @Accept json
-// @Produce json
-// @Param gameSummaryId path string true "Game Summary ID"
-// @Param players body []string true "Array of player IDs"
-// @Success 200 {object} models.GameSummaryResponse
-// @Failure 400 {object} map[string]interface{}
-// @Failure 404 {object} map[string]interface{}
-// @Failure 500 {object} map[string]interface{}
-// @Router /game-summaries/{gameSummaryId}/players [post]
+//	@Summary		Add players to a game summary
+//	@Description	Add an array of players to an existing game summary
+//	@Tags			gameSummaries
+//	@Accept			json
+//	@Produce		json
+//	@Param			gameSummaryId	path		string		true	"Game Summary ID"
+//	@Param			players			body		[]string	true	"Array of player IDs"
+//	@Success		200				{object}	models.GameSummaryResponse
+//	@Failure		400				{object}	map[string]interface{}
+//	@Failure		404				{object}	map[string]interface{}
+//	@Failure		500				{object}	map[string]interface{}
+//	@Router			/game-summaries/{gameSummaryId}/players [post]
 func (gsc *GameSummaryController) AddPlayersToGameSummary(ctx *gin.Context) {
 	gameSummaryId := ctx.Param("gameSummaryId")
 
