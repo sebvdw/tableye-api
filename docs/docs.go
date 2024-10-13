@@ -2459,14 +2459,11 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
-        "ApiKeyAuth": {
+        "BearerAuth": {
             "description": "Description for what is this security definition being used",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
-        },
-        "BearerAuth": {
-            "type": "basic"
         }
     }
 }`

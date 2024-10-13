@@ -26,9 +26,8 @@ import (
 //	@license.url				http://www.apache.org/licenses/LICENSE-2.0.html
 //	@host						suidev.nl
 //	@BasePath					/api
-//	@securityDefinitions.basic	BearerAuth
-
-//	@securityDefinitions.apikey	ApiKeyAuth
+//
+//	@securityDefinitions.apikey	BearerAuth
 //	@in							header
 //	@name						Authorization
 //	@description				Description for what is this security definition being used
