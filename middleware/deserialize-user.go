@@ -34,7 +34,7 @@ func DeserializeUser() gin.HandlerFunc {
 
 		config, _ := initializers.LoadConfig(".")
 		tokenByte, err := jwt.Parse(access_token, func(jwtToken *jwt.Token) (interface{}, error) {
-			if _, ok := jwtToken.Method.(*jwt.SigningMethodHMAC); !ok {
+			if _, ok := jwtToken.Method.(*jwt.SigningMethodRSA); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", jwtToken.Header["alg"])
 			}
 
