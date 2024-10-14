@@ -17,9 +17,9 @@ func NewRouteGameSummaryController(gameSummaryController controllers.GameSummary
 func (gsc *GameSummaryRouteController) GameSummaryRoute(rg *gin.RouterGroup) {
 	router := rg.Group("game-summaries")
 
-	router.POST("/", middleware.DeserializeUser(), gsc.gameSummaryController.CreateGameSummary)
-	router.GET("/", middleware.DeserializeUser(), gsc.gameSummaryController.FindGameSummaries)
-	router.GET("/:gameSummaryId", middleware.DeserializeUser(), gsc.gameSummaryController.FindGameSummaryById)
-	router.PUT("/:gameSummaryId", middleware.DeserializeUser(), gsc.gameSummaryController.UpdateGameSummary)
-	router.DELETE("/:gameSummaryId", middleware.DeserializeUser(), gsc.gameSummaryController.DeleteGameSummary)
+	router.POST("/", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin", "dealer"), gsc.gameSummaryController.CreateGameSummary)
+	router.GET("/", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin"), gsc.gameSummaryController.FindGameSummaries)
+	router.GET("/:gameSummaryId", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin"), gsc.gameSummaryController.FindGameSummaryById)
+	router.PUT("/:gameSummaryId", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin", "dealer"), gsc.gameSummaryController.UpdateGameSummary)
+	router.DELETE("/:gameSummaryId", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin"), gsc.gameSummaryController.DeleteGameSummary)
 }

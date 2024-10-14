@@ -1,3 +1,5 @@
+// migrate/migrate.go
+
 package main
 
 import (
@@ -47,6 +49,7 @@ func main() {
 		&models.Player{},
 		&models.GameSummary{},
 		&models.Transaction{},
+		&models.Admin{}, // Add the new Admin model
 	); err != nil {
 		log.Fatal("Failed to migrate database: ", err)
 	}
@@ -60,7 +63,6 @@ func main() {
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_casino_dealers_casino_id ON casino_dealers(casino_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_casino_dealers_dealer_id ON casino_dealers(dealer_id)`,
-
 		`CREATE TABLE IF NOT EXISTS casino_games (
 			casino_id UUID REFERENCES casinos(id) ON DELETE CASCADE,
 			game_id UUID REFERENCES games(id) ON DELETE CASCADE,
@@ -68,7 +70,6 @@ func main() {
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_casino_games_casino_id ON casino_games(casino_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_casino_games_game_id ON casino_games(game_id)`,
-
 		`CREATE TABLE IF NOT EXISTS game_players (
 			game_summary_id UUID REFERENCES game_summaries(id) ON DELETE CASCADE,
 			player_id UUID REFERENCES players(id) ON DELETE CASCADE,
@@ -76,7 +77,6 @@ func main() {
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_game_players_game_summary_id ON game_players(game_summary_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_game_players_player_id ON game_players(player_id)`,
-
 		// Additional indexes based on the model definitions
 		`CREATE INDEX IF NOT EXISTS idx_dealers_user_id ON dealers(user_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_game_summaries_game_id ON game_summaries(game_id)`,
@@ -84,6 +84,8 @@ func main() {
 		`CREATE INDEX IF NOT EXISTS idx_game_summaries_dealer_id ON game_summaries(dealer_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_transactions_game_summary_id ON transactions(game_summary_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_transactions_player_id ON transactions(player_id)`,
+		// New index for the role column in the users table
+		`CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)`,
 	}
 
 	for _, query := range queries {

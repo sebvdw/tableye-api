@@ -21,6 +21,7 @@ func NewDealerController(DB *gorm.DB) DealerController {
 }
 
 // CreateDealer godoc
+//
 //	@Summary		Create a new dealer
 //	@Description	Create a new dealer with the input payload
 //	@Tags			dealers
@@ -81,6 +82,7 @@ func (dc *DealerController) CreateDealer(ctx *gin.Context) {
 }
 
 // UpdateDealer godoc
+//
 //	@Summary		Update a dealer
 //	@Description	Update a dealer's information by ID
 //	@Tags			dealers
@@ -134,6 +136,7 @@ func (dc *DealerController) UpdateDealer(ctx *gin.Context) {
 }
 
 // FindDealerById godoc
+//
 //	@Summary		Get a dealer by ID
 //	@Description	Get details of a dealer by ID
 //	@Tags			dealers
@@ -168,6 +171,7 @@ func (dc *DealerController) FindDealerById(ctx *gin.Context) {
 }
 
 // FindDealers godoc
+//
 //	@Summary		List dealers
 //	@Description	Get a list of dealers
 //	@Tags			dealers
@@ -203,7 +207,6 @@ func (dc *DealerController) FindDealers(ctx *gin.Context) {
 				Email:     dealer.User.Email,
 				Role:      dealer.User.Role,
 				Provider:  dealer.User.Provider,
-				Verified:  dealer.User.Verified,
 				CreatedAt: dealer.User.CreatedAt,
 				UpdatedAt: dealer.User.UpdatedAt,
 			},
@@ -221,6 +224,7 @@ func (dc *DealerController) FindDealers(ctx *gin.Context) {
 }
 
 // DeleteDealer godoc
+//
 //	@Summary		Delete a dealer
 //	@Description	Delete a dealer by ID
 //	@Tags			dealers

@@ -1,5 +1,12 @@
 basePath: /api
 definitions:
+  controllers.AdminRoleAssignRequest:
+    properties:
+      userId:
+        type: string
+    required:
+    - userId
+    type: object
   models.Casino:
     properties:
       created_at:
@@ -552,8 +559,6 @@ definitions:
         type: string
       updated_at:
         type: string
-      verified:
-        type: boolean
     type: object
 host: suidev.nl
 info:
@@ -569,6 +574,46 @@ info:
   title: Tableye API
   version: "1.0"
 paths:
+  /admin/assign-admin:
+    post:
+      consumes:
+      - application/json
+      description: Assigns the admin role to a specified user
+      parameters:
+      - description: User ID to assign admin role
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.AdminRoleAssignRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Assign admin role to a user
+      tags:
+      - admin
   /auth/login:
     post:
       consumes:
@@ -585,12 +630,12 @@ paths:
       - application/json
       responses:
         "200":
-          description: Login successful
+          description: OK
           schema:
             additionalProperties: true
             type: object
         "400":
-          description: Invalid credentials
+          description: Bad Request
           schema:
             additionalProperties: true
             type: object
@@ -604,7 +649,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: Logged out successfully
+          description: OK
           schema:
             additionalProperties: true
             type: object
@@ -618,12 +663,12 @@ paths:
       - application/json
       responses:
         "200":
-          description: Token refreshed successfully
+          description: OK
           schema:
             additionalProperties: true
             type: object
         "403":
-          description: Invalid refresh token
+          description: Forbidden
           schema:
             additionalProperties: true
             type: object
@@ -646,21 +691,21 @@ paths:
       - application/json
       responses:
         "201":
-          description: User successfully created
+          description: Created
           schema:
             $ref: '#/definitions/models.UserResponse'
         "400":
-          description: Bad request
+          description: Bad Request
           schema:
             additionalProperties: true
             type: object
         "409":
-          description: User already exists
+          description: Conflict
           schema:
             additionalProperties: true
             type: object
         "502":
-          description: Server error
+          description: Bad Gateway
           schema:
             additionalProperties: true
             type: object

@@ -1,3 +1,5 @@
+// models/dealer.model.go
+
 package models
 
 import (
@@ -9,7 +11,7 @@ import (
 type Dealer struct {
 	ID           uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key" json:"id,omitempty"`
 	UserID       uuid.UUID `gorm:"type:uuid;not null;uniqueIndex" json:"-"`
-	User         User      `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	User         User      `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;" json:"user,omitempty"`
 	DealerCode   string    `gorm:"uniqueIndex;not null" json:"dealer_code,omitempty"`
 	Status       string    `gorm:"type:varchar(255);not null" json:"status,omitempty"`
 	GamesDealt   int       `gorm:"not null" json:"games_dealt,omitempty"`

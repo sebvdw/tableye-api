@@ -17,9 +17,9 @@ func NewRouteDealerController(dealerController controllers.DealerController) Dea
 func (dc *DealerRouteController) DealerRoute(rg *gin.RouterGroup) {
 	router := rg.Group("dealers")
 
-	router.POST("/", middleware.DeserializeUser(), dc.dealerController.CreateDealer)
-	router.GET("/", middleware.DeserializeUser(), dc.dealerController.FindDealers)
-	router.GET("/:dealerId", middleware.DeserializeUser(), dc.dealerController.FindDealerById)
-	router.PUT("/:dealerId", middleware.DeserializeUser(), dc.dealerController.UpdateDealer)
-	router.DELETE("/:dealerId", middleware.DeserializeUser(), dc.dealerController.DeleteDealer)
+	router.POST("/", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin"), dc.dealerController.CreateDealer)
+	router.GET("/", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin", "dealer"), dc.dealerController.FindDealers)
+	router.GET("/:dealerId", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin", "dealer"), dc.dealerController.FindDealerById)
+	router.PUT("/:dealerId", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin"), dc.dealerController.UpdateDealer)
+	router.DELETE("/:dealerId", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin"), dc.dealerController.DeleteDealer)
 }

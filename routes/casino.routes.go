@@ -17,9 +17,9 @@ func NewRouteCasinoController(casinoController controllers.CasinoController) Cas
 func (cc *CasinoRouteController) CasinoRoute(rg *gin.RouterGroup) {
 	router := rg.Group("casinos")
 
-	router.POST("/", middleware.DeserializeUser(), cc.casinoController.CreateCasino)
-	router.GET("/", middleware.DeserializeUser(), cc.casinoController.FindCasinos)
-	router.GET("/:casinoId", middleware.DeserializeUser(), cc.casinoController.FindCasinoById)
-	router.PUT("/:casinoId", middleware.DeserializeUser(), cc.casinoController.UpdateCasino)
-	router.DELETE("/:casinoId", middleware.DeserializeUser(), cc.casinoController.DeleteCasino)
+	router.POST("/", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin"), cc.casinoController.CreateCasino)
+	router.GET("/", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin", "dealer"), cc.casinoController.FindCasinos)
+	router.GET("/:casinoId", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin", "dealer"), cc.casinoController.FindCasinoById)
+	router.PUT("/:casinoId", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin"), cc.casinoController.UpdateCasino)
+	router.DELETE("/:casinoId", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin"), cc.casinoController.DeleteCasino)
 }

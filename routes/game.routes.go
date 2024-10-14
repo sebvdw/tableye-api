@@ -17,9 +17,9 @@ func NewRouteGameController(gameController controllers.GameController) GameRoute
 func (gc *GameRouteController) GameRoute(rg *gin.RouterGroup) {
 	router := rg.Group("games")
 
-	router.POST("/", middleware.DeserializeUser(), gc.gameController.CreateGame)
-	router.GET("/", middleware.DeserializeUser(), gc.gameController.FindGames)
-	router.GET("/:gameId", middleware.DeserializeUser(), gc.gameController.FindGameById)
-	router.PUT("/:gameId", middleware.DeserializeUser(), gc.gameController.UpdateGame)
-	router.DELETE("/:gameId", middleware.DeserializeUser(), gc.gameController.DeleteGame)
+	router.POST("/", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin"), gc.gameController.CreateGame)
+	router.GET("/", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin", "dealer"), gc.gameController.FindGames)
+	router.GET("/:gameId", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin", "dealer"), gc.gameController.FindGameById)
+	router.PUT("/:gameId", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin"), gc.gameController.UpdateGame)
+	router.DELETE("/:gameId", middleware.DeserializeUser(), middleware.AuthorizeRoles("admin"), gc.gameController.DeleteGame)
 }

@@ -1,3 +1,5 @@
+// models/user.model.go
+
 package models
 
 import (
@@ -11,7 +13,7 @@ type User struct {
 	Name      string    `gorm:"type:varchar(255);not null" json:"name,omitempty"`
 	Email     string    `gorm:"uniqueIndex;not null" json:"email,omitempty"`
 	Password  string    `gorm:"not null" json:"-"`
-	Role      string    `gorm:"type:varchar(255);not null" json:"role,omitempty"`
+	Role      string    `gorm:"type:varchar(20);not null;default:'dealer'" json:"role,omitempty"`
 	Provider  string    `gorm:"not null" json:"provider,omitempty"`
 	Verified  bool      `gorm:"not null" json:"verified,omitempty"`
 	CreatedAt time.Time `gorm:"not null" json:"created_at,omitempty"`
@@ -30,19 +32,12 @@ type SignInInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
-type SignInOutput struct {
-	ID    uuid.UUID `json:"id,omitempty"`
-	Name  string    `json:"name,omitempty"`
-	Email string    `json:"email,omitempty"`
-}
-
 type UserResponse struct {
 	ID        uuid.UUID `json:"id,omitempty"`
 	Name      string    `json:"name,omitempty"`
 	Email     string    `json:"email,omitempty"`
 	Role      string    `json:"role,omitempty"`
 	Provider  string    `json:"provider,omitempty"`
-	Verified  bool      `json:"verified,omitempty"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
