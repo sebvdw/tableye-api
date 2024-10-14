@@ -1,5 +1,3 @@
-// middleware/deserialize-user.go
-
 package middleware
 
 import (
@@ -8,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 	"github.com/suidevv/tableye-api/initializers"
 	"github.com/suidevv/tableye-api/models"
+	"github.com/suidevv/tableye-api/utils"
 )
 
 func DeserializeUser() gin.HandlerFunc {
@@ -33,34 +31,21 @@ func DeserializeUser() gin.HandlerFunc {
 		}
 
 		config, _ := initializers.LoadConfig(".")
-		tokenByte, err := jwt.Parse(access_token, func(jwtToken *jwt.Token) (interface{}, error) {
-			if _, ok := jwtToken.Method.(*jwt.SigningMethodRSA); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", jwtToken.Header["alg"])
-			}
-
-			return []byte(config.AccessTokenPrivateKey), nil
-		})
-
+		sub, err := utils.ValidateToken(access_token, config.AccessTokenPublicKey)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": err.Error()})
 			return
 		}
 
-		claims, ok := tokenByte.Claims.(jwt.MapClaims)
-		if !ok || !tokenByte.Valid {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": "Invalid token claim"})
-			return
-		}
-
 		var user models.User
-		result := initializers.DB.First(&user, "id = ?", fmt.Sprint(claims["sub"]))
+		result := initializers.DB.First(&user, "id = ?", fmt.Sprint(sub))
 		if result.Error != nil {
-			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"status": "fail", "message": "The user belonging to this token no longer exists"})
+			ctx.AbortWithStatusJSON(http.StatusForbidden, gin.H{"status": "fail", "message": "the user belonging to this token no logger exists"})
 			return
 		}
 
 		ctx.Set("currentUser", user)
-		ctx.Set("userRole", claims["role"])
+		//ctx.Set("userRole", claims["role"])
 		ctx.Next()
 	}
 }
