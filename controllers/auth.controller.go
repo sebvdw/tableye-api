@@ -91,13 +91,14 @@ func (ac *AuthController) SignUpUser(ctx *gin.Context) {
 
 // SignInUser godoc
 // @Summary Login a user
-// @Description Authenticate a user and return access/refresh tokens
+// @Description Authenticate a user and return access token, user info, associated dealer and casino details
 // @Tags authentication
 // @Accept json
 // @Produce json
 // @Param request body models.SignInInput true "User login credentials"
-// @Success 200 {object} map[string]interface{}
-// @Failure 400 {object} map[string]interface{}
+// @Success 200 {object} map[string]interface{} "Login successful"
+// @Success 200 {object} models.SignInResponse
+// @Failure 400 {object} map[string]interface{} "Invalid credentials"
 // @Router /auth/login [post]
 func (ac *AuthController) SignInUser(ctx *gin.Context) {
 	var payload *models.SignInInput
@@ -122,13 +123,7 @@ func (ac *AuthController) SignInUser(ctx *gin.Context) {
 	config, _ := initializers.LoadConfig(".")
 
 	// Generate Tokens
-	claims := jwt.MapClaims{
-		"sub":  user.ID,
-		"role": user.Role,
-		"exp":  time.Now().Add(config.AccessTokenExpiresIn).Unix(),
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	access_token, err := token.SignedString([]byte(config.AccessTokenPrivateKey))
+	access_token, err := utils.CreateToken(config.AccessTokenExpiresIn, user.ID, config.AccessTokenPrivateKey)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": err.Error()})
 		return
@@ -144,16 +139,50 @@ func (ac *AuthController) SignInUser(ctx *gin.Context) {
 	ctx.SetCookie("refresh_token", refresh_token, config.RefreshTokenMaxAge*60, "/", config.Domain, false, true)
 	ctx.SetCookie("logged_in", "true", config.AccessTokenMaxAge*60, "/", config.Domain, false, false)
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"status":       "success",
-		"access_token": access_token,
-		"user": gin.H{
-			"id":    user.ID,
-			"email": user.Email,
-			"name":  user.Name,
-			"role":  user.Role,
+	// Fetch associated dealer
+	var dealer models.Dealer
+	dealerResult := ac.DB.First(&dealer, "user_id = ?", user.ID)
+
+	// Fetch associated casino
+	var casino models.Casino
+	var casinoID *string
+	if dealerResult.Error == nil {
+		casinoResult := ac.DB.Table("casino_dealers").
+			Select("casino_id").
+			Where("dealer_id = ?", dealer.ID).
+			Limit(1).
+			Scan(&casinoID)
+
+		if casinoResult.Error == nil && casinoID != nil {
+			ac.DB.First(&casino, "id = ?", *casinoID)
+		}
+	}
+
+	response := models.SignInResponse{
+		AccessToken: access_token,
+		User: models.UserResponse{
+			ID:    user.ID,
+			Email: user.Email,
+			Name:  user.Name,
 		},
-	})
+	}
+
+	if dealerResult.Error == nil {
+		response.Dealer = &models.DealerResponse{
+			ID:         dealer.ID,
+			DealerCode: dealer.DealerCode,
+			Status:     dealer.Status,
+		}
+	}
+
+	if casinoID != nil {
+		response.Casino = &models.CasinoResponse{
+			ID:   casino.ID,
+			Name: casino.Name,
+		}
+	}
+
+	ctx.JSON(http.StatusOK, response)
 }
 
 // RefreshAccessToken godoc

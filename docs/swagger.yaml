@@ -402,6 +402,17 @@ definitions:
     - email
     - password
     type: object
+  models.SignInResponse:
+    properties:
+      access_token:
+        type: string
+      casino:
+        $ref: '#/definitions/models.CasinoResponse'
+      dealer:
+        $ref: '#/definitions/models.DealerResponse'
+      user:
+        $ref: '#/definitions/models.UserResponse'
+    type: object
   models.SignUpInput:
     properties:
       email:
@@ -618,7 +629,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Authenticate a user and return access/refresh tokens
+      description: Authenticate a user and return access token, user info, associated
+        dealer and casino details
       parameters:
       - description: User login credentials
         in: body
@@ -632,10 +644,9 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.SignInResponse'
         "400":
-          description: Bad Request
+          description: Invalid credentials
           schema:
             additionalProperties: true
             type: object

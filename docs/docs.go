@@ -87,7 +87,7 @@ const docTemplate = `{
         },
         "/auth/login": {
             "post": {
-                "description": "Authenticate a user and return access/refresh tokens",
+                "description": "Authenticate a user and return access token, user info, associated dealer and casino details",
                 "consumes": [
                     "application/json"
                 ],
@@ -113,12 +113,11 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.SignInResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid credentials",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -2194,6 +2193,23 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "models.SignInResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "casino": {
+                    "$ref": "#/definitions/models.CasinoResponse"
+                },
+                "dealer": {
+                    "$ref": "#/definitions/models.DealerResponse"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.UserResponse"
                 }
             }
         },
