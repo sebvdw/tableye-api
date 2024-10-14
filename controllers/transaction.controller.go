@@ -20,6 +20,7 @@ func NewTransactionController(DB *gorm.DB) TransactionController {
 }
 
 // CreateTransaction godoc
+//
 //	@Summary		Create a new transaction
 //	@Description	Create a new transaction with the given input data
 //	@Tags			transactions
@@ -93,28 +94,59 @@ func (tc *TransactionController) CreateTransaction(ctx *gin.Context) {
 }
 
 // FindTransactions godoc
+//
 //	@Summary		List transactions
-//	@Description	Get a list of transactions with pagination
+//	@Description	Get a list of transactions with pagination and optional filters
 //	@Tags			transactions
 //	@Accept			json
 //	@Produce		json
-//	@Param			page	query		int	false	"Page number"				default(1)
-//	@Param			limit	query		int	false	"Number of items per page"	default(10)
-//	@Success		200		{object}	map[string]interface{}
-//	@Failure		500		{object}	map[string]interface{}
+//	@Param			page			query		int		false	"Page number"				default(1)
+//	@Param			limit			query		int		false	"Number of items per page"	default(10)
+//	@Param			game_summary_id	query		string	false	"Game Summary ID to filter by"
+//	@Param			player_id		query		string	false	"Player ID to filter by"
+//	@Success		200				{object}	map[string]interface{}
+//	@Failure		400				{object}	map[string]interface{}
+//	@Failure		500				{object}	map[string]interface{}
 //	@Router			/transactions [get]
 func (tc *TransactionController) FindTransactions(ctx *gin.Context) {
 	var page = ctx.DefaultQuery("page", "1")
 	var limit = ctx.DefaultQuery("limit", "10")
+	gameSummaryID := ctx.Query("game_summary_id")
+	playerID := ctx.Query("player_id")
 
 	intPage, _ := strconv.Atoi(page)
 	intLimit, _ := strconv.Atoi(limit)
 	offset := (intPage - 1) * intLimit
 
+	query := tc.DB.Model(&models.Transaction{}).Preload("Player")
+
+	if gameSummaryID != "" {
+		if _, err := uuid.Parse(gameSummaryID); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid game summary ID"})
+			return
+		}
+		query = query.Where("game_summary_id = ?", gameSummaryID)
+	}
+
+	if playerID != "" {
+		if _, err := uuid.Parse(playerID); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid player ID"})
+			return
+		}
+		query = query.Where("player_id = ?", playerID)
+	}
+
 	var transactions []models.Transaction
-	results := tc.DB.Preload("Player").Limit(intLimit).Offset(offset).Find(&transactions)
+	var total int64
+
+	if err := query.Count(&total).Error; err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to count transactions"})
+		return
+	}
+
+	results := query.Limit(intLimit).Offset(offset).Find(&transactions)
 	if results.Error != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": results.Error})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": results.Error.Error()})
 		return
 	}
 
@@ -130,10 +162,18 @@ func (tc *TransactionController) FindTransactions(ctx *gin.Context) {
 		}
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "results": len(transactionResponses), "data": transactionResponses})
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"results": len(transactionResponses),
+		"total":   total,
+		"page":    intPage,
+		"limit":   intLimit,
+		"data":    transactionResponses,
+	})
 }
 
 // FindTransactionById godoc
+//
 //	@Summary		Get a transaction by ID
 //	@Description	Get details of a transaction by its ID
 //	@Tags			transactions

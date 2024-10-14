@@ -1490,7 +1490,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get a list of transactions with pagination
+      description: Get a list of transactions with pagination and optional filters
       parameters:
       - default: 1
         description: Page number
@@ -1502,11 +1502,24 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Game Summary ID to filter by
+        in: query
+        name: game_summary_id
+        type: string
+      - description: Player ID to filter by
+        in: query
+        name: player_id
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
           schema:
             additionalProperties: true
             type: object

@@ -1383,7 +1383,7 @@ const docTemplate = `{
         },
         "/transactions": {
             "get": {
-                "description": "Get a list of transactions with pagination",
+                "description": "Get a list of transactions with pagination and optional filters",
                 "consumes": [
                     "application/json"
                 ],
@@ -1408,11 +1408,30 @@ const docTemplate = `{
                         "description": "Number of items per page",
                         "name": "limit",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Game Summary ID to filter by",
+                        "name": "game_summary_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Player ID to filter by",
+                        "name": "player_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
