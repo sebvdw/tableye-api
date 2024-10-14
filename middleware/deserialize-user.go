@@ -45,7 +45,7 @@ func DeserializeUser() gin.HandlerFunc {
 		}
 
 		ctx.Set("currentUser", user)
-		//ctx.Set("userRole", claims["role"])
+		ctx.Set("userRole", user.Role)
 		ctx.Next()
 	}
 }
