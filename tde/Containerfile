@@ -1,19 +1,29 @@
-# Use the official Cybertec PostgreSQL image with TDE support
-FROM cybertec/postgresql-tde-community:15
+# Use the official PostgreSQL image as base
+FROM postgres:15
+
+# Install necessary dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    postgresql-server-dev-15 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clone and install pg_tde extension
+RUN git clone https://github.com/cybertec-postgresql/pg_tde.git \
+    && cd pg_tde \
+    && make && make install \
+    && cd .. && rm -rf pg_tde
 
 # Set environment variables
 ENV POSTGRES_USER=tableye_admin
 ENV POSTGRES_PASSWORD=123&&Tableye*
 ENV POSTGRES_DB=tableye
 
-# Optional: Set the encryption key
-# ENV POSTGRES_TDE_KEY=your_encryption_key_here
-
-# Copy custom configuration if needed
-# COPY postgresql.conf /etc/postgresql/postgresql.conf
+# Copy custom configuration to enable pg_tde
+COPY postgresql.conf /etc/postgresql/postgresql.conf
 
 # Expose the PostgreSQL port
 EXPOSE 5432
 
 # The default command will start PostgreSQL
-CMD ["postgres"]
+CMD ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
