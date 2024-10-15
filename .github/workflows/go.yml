@@ -36,14 +36,16 @@ jobs:
           if [[ "${{ github.ref }}" == "refs/heads/acceptance" ]]; then
             DEPLOY_FOLDER="/go-acceptance"
             SERVICE_NAME="goacceptance"
+            ENV_FILE="/env/goacceptance/app.env"
           else
             DEPLOY_FOLDER="/go-web"
             SERVICE_NAME="goweb"
+            ENV_FILE="/env/goweb/app.env"
           fi &&
           sudo service $SERVICE_NAME stop &&
           sudo rm -rf $DEPLOY_FOLDER/* &&
           sudo tar -xzf /home/$USER/deploy.tar.gz -C $DEPLOY_FOLDER &&
-          sudo cp /env/app.env $DEPLOY_FOLDER/app.env &&
+          sudo cp $ENV_FILE $DEPLOY_FOLDER/app.env &&
           sudo service $SERVICE_NAME start &&
           sudo mkdir -p /logs &&
           echo "Deployment completed at $(date)" | sudo tee -a /logs/deployment.log &&
