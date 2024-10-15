@@ -10,7 +10,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/suidevv/tableye-api/controllers"
-	_ "github.com/suidevv/tableye-api/docs" // Import the docs package
+	_ "github.com/suidevv/tableye-api/docs"
 	"github.com/suidevv/tableye-api/initializers"
 	"github.com/suidevv/tableye-api/routes"
 )
