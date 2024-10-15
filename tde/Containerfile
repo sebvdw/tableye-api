@@ -17,9 +17,9 @@ RUN mkdir -p /etc/postgresql/keys && \
 
 # Set PostgreSQL configuration
 RUN echo "ssl = on" >> /usr/share/postgresql/postgresql.conf.sample && \
-    echo "ssl_cipher_suites = HIGH:!aNULL" >> /usr/share/postgresql/postgresql.conf.sample && \
+    echo "ssl_ciphers = 'HIGH:!aNULL'" >> /usr/share/postgresql/postgresql.conf.sample && \
     echo "ssl_prefer_server_ciphers = on" >> /usr/share/postgresql/postgresql.conf.sample && \
-    echo "encryption_key = /etc/postgresql/keys/master.key" >> /usr/share/postgresql/postgresql.conf.sample
+    echo "encryption_key = '/etc/postgresql/keys/master.key'" >> /usr/share/postgresql/postgresql.conf.sample
 
 # Copy SQL initialization script
 COPY ./init.sql /docker-entrypoint-initdb.d/
