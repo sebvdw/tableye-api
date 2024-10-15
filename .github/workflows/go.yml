@@ -1,34 +1,29 @@
 name: Deploy Go Web App
-
 on:
   push:
-    branches: [ main ]  # Trigger the action on push to main branch
+    branches: [ main, acceptance ]  # Trigger the action on push to main or acceptance branch
 
 jobs:
   deploy:
-    runs-on: ubuntu-20.04  # Using an older Ubuntu version for building
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3
-
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.22'  # Latest stable version as of April 2024
-
+        go-version: '1.22'
     - name: Build
       env:
         CGO_ENABLED: 0
         GOOS: linux
         GOARCH: amd64
       run: go build -a -ldflags '-extldflags "-static"' -o main
-
     - name: Create deployment package
       run: |
         mkdir deploy
         shopt -s extglob dotglob
         cp -R !(deploy) deploy/
         tar -czf deploy.tar.gz -C deploy .
-
     - name: Deploy to VPS
       env:
         PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
@@ -38,15 +33,24 @@ jobs:
         echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
         scp -i private_key -o StrictHostKeyChecking=no deploy.tar.gz $USER@$HOST:/home/$USER/deploy.tar.gz
         ssh -i private_key -o StrictHostKeyChecking=no $USER@$HOST '
-          sudo service goweb stop &&
-          sudo rm -rf /go-web/* &&
-          sudo tar -xzf /home/$USER/deploy.tar.gz -C /go-web &&
-          sudo cp /env/app.env /go-web/app.env &&
-          sudo service goweb start &&
+          if [[ "${{ github.ref }}" == "refs/heads/acceptance" ]]; then
+            DEPLOY_FOLDER="/go-acceptance"
+            SERVICE_NAME="goacceptance"
+            ENV_FILE="/env/goacceptance/app.env"
+          else
+            DEPLOY_FOLDER="/go-web"
+            SERVICE_NAME="goweb"
+            ENV_FILE="/env/goweb/app.env"
+          fi &&
+          sudo service $SERVICE_NAME stop &&
+          sudo rm -rf $DEPLOY_FOLDER/* &&
+          sudo tar -xzf /home/$USER/deploy.tar.gz -C $DEPLOY_FOLDER &&
+          sudo cp $ENV_FILE $DEPLOY_FOLDER/app.env &&
+          sudo service $SERVICE_NAME start &&
           sudo mkdir -p /logs &&
           echo "Deployment completed at $(date)" | sudo tee -a /logs/deployment.log &&
           echo "Service status:" | sudo tee -a /logs/deployment.log &&
-          sudo service goweb status | sudo tee -a /logs/deployment.log &&
+          sudo service $SERVICE_NAME status | sudo tee -a /logs/deployment.log &&
           echo "----------------------------------------" | sudo tee -a /logs/deployment.log &&
           rm /home/$USER/deploy.tar.gz
         '
