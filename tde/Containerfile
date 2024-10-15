@@ -1,5 +1,5 @@
 # Use the official Cybertec PostgreSQL image with TDE support
-FROM cybertec/postgres-tde:15
+FROM cybertec/postgresql-tde-community:15
 
 # Set environment variables
 ENV POSTGRES_USER=tableye_admin
