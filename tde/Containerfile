@@ -1,0 +1,15 @@
+# Use the Percona PostgreSQL image with TDE as the base image
+FROM perconalab/postgres-tde-ext
+
+# Set environment variables
+ENV POSTGRES_USER=tableye_admin
+ENV POSTGRES_PASSWORD=123&&Tableye*
+ENV POSTGRES_DB=tableye
+
+# Copy a custom initialization script
+COPY init-user-db.sh /docker-entrypoint-initdb.d/
+
+# Expose the PostgreSQL port
+EXPOSE 5432
+
+# The CMD instruction is inherited from the base image

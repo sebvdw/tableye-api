@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	numUsers         = 40
+	numUsers         = 40 // Adjusted to accommodate admin, casino owners, and dealers
 	numCasinos       = 10
 	numGames         = 5
 	numDealers       = 30
@@ -40,12 +40,11 @@ func main() {
 	users := seedUsers(db)
 	casinos := seedCasinos(db)
 	games := seedGames(db)
-	dealers := seedDealers(db, users)
+	dealers := seedDealers(db, users[numCasinos:numCasinos+numDealers])
 	players := seedPlayers(db)
 	gameSummaries := seedGameSummaries(db, games, casinos, dealers)
 	seedTransactions(db, gameSummaries, players)
 
-	associateUsersWithDealersAndCasinos(db, users, dealers, casinos)
 	createRelationships(db, casinos, dealers, games, gameSummaries, players)
 
 	fmt.Println("Seeding completed successfully!")
@@ -126,12 +125,12 @@ func seedGames(db *gorm.DB) []models.Game {
 	return games
 }
 
-func seedDealers(db *gorm.DB, users []models.User) []models.Dealer {
+func seedDealers(db *gorm.DB, dealerUsers []models.User) []models.Dealer {
 	dealers := make([]models.Dealer, numDealers)
 	for i := 0; i < numDealers; i++ {
 		dealers[i] = models.Dealer{
 			ID:         uuid.New(),
-			UserID:     users[i].ID,
+			UserID:     dealerUsers[i].ID,
 			DealerCode: fmt.Sprintf("D%04d", i+1),
 			Status:     "Active",
 			GamesDealt: rand.Intn(200),
@@ -213,25 +212,26 @@ func seedTransactions(db *gorm.DB, gameSummaries []models.GameSummary, players [
 	}
 }
 
-func associateUsersWithDealersAndCasinos(db *gorm.DB, users []models.User, dealers []models.Dealer, casinos []models.Casino) {
-	for _, user := range users {
-		// Associate with a dealer
-		dealerIndex := rand.Intn(len(dealers))
-		dealer := dealers[dealerIndex]
-		if err := db.Model(&dealer).Update("UserID", user.ID).Error; err != nil {
-			log.Printf("Failed to associate user %s with dealer: %v", user.ID, err)
-		}
-
-		// Associate with a casino
-		casinoIndex := rand.Intn(len(casinos))
-		casino := casinos[casinoIndex]
-		if err := db.Exec("INSERT INTO casino_dealers (casino_id, dealer_id) VALUES (?, ?)", casino.ID, dealer.ID).Error; err != nil {
-			log.Printf("Failed to associate dealer %s with casino %s: %v", dealer.ID, casino.ID, err)
+func createRelationships(db *gorm.DB, casinos []models.Casino, dealers []models.Dealer, games []models.Game, gameSummaries []models.GameSummary, players []models.Player) {
+	// Casino - Dealers
+	casinoDealerMap := make(map[string]map[string]bool)
+	for _, casino := range casinos {
+		casinoDealerMap[casino.ID.String()] = make(map[string]bool)
+		numDealers := rand.Intn(4) + 2
+		dealersAdded := 0
+		for dealersAdded < numDealers {
+			dealer := dealers[rand.Intn(len(dealers))]
+			if !casinoDealerMap[casino.ID.String()][dealer.ID.String()] {
+				if err := db.Exec("INSERT INTO casino_dealers (casino_id, dealer_id) VALUES (?, ?)", casino.ID, dealer.ID).Error; err != nil {
+					log.Printf("Failed to create casino-dealer relationship: %v", err)
+					continue
+				}
+				casinoDealerMap[casino.ID.String()][dealer.ID.String()] = true
+				dealersAdded++
+			}
 		}
 	}
-}
 
-func createRelationships(db *gorm.DB, casinos []models.Casino, dealers []models.Dealer, games []models.Game, gameSummaries []models.GameSummary, players []models.Player) {
 	// Casino - Games
 	casinoGameMap := make(map[string]map[string]bool)
 	for _, casino := range casinos {
