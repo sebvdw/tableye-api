@@ -1,34 +1,16 @@
-# Use the official PostgreSQL image as a base
-FROM postgres:14-bullseye
-
-# Install OpenSSL for key generation
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+# Use the official Percona PostgreSQL 17 image as the base
+FROM percona/percona-postgresql-17:latest
 
 # Set environment variables
-ENV POSTGRES_USER=tableye_admin
-ENV POSTGRES_PASSWORD=123&&Tableye*
-ENV POSTGRES_DB=tableye
+ENV POSTGRES_DB=mydb
+ENV POSTGRES_USER=myuser
+ENV POSTGRES_PASSWORD=mypassword
 
-# Generate master key
-RUN mkdir -p /etc/postgresql/keys && \
-    openssl rand -out /etc/postgresql/keys/master.key 32 && \
-    chown postgres:postgres /etc/postgresql/keys/master.key && \
-    chmod 600 /etc/postgresql/keys/master.key
-
-# Set PostgreSQL configuration
-RUN echo "ssl = on" >> /usr/share/postgresql/postgresql.conf.sample && \
-    echo "ssl_ciphers = 'HIGH:!aNULL'" >> /usr/share/postgresql/postgresql.conf.sample && \
-    echo "ssl_prefer_server_ciphers = on" >> /usr/share/postgresql/postgresql.conf.sample && \
-    echo "encryption_key = '/etc/postgresql/keys/master.key'" >> /usr/share/postgresql/postgresql.conf.sample
-
-# Copy SQL initialization script
-COPY ./init.sql /docker-entrypoint-initdb.d/
-
-# Expose PostgreSQL port
+# Expose the PostgreSQL port
 EXPOSE 5432
 
-# Use the default PostgreSQL entrypoint
-ENTRYPOINT ["docker-entrypoint.sh"]
+# Add any additional configurations if needed
+# COPY postgresql.conf /etc/postgresql/postgresql.conf
 
-# Start PostgreSQL
-CMD ["postgres", "-c", "config_file=/usr/share/postgresql/postgresql.conf.sample"]
+# The CMD is already set in the base image, so we don't need to specify it again
+# unless we want to override it
