@@ -1,5 +1,5 @@
 # Use the official Percona PostgreSQL 17 image as the base
-FROM percona/percona-postgresql-17:latest
+FROM perconalab/postgres-tde-ext
 
 # Set environment variables
 ENV POSTGRES_DB=mydb
