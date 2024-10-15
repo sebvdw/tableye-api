@@ -1,31 +1,19 @@
-# Use the Percona PostgreSQL image with TDE as the base image
-FROM perconalab/postgres-tde-ext
+# Use the official Cybertec PostgreSQL image with TDE support
+FROM cybertec/postgres-tde:15
 
 # Set environment variables
 ENV POSTGRES_USER=tableye_admin
 ENV POSTGRES_PASSWORD=123&&Tableye*
 ENV POSTGRES_DB=tableye
 
-# Install necessary packages and pgtle
-USER root
-RUN apt-get update && apt-get install -y \
-    postgresql-server-dev-16 \
-    build-essential \
-    git \
-    && rm -rf /var/lib/apt/lists/*
+# Optional: Set the encryption key
+# ENV POSTGRES_TDE_KEY=your_encryption_key_here
 
-# Clone and install pgtle
-RUN git clone https://github.com/percona/pgtle.git \
-    && cd pgtle \
-    && make && make install
-
-# Switch back to postgres user
-USER postgres
-
-# Copy a custom initialization script
-COPY init-user-db.sh /docker-entrypoint-initdb.d/
+# Copy custom configuration if needed
+# COPY postgresql.conf /etc/postgresql/postgresql.conf
 
 # Expose the PostgreSQL port
 EXPOSE 5432
 
-# The CMD instruction is inherited from the base image
+# The default command will start PostgreSQL
+CMD ["postgres"]
