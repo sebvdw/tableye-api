@@ -141,7 +141,7 @@ func (gsc *GameSummaryController) FindGameSummaryById(ctx *gin.Context) {
 
 // FindGameSummaries godoc
 // @Summary List game summaries
-// @Description Retrieve a list of game summaries with pagination
+// @Description Retrieve a list of game summaries with pagination, ordered by creation time (newest first)
 // @Tags game-summaries
 // @Accept json
 // @Produce json
@@ -156,7 +156,7 @@ func (gsc *GameSummaryController) FindGameSummaries(ctx *gin.Context) {
 	offset := (page - 1) * limit
 
 	var gameSummaries []models.GameSummary
-	if err := gsc.DB.Limit(limit).Offset(offset).Find(&gameSummaries).Error; err != nil {
+	if err := gsc.DB.Order("created_at DESC").Limit(limit).Offset(offset).Find(&gameSummaries).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to fetch game summaries"})
 		return
 	}
