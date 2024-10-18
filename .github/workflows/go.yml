@@ -30,7 +30,7 @@ jobs:
         echo "ACCESS_TOKEN_MAXAGE=${{ secrets.ACCESS_TOKEN_MAXAGE }}" >> app.env
         echo "REFRESH_TOKEN_MAXAGE=${{ secrets.REFRESH_TOKEN_MAXAGE }}" >> app.env
     - name: Run tests
-      run: go test -v ./...
+      run: go test ./tests/... -v ./...
 
   deploy:
     needs: test  # This job depends on the test job
