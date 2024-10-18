@@ -15,6 +15,20 @@ jobs:
         go-version: '1.22'
     - name: Install dependencies
       run: go mod download
+    - name: Create app.env file
+      run: |
+        echo "POSTGRES_CONNECT_STRING=${{ secrets.POSTGRES_CONNECT_STRING }}" >> app.env
+        echo "PORT=${{ secrets.PORT }}" >> app.env
+        echo "DOMAIN=${{ secrets.DOMAIN }}" >> app.env
+        echo "CLIENT_ORIGIN=${{ secrets.CLIENT_ORIGIN }}" >> app.env
+        echo "ACCESS_TOKEN_PRIVATE_KEY=${{ secrets.ACCESS_TOKEN_PRIVATE_KEY }}" >> app.env
+        echo "ACCESS_TOKEN_PUBLIC_KEY=${{ secrets.ACCESS_TOKEN_PUBLIC_KEY }}" >> app.env
+        echo "REFRESH_TOKEN_PRIVATE_KEY=${{ secrets.REFRESH_TOKEN_PRIVATE_KEY }}" >> app.env
+        echo "REFRESH_TOKEN_PUBLIC_KEY=${{ secrets.REFRESH_TOKEN_PUBLIC_KEY }}" >> app.env
+        echo "ACCESS_TOKEN_EXPIRED_IN=${{ secrets.ACCESS_TOKEN_EXPIRED_IN }}" >> app.env
+        echo "REFRESH_TOKEN_EXPIRED_IN=${{ secrets.REFRESH_TOKEN_EXPIRED_IN }}" >> app.env
+        echo "ACCESS_TOKEN_MAXAGE=${{ secrets.ACCESS_TOKEN_MAXAGE }}" >> app.env
+        echo "REFRESH_TOKEN_MAXAGE=${{ secrets.REFRESH_TOKEN_MAXAGE }}" >> app.env
     - name: Run tests
       run: go test -v ./...
 
