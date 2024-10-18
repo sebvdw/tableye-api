@@ -128,9 +128,12 @@ func (cc *CasinoController) UpdateCasino(ctx *gin.Context) {
 //	@Failure		404			{object}	map[string]interface{}
 //	@Router			/casinos/{casinoId} [get]
 func (cc *CasinoController) FindCasinoById(ctx *gin.Context) {
-	casinoId, err := uuid.Parse(ctx.Param("casinoId"))
+	casinoId := ctx.Param("casinoId")
+
+	// Validate UUID format
+	_, err := uuid.Parse(casinoId)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid casion ID"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid casino ID format"})
 		return
 	}
 
