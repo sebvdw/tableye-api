@@ -138,7 +138,7 @@ func (cc *CasinoController) FindCasinoById(ctx *gin.Context) {
 	}
 
 	var casino models.Casino
-	result := cc.DB.Preload("Dealers").Preload("Games").First(&casino, "id = ?", casinoId)
+	result := cc.DB.First(&casino, "id = ?", casinoId)
 	if result.Error != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": "fail", "message": "No casino with that ID exists"})
 		return
