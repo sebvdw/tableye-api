@@ -671,7 +671,7 @@ const docTemplate = `{
         },
         "/game-summaries": {
             "get": {
-                "description": "Retrieve a list of game summaries with pagination",
+                "description": "Retrieve a list of game summaries with pagination, ordered by creation time (newest first)",
                 "consumes": [
                     "application/json"
                 ],

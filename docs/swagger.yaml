@@ -1023,7 +1023,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Retrieve a list of game summaries with pagination
+      description: Retrieve a list of game summaries with pagination, ordered by creation
+        time (newest first)
       parameters:
       - default: 1
         description: Page number
