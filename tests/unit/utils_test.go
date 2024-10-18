@@ -13,17 +13,6 @@ const (
 	publicKey  = `LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZk1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTkFEQ0JpUUtCZ1FES3NVMzVDYlVkNXF2R2xqRHE1WVhyMWZTcgpsdlNMemswMVRYOEZqZ2FadEJ1bVV1bU1UMmY2ajVNRG16dGxIaklwa1puK3ZONkc2emxoVmFzTjRHRWVRYVFzCldLQ1ZLNFQ4MXQvV21EWTBBQmtqaTVqRGNuVlRBVDlkaFduZ3g1MFAveUxRT2FiSDFndmpEcUMyRHl1RWlBZ1gKNmhxRGMrOGZGb1ZWWndWbmV3SURBUUFCCi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=`
 )
 
-func TestHashPassword(t *testing.T) {
-	password := "testpassword123"
-	hashedPassword, err := utils.HashPassword(password)
-	assert.NoError(t, err)
-	assert.NotEqual(t, password, hashedPassword)
-	err = utils.VerifyPassword(hashedPassword, password)
-	assert.NoError(t, err)
-	err = utils.VerifyPassword(hashedPassword, "wrongpassword")
-	assert.Error(t, err)
-}
-
 func TestCreateToken(t *testing.T) {
 	payload := "testuser"
 	duration := time.Minute * 15
@@ -64,5 +53,30 @@ func TestValidateToken(t *testing.T) {
 	differentToken, err := utils.CreateToken(duration, payload, differentPrivateKey)
 	assert.NoError(t, err)
 	_, err = utils.ValidateToken(differentToken, publicKey)
+	assert.Error(t, err)
+}
+
+func TestHashPassword(t *testing.T) {
+	password := "testpassword123"
+
+	hashedPassword, err := utils.HashPassword(password)
+	assert.NoError(t, err)
+	assert.NotEqual(t, password, hashedPassword)
+
+	err = utils.VerifyPassword(hashedPassword, password)
+	assert.NoError(t, err)
+
+	err = utils.VerifyPassword(hashedPassword, "wrongpassword")
+	assert.Error(t, err)
+}
+
+func TestVerifyPassword(t *testing.T) {
+	password := "testpassword123"
+	hashedPassword, _ := utils.HashPassword(password)
+
+	err := utils.VerifyPassword(hashedPassword, password)
+	assert.NoError(t, err)
+
+	err = utils.VerifyPassword(hashedPassword, "wrongpassword")
 	assert.Error(t, err)
 }

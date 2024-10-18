@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/suidevv/tableye-api/models"
 	"gorm.io/gorm"
 )
@@ -20,6 +21,7 @@ func NewCasinoController(DB *gorm.DB) CasinoController {
 }
 
 // CreateCasino godoc
+//
 //	@Summary		Create a new casino
 //	@Description	Create a new casino with the input payload
 //	@Tags			casinos
@@ -68,6 +70,7 @@ func (cc *CasinoController) CreateCasino(ctx *gin.Context) {
 }
 
 // UpdateCasino godoc
+//
 //	@Summary		Update a casino
 //	@Description	Update a casino with the input payload
 //	@Tags			casinos
@@ -115,6 +118,7 @@ func (cc *CasinoController) UpdateCasino(ctx *gin.Context) {
 }
 
 // FindCasinoById godoc
+//
 //	@Summary		Get a casino by ID
 //	@Description	Get a single casino by its ID
 //	@Tags			casinos
@@ -124,7 +128,11 @@ func (cc *CasinoController) UpdateCasino(ctx *gin.Context) {
 //	@Failure		404			{object}	map[string]interface{}
 //	@Router			/casinos/{casinoId} [get]
 func (cc *CasinoController) FindCasinoById(ctx *gin.Context) {
-	casinoId := ctx.Param("casinoId")
+	casinoId, err := uuid.Parse(ctx.Param("casinoId"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "fail", "message": "Invalid casion ID"})
+		return
+	}
 
 	var casino models.Casino
 	result := cc.DB.Preload("Dealers").Preload("Games").First(&casino, "id = ?", casinoId)
@@ -137,6 +145,7 @@ func (cc *CasinoController) FindCasinoById(ctx *gin.Context) {
 }
 
 // FindCasinos godoc
+//
 //	@Summary		List casinos
 //	@Description	Get a list of casinos
 //	@Tags			casinos
@@ -187,6 +196,7 @@ func (cc *CasinoController) FindCasinos(ctx *gin.Context) {
 }
 
 // DeleteCasino godoc
+//
 //	@Summary		Delete a casino
 //	@Description	Delete a casino by its ID
 //	@Tags			casinos
